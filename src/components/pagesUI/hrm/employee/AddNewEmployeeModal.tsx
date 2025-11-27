@@ -50,10 +50,10 @@ const AddNewEmployeeModal = ({ open, setOpen }: statePropsType) => {
                     label="First Name"
                     id="firstName "
                     type="text"
-                    register={register("firstName", {
+                    register={register("first_name", {
                       required: "First Name is required",
                     })}
-                    error={errors.firstName}
+                    error={errors.first_name}
                   />
                 </div>
                 <div className="col-span-12 md:col-span-6">
@@ -61,10 +61,10 @@ const AddNewEmployeeModal = ({ open, setOpen }: statePropsType) => {
                     label="Last Name"
                     id="lastName "
                     type="text"
-                    register={register("lastName", {
+                    register={register("last_name", {
                       required: "Last Name is required",
                     })}
-                    error={errors.lastName}
+                    error={errors.last_name}
                   />
                 </div>
                 <div className="col-span-12 md:col-span-6">
@@ -94,10 +94,10 @@ const AddNewEmployeeModal = ({ open, setOpen }: statePropsType) => {
                     label=" User Name"
                     id="userName"
                     type="text"
-                    register={register("userName", {
+                    register={register("username", {
                       required: " User Name is required",
                     })}
-                    error={errors.userName}
+                    error={errors.username}
                   />
                 </div>
                 <div className="col-span-12 md:col-span-6">
