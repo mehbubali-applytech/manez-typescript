@@ -344,9 +344,11 @@ export interface IAnnouncement {
   description: string;
 }
 // Define an interface for the admin attendance
-export interface IAdminAttendance {
+export interface IAdminAttendance extends Record<string, any> {
   employeeImg?: StaticImageData;
   name: string;
+  employee_id?: number;
+  designation?: string;
   date1: string;
   date2: string;
   date3: string;

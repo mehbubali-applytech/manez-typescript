@@ -9,31 +9,33 @@ interface propsType {
 }
 
 const EmployeeSingleCard = ({ employee }: propsType) => {
+  employee = employee.info;
   return (
     <>
       <div className="col-span-12 md:col-span-6 xl:col-span-4 xxl:col-span-3">
         <div className="card__wrapper">
           <div className="employee__wrapper text-center">
             <div className="employee__thumb mb-[15px] flex justify-center">
-              <Link href={`/hrm/employee-profile/${employee.id}`}>
+              <Link href={`/hrm/employee-profile/${employee.employee_id}`}>
                 <Image
                   src={employee.image}
                   style={{ width: "100%", height: "auto" }}
                   priority
-                  alt={`${employee.name}'s image`}
+                  alt={`${employee.first_name}'s image`}
                 />
               </Link>
             </div>
             <div className="employee__content">
               <div className="employee__meta mb-[15px]">
                 <h4 className="mb-2">
-                  <Link href={`/hrm/employee-profile/${employee.id}`}>
-                    {employee.name}
+                  <Link href={`/hrm/employee-profile/${employee.employee_id}`}>
+                  {employee.first_name + ' ' + employee.last_name}
+
                   </Link>
                 </h4>
-                <p>{employee.position}</p>
+                <p>{employee.designation}</p>
               </div>
-              <div className="common-social mb-[20px]">
+              {/* <div className="common-social mb-[20px]">
                 <Link href={employee.socialLinks.facebook} target="_blank">
                   <i className="fa-brands fa-facebook-f"></i>
                 </Link>
@@ -49,7 +51,7 @@ const EmployeeSingleCard = ({ employee }: propsType) => {
                 <Link href={employee.socialLinks.website} target="_blank">
                   <i className="fa-thin fa-globe"></i>
                 </Link>
-              </div>
+              </div> */}
               <div className="employee__btn">
                 <div className="flex items-center justify-center gap-[15px]">
                   <Link
@@ -60,7 +62,7 @@ const EmployeeSingleCard = ({ employee }: propsType) => {
                   </Link>
                   <Link
                     className="btn btn-outline-primary"
-                    href={`/hrm/employee-profile/${employee.id}`}
+                    href={`/hrm/employee-profile/${employee.employee_id}`}
                   >
                     View
                   </Link>

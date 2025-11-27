@@ -25,8 +25,17 @@ const sidebarData: SidebarCategory[] = [
           { label: "Biometric Attendance", link: "/hrm/biometric-attendance" },
         ],
       },
-      {
+         {
         id: 4,
+        label: "Salary Structure",
+        icon: "icon-hrm",
+        subItems: [
+          { label: "Grades", link: "/hrm/salary" },
+          { label: "Salary Components", link: "/hrm/timesheet" },
+        ],
+      },
+      {
+        id: 5,
         label: "Loan",
         icon: "icon-hrm",
         subItems: [
@@ -35,7 +44,7 @@ const sidebarData: SidebarCategory[] = [
         ],
       },
       {
-        id: 5,
+        id: 6,
         label: "Leaves",
         icon: "icon-hrm",
         subItems: [
@@ -45,7 +54,7 @@ const sidebarData: SidebarCategory[] = [
         ],
       },
           {
-        id: 6,
+        id: 7,
         label: "Misl",
         icon: "icon-hrm",
         subItems: [

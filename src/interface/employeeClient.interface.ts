@@ -9,13 +9,14 @@ interface SocialLinks {
   website: string;
 }
 export interface IEmployee {
-  id: number;
+  info:any;
+  employee_id: number;
   image: StaticImageData;
   name: string;
-  firstName?: string;
-  lastName?: string;
+  first_name?: string;
+  last_name?: string;
   email?: string;
-  userName?: string;
+  username?: string;
   employeeID?: string;
   joiningDate?: string;
   accountNumber?: string;
@@ -23,8 +24,9 @@ export interface IEmployee {
   bankName?: string;
   accountHolderName?: string;
   branchName?: string;
-  position: string;
+  designation: string;
   phone: string;
+  created_at: string;
   socialLinks: SocialLinks;
 }
 
@@ -33,13 +35,13 @@ export interface IEmployeeProfileDetails {
   lastName: string;
   dateOfBirth: string;
   gender: string;
-  employeeId: string;
-  joiningDate: string;
-  contactNumber: string;
+  employee_id: string;
+  date_of_joining: string;
+  phone: string;
   email: string;
   address: string;
   department: string;
-  employeeDesignation: string;
+  designation: string;
 }
 
 //Define an interface for the client data
