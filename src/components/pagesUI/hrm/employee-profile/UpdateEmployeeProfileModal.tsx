@@ -152,7 +152,7 @@ const UpdateEmployeeProfileModal = ({
                   label="Employee ID"
                   id="employeeId "
                   type="text"
-                  register={register("employeeId")}
+                  register={register("employee_id")}
                   required={false}
                 />
               </div>
@@ -186,7 +186,7 @@ const UpdateEmployeeProfileModal = ({
                   label="Contact Number"
                   id="contactNumber"
                   type="text"
-                  register={register("contactNumber")}
+                  register={register("phone")}
                   required={false}
                 />
               </div>
