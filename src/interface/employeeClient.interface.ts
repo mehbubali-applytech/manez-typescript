@@ -27,6 +27,7 @@ export interface IEmployee {
   accountHolderName?: string;
   branchName?: string;
   designation: string;
+  position?: string;
   phone: string;
   created_at: string;
   socialLinks: SocialLinks;
