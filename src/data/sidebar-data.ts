@@ -31,7 +31,7 @@ const sidebarData: SidebarCategory[] = [
         icon: "icon-hrm",
         subItems: [
           { label: "Grades", link: "/hrm/salary" },
-          { label: "Salary Components", link: "/hrm/timesheet" },
+          { label: "Salary Components", link: "/hrm/salary-components" },
         ],
       },
       {
