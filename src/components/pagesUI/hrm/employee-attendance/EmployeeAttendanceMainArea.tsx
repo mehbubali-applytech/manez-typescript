@@ -14,8 +14,10 @@ const months = [
 const EmployeeAttendanceMainArea = () => {
   const [attendanceData, setAttendanceData] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [selectedMonth, setSelectedMonth] = useState(5);
-  const [selectedYear, setSelectedYear] = useState(2025);
+
+  const today = new Date();
+  const [selectedMonth, setSelectedMonth] = useState(today.getMonth() + 1);
+  const [selectedYear, setSelectedYear] = useState(today.getFullYear());
 
   const transformAttendanceData = useCallback((rawData: any[]) => {
     return rawData.map((employee, index) => {
@@ -28,8 +30,11 @@ const EmployeeAttendanceMainArea = () => {
           `Employee ${index + 1}`,
       };
 
-      // initialize 31 days
-      for (let i = 1; i <= 31; i++) {
+      // get number of days in selected month
+      const daysInMonth = new Date(selectedYear, selectedMonth, 0).getDate();
+
+      // initialize days dynamically
+      for (let i = 1; i <= daysInMonth; i++) {
         transformedEmployee[`date${i}`] = "Absent";
       }
 
@@ -38,12 +43,12 @@ const EmployeeAttendanceMainArea = () => {
       attendanceArray.forEach((att: any) => {
         const d = new Date(att.attendance_date);
         const day = d.getDate();
-        transformedEmployee[`date${day}`] = att.status;
+        if (day <= daysInMonth) transformedEmployee[`date${day}`] = att.status;
       });
 
       return transformedEmployee;
     });
-  }, []);
+  }, [selectedMonth, selectedYear]);
 
   const fetchAttendance = useCallback(async () => {
     try {

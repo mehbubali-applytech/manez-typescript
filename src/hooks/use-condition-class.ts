@@ -149,3 +149,17 @@ export const useScheduleStatusHook = (tag: any) => {
       return "";
   }
 };
+
+export const getAttendanceClass = (tag: any) => {
+  switch (tag) {
+    case "Holiday": return "fa fa-star text-primary";
+    case "Day Off": return "fa fa-calendar-week text-secondary";
+    case "Present": return "fa fa-check text-success";
+    case "Half Day": return "fa fa-star-half-alt text-info";
+    case "Late": return "fa fa-exclamation-circle text-warning";
+    case "Absent": return "fa fa-times text-danger";
+    case "On Leave": return "fa fa-plane-departure text-link";
+    default: return "";
+  }
+};
+

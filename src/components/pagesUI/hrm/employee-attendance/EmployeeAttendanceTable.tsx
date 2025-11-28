@@ -16,7 +16,7 @@ import useMaterialTableHook from "@/hooks/useMaterialTableHook";
 import AttendanceTypeIcons from "../attendance/AttendanceTypeIcons";
 import { adminAttendanceHeadCells } from "@/data/table-head-cell/table-head";
 import TableControls from "@/components/elements/SharedInputs/TableControls";
-import { useAttendanceHook } from "@/hooks/use-condition-class";
+import { getAttendanceClass } from "@/hooks/use-condition-class";
 
 const months = [
   "January", "February", "March", "April", "May", "June",
@@ -40,7 +40,9 @@ const EmployeeAttendanceTable = ({
 }: Props) => {
 
   const attendanceRows = useMemo(() => attendance, [attendance]);
-  const dateKeys = useMemo(() => Array.from({ length: 31 }, (_, i) => `date${i + 1}`), []);
+  
+  const daysInMonth = useMemo(() => new Date(selectedYear, selectedMonth, 0).getDate(), [selectedMonth, selectedYear]);
+  const dateKeys = useMemo(() => Array.from({ length: daysInMonth }, (_, i) => `date${i + 1}`), [daysInMonth]);
 
   const {
     order,
@@ -58,19 +60,11 @@ const EmployeeAttendanceTable = ({
     handleSearchChange,
   } = useMaterialTableHook<any>(attendanceRows, 15);
 
-  // Precompute all attendance classes at top-level to avoid hooks inside loops
-  const attendanceClasses = useMemo(() => {
-    return attendanceRows.map(row =>
-      dateKeys.map(key => useAttendanceHook(row[key])) // ✅ safe: top-level useMemo
-    );
-  }, [attendanceRows, dateKeys]);
-
   return (
     <div className="col-span-12">
       <div className="card__wrapper">
         <AttendanceTypeIcons />
 
-        {/* Month Selection */}
         <div className="mb-6">
           <h3 className="text-lg font-semibold mb-3">Select Month:</h3>
           <Box className="flex gap-2 flex-wrap">
@@ -88,7 +82,6 @@ const EmployeeAttendanceTable = ({
           </Box>
         </div>
 
-        {/* Year Selection */}
         <div className="mb-6">
           <h3 className="text-lg font-semibold mb-3">Select Year:</h3>
           <Box className="flex gap-2 items-center">
@@ -98,9 +91,7 @@ const EmployeeAttendanceTable = ({
               className="px-4 py-2 rounded-md border"
             >
               {[2023, 2024, 2025, 2026].map((y) => (
-                <option key={y} value={y}>
-                  {y}
-                </option>
+                <option key={y} value={y}>{y}</option>
               ))}
             </select>
             <span className="text-gray-600">
@@ -119,70 +110,64 @@ const EmployeeAttendanceTable = ({
 
           <Box sx={{ width: "100%", overflowX: "auto" }}>
             <Paper sx={{ width: "100%", mb: 2, minWidth: "1400px" }}>
-              <TableContainer>
-                <Table stickyHeader>
-                  <TableHead>
-                    <TableRow>
-                      {adminAttendanceHeadCells.map((headCell, idx) => (
-                        <TableCell
-                          key={headCell.id}
-                          sx={{
-                            background: "#fff",
-                            position: idx === 0 ? "sticky" : "static",
-                            left: idx === 0 ? 0 : undefined,
-                            zIndex: idx === 0 ? 5 : 1,
-                          }}
+              <Table stickyHeader>
+                <TableHead>
+                  <TableRow>
+                    {adminAttendanceHeadCells.map((headCell, idx) => (
+                      <TableCell
+                        key={headCell.id}
+                        sx={{
+                          background: "#fff",
+                          position: idx === 0 ? "sticky" : "static",
+                          left: idx === 0 ? 0 : undefined,
+                          zIndex: idx === 0 ? 5 : 1,
+                        }}
+                      >
+                        <TableSortLabel
+                          active={orderBy === headCell.id}
+                          direction={orderBy === headCell.id ? order : "asc"}
+                          onClick={() => handleRequestSort(headCell.id)}
                         >
-                          <TableSortLabel
-                            active={orderBy === headCell.id}
-                            direction={orderBy === headCell.id ? order : "asc"}
-                            onClick={() => handleRequestSort(headCell.id)}
-                          >
-                            {headCell.label}
-                            {orderBy === headCell.id && (
-                              <Box component="span" sx={visuallyHidden}>
-                                {order === "desc"
-                                  ? "sorted descending"
-                                  : "sorted ascending"}
-                              </Box>
-                            )}
-                          </TableSortLabel>
+                          {headCell.label}
+                          {orderBy === headCell.id && (
+                            <Box component="span" sx={visuallyHidden}>
+                              {order === "desc" ? "sorted descending" : "sorted ascending"}
+                            </Box>
+                          )}
+                        </TableSortLabel>
+                      </TableCell>
+                    ))}
+                  </TableRow>
+                </TableHead>
+
+                <TableBody>
+                  {paginatedRows.map((row, rowIndex) => (
+                    <TableRow
+                      key={rowIndex}
+                      selected={selected.includes(rowIndex)}
+                      onClick={() => handleClick(rowIndex)}
+                    >
+                      <TableCell
+                        sx={{
+                          background: "#fff",
+                          position: "sticky",
+                          left: 0,
+                          zIndex: 5,
+                          minWidth: "180px",
+                        }}
+                      >
+                        {row?.name}
+                      </TableCell>
+
+                      {dateKeys.map((key) => (
+                        <TableCell key={key} sx={{ minWidth: "60px" }}>
+                          <i className={getAttendanceClass(row[key])}></i>
                         </TableCell>
                       ))}
                     </TableRow>
-                  </TableHead>
-
-                  <TableBody>
-                    {paginatedRows.map((row, rowIndex) => (
-                      <TableRow
-                        key={rowIndex}
-                        selected={selected.includes(rowIndex)}
-                        onClick={() => handleClick(rowIndex)}
-                      >
-                        {/* Sticky Employee Column */}
-                        <TableCell
-                          sx={{
-                            background: "#fff",
-                            position: "sticky",
-                            left: 0,
-                            zIndex: 5,
-                            minWidth: "180px",
-                          }}
-                        >
-                          {row?.name}
-                        </TableCell>
-
-                        {/* Scrollable Date Columns */}
-                        {dateKeys.map((key, colIndex) => (
-                          <TableCell key={key} sx={{ minWidth: "60px" }}>
-                            <i className={attendanceClasses[rowIndex][colIndex]}></i>
-                          </TableCell>
-                        ))}
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </TableContainer>
+                  ))}
+                </TableBody>
+              </Table>
             </Paper>
           </Box>
 
