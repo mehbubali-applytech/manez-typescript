@@ -40,6 +40,7 @@ const EmployeeAttendanceTable = ({
 }: Props) => {
 
   const attendanceRows = useMemo(() => attendance, [attendance]);
+  const dateKeys = useMemo(() => Array.from({ length: 31 }, (_, i) => `date${i + 1}`), []);
 
   const {
     order,
@@ -57,7 +58,12 @@ const EmployeeAttendanceTable = ({
     handleSearchChange,
   } = useMaterialTableHook<any>(attendanceRows, 15);
 
-  const dateKeys = Array.from({ length: 31 }, (_, i) => `date${i + 1}`);
+  // Precompute all attendance classes at top-level to avoid hooks inside loops
+  const attendanceClasses = useMemo(() => {
+    return attendanceRows.map(row =>
+      dateKeys.map(key => useAttendanceHook(row[key])) // ✅ safe: top-level useMemo
+    );
+  }, [attendanceRows, dateKeys]);
 
   return (
     <div className="col-span-12">
@@ -111,7 +117,6 @@ const EmployeeAttendanceTable = ({
             handleSearchChange={handleSearchChange}
           />
 
-          {/* Horizontal Scroll Wrapper */}
           <Box sx={{ width: "100%", overflowX: "auto" }}>
             <Paper sx={{ width: "100%", mb: 2, minWidth: "1400px" }}>
               <TableContainer>
@@ -148,11 +153,11 @@ const EmployeeAttendanceTable = ({
                   </TableHead>
 
                   <TableBody>
-                    {paginatedRows.map((row, index) => (
+                    {paginatedRows.map((row, rowIndex) => (
                       <TableRow
-                        key={index}
-                        selected={selected.includes(index)}
-                        onClick={() => handleClick(index)}
+                        key={rowIndex}
+                        selected={selected.includes(rowIndex)}
+                        onClick={() => handleClick(rowIndex)}
                       >
                         {/* Sticky Employee Column */}
                         <TableCell
@@ -168,14 +173,11 @@ const EmployeeAttendanceTable = ({
                         </TableCell>
 
                         {/* Scrollable Date Columns */}
-                        {dateKeys.map((key) => {
-                          const cls = useAttendanceHook(row[key]);
-                          return (
-                            <TableCell key={key} sx={{ minWidth: "60px" }}>
-                              <i className={cls}></i>
-                            </TableCell>
-                          );
-                        })}
+                        {dateKeys.map((key, colIndex) => (
+                          <TableCell key={key} sx={{ minWidth: "60px" }}>
+                            <i className={attendanceClasses[rowIndex][colIndex]}></i>
+                          </TableCell>
+                        ))}
                       </TableRow>
                     ))}
                   </TableBody>
@@ -184,7 +186,6 @@ const EmployeeAttendanceTable = ({
             </Paper>
           </Box>
 
-          {/* Pagination */}
           <Pagination
             count={Math.ceil(filteredRows.length / rowsPerPage)}
             page={page}

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import axios from "axios";
 import Breadcrumb from "@/common/Breadcrumb/breadcrumb";
 import EmployeeAttendanceTable from "./EmployeeAttendanceTable";
@@ -17,13 +17,14 @@ const EmployeeAttendanceMainArea = () => {
   const [selectedMonth, setSelectedMonth] = useState(5);
   const [selectedYear, setSelectedYear] = useState(2025);
 
-  const transformAttendanceData = (rawData: any[]) => {
+  const transformAttendanceData = useCallback((rawData: any[]) => {
     return rawData.map((employee, index) => {
       const employeeInfo = employee.info || employee;
 
       const transformedEmployee: any = {
         employeeImg: "/default-avatar.jpg",
-        name: `${employeeInfo.first_name || ""} ${employeeInfo.last_name || ""}`.trim() ||
+        name:
+          `${employeeInfo.first_name || ""} ${employeeInfo.last_name || ""}`.trim() ||
           `Employee ${index + 1}`,
       };
 
@@ -42,9 +43,9 @@ const EmployeeAttendanceMainArea = () => {
 
       return transformedEmployee;
     });
-  };
+  }, []);
 
-  const fetchAttendance = async () => {
+  const fetchAttendance = useCallback(async () => {
     try {
       setLoading(true);
 
@@ -62,11 +63,11 @@ const EmployeeAttendanceMainArea = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [selectedMonth, selectedYear, transformAttendanceData]);
 
   useEffect(() => {
     fetchAttendance();
-  }, [selectedMonth, selectedYear]);
+  }, [fetchAttendance]);
 
   return (
     <div className="app__slide-wrapper">
