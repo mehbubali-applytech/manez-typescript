@@ -6,19 +6,16 @@ import avatarImg5 from "../../../public/assets/images/avatar/avatar13.png";
 import avatarImg6 from "../../../public/assets/images/avatar/avatar15.png";
 import avatarImg7 from "../../../public/assets/images/avatar/avatar.png";
 import avatarImg8 from "../../../public/assets/images/avatar/avatar12.png";
-import { IEmployee } from "@/interface";
+import { IClient } from "@/interface";
 
-const employeeData: IEmployee[] = [
+const employeeData: IClient[] = [
   {
-    info: {},
     id: 1,
-    employeeId: "EMP001",
-    employee_id: 1,
     image: avatarImg1,
     name: "Naira Muskan",
-    designation: "Chief Executive Officer",
+    position: "Chief Executive Officer",
     phone: "+15551234567",
-    created_at: "2023-01-01",
+    company: "TechCorp",
     socialLinks: {
       facebook: "https://www.facebook.com",
       twitter: "https://x.com",
@@ -28,15 +25,12 @@ const employeeData: IEmployee[] = [
     },
   },
   {
-    info: {},
     id: 2,
-    employeeId: "EMP002",
-    employee_id: 2,
     image: avatarImg2,
     name: "Emily Johnson",
-    designation: "Chief Innovation Officer",
+    position: "Chief Innovation Officer",
     phone: "+15551234567",
-    created_at: "2023-02-01",
+    company: "InnovateTech",
     socialLinks: {
       facebook: "https://www.facebook.com",
       twitter: "https://x.com",
@@ -46,15 +40,12 @@ const employeeData: IEmployee[] = [
     },
   },
   {
-    info: {},
     id: 3,
-    employeeId: "EMP003",
-    employee_id: 3,
     image: avatarImg3,
     name: "Jessica Miller",
-    designation: "Product Manager",
+    position: "Product Manager",
     phone: "+15551234567",
-    created_at: "2023-03-01",
+    company: "Digital Solutions",
     socialLinks: {
       facebook: "https://www.facebook.com",
       twitter: "https://x.com",
@@ -64,15 +55,12 @@ const employeeData: IEmployee[] = [
     },
   },
   {
-    info: {},
     id: 4,
-    employeeId: "EMP004",
-    employee_id: 4,
     image: avatarImg4,
     name: "Jennifer Brown",
-    designation: "Engineering Project Manager",
+    position: "Engineering Project Manager",
     phone: "+15551234567",
-    created_at: "2023-04-01",
+    company: "BuildWorks",
     socialLinks: {
       facebook: "https://www.facebook.com",
       twitter: "https://x.com",
@@ -82,15 +70,12 @@ const employeeData: IEmployee[] = [
     },
   },
   {
-    info: {},
     id: 5,
-    employeeId: "EMP005",
-    employee_id: 5,
     image: avatarImg5,
     name: "Sarah Martinez",
-    designation: "Software Developer",
+    position: "Software Developer",
     phone: "+15551234567",
-    created_at: "2023-05-01",
+    company: "CodeStream",
     socialLinks: {
       facebook: "https://www.facebook.com",
       twitter: "https://x.com",
@@ -100,15 +85,12 @@ const employeeData: IEmployee[] = [
     },
   },
   {
-    info: {},
     id: 6,
-    employeeId: "EMP006",
-    employee_id: 6,
     image: avatarImg6,
     name: "Amanda Taylor",
-    designation: "Technical Lead",
+    position: "Technical Lead",
     phone: "+15551234567",
-    created_at: "2023-06-01",
+    company: "NextGen Tech",
     socialLinks: {
       facebook: "https://www.facebook.com",
       twitter: "https://x.com",
@@ -118,15 +100,12 @@ const employeeData: IEmployee[] = [
     },
   },
   {
-    info: {},
     id: 7,
-    employeeId: "EMP007",
-    employee_id: 7,
     image: avatarImg7,
     name: "Christopher Wilson",
-    designation: "Chief Architect",
+    position: "Chief Architect",
     phone: "+15551234567",
-    created_at: "2023-07-01",
+    company: "Architecture Pro",
     socialLinks: {
       facebook: "https://www.facebook.com",
       twitter: "https://x.com",
@@ -136,15 +115,12 @@ const employeeData: IEmployee[] = [
     },
   },
   {
-    info: {},
     id: 8,
-    employeeId: "EMP008",
-    employee_id: 8,
     image: avatarImg8,
     name: "Matthew Clark",
-    designation: "Chief Digital Officer",
+    position: "Chief Digital Officer",
     phone: "+15551234567",
-    created_at: "2023-08-01",
+    company: "Digital Ventures",
     socialLinks: {
       facebook: "https://www.facebook.com",
       twitter: "https://x.com",
