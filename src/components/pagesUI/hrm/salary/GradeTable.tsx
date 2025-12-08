@@ -15,6 +15,7 @@ import { visuallyHidden } from "@mui/utils";
 import useMaterialTableHook from "@/hooks/useMaterialTableHook";
 import TableControls from "@/components/elements/SharedInputs/TableControls";
 import DeleteModal from "@/components/common/DeleteModal";
+import Link from "next/link";
 
 interface GradeData {
   id: number;
@@ -61,10 +62,24 @@ const GradeTable = ({ grades }: GradeTableProps) => {
 
   if (!grades.length) return <p>No grade data found</p>;
 
+        const handlePrint = () => {
+    const printWindow = window.open("https://manez-dashboard.vercel.app/payroll-payslip-print", "_blank");
+    if (printWindow) {
+      printWindow.onload = () => {
+        // Ensure the DOM is fully loaded
+        setTimeout(() => {
+          printWindow.print();
+          printWindow.close();
+        }, 1000);
+      };
+    }
+  };
+
   return (
     <>
-      <div className="col-span-12">
-        <div className="card__wrapper">
+      <div className="col-span-12 card__wrapper">
+
+        <div className="">
           <div className="manaz-common-mat-list w-full table__wrapper table-responsive mat-list-without-checkbox">
             <TableControls
               rowsPerPage={rowsPerPage}
@@ -152,6 +167,31 @@ const GradeTable = ({ grades }: GradeTableProps) => {
             </Box>
           </div>
         </div>
+                              <div className="flex flex-wrap lg:justify-end gap-[10px] my-5">
+                <button className="btn btn-info" onClick={handlePrint}>
+                  <i className="fa-sharp fa-regular fa-eye"></i>
+                  Print
+                </button>
+                <button className="btn btn-success">
+                  <i className="fa-sharp fa-light fa-floppy-disk"></i> Save
+                </button>
+                <Link
+                  href="/assets/documents/payroll-payslip.pdf"
+                  className="btn btn-warning"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    const link = document.createElement("a");
+                    link.href = "/assets/documents/payroll-payslip.pdf";
+                    link.download = "payroll-payslip.pdf";
+                    link.click();
+                  }}
+                >
+                  <i className="fa-sharp fa-thin fa-file-arrow-down"></i> Download
+                </Link>
+                <button type="submit" className="btn btn-primary">
+                  <i className="fa-light fa-paper-plane"></i> Send
+                </button>
+              </div>
       </div>
 
       {modalDeleteOpen && (

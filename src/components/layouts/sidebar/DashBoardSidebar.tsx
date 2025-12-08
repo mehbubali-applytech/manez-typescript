@@ -7,15 +7,26 @@ import sidebarDarkLogo from "../../../../public/assets/images/logo/logo-white.sv
 import useGlobalContext from "@/hooks/use-context";
 import sidebarImg from "../../../../public/assets/images/bg/side-bar.png";
 import sidebarData from "@/data/sidebar-data";
+import superAdminSidebarData from "@/data/sidebar-data-super-admin";
 import { usePathname } from "next/navigation";
 
-const DashBoardSidebar = () => {
+interface DashBoardSidebarProps {
+  isSuperAdmin?: boolean;
+}
+
+const DashBoardSidebar: React.FC<DashBoardSidebarProps> = ({ isSuperAdmin = false }) => {
   const { isCollapse, setIsCollapse } = useGlobalContext();
   const [linkId, setlinkId] = useState<number | null>(null);
   const [linkIdTwo, setlinkIdTwo] = useState<number | null>(null);
   const [linkIdThree, setlinkIdThree] = useState<number | null>(null);
   const [linkIdFour, setlinkIdFour] = useState<number | null>(null);
   const pathName = usePathname(); // Current route
+  
+  // Detect super-admin from URL or prop
+  const isSuperAdminRoute = isSuperAdmin || pathName.startsWith("/super-admin");
+  
+  // Use appropriate sidebar data
+  const currentSidebarData = isSuperAdminRoute ? superAdminSidebarData : sidebarData;
 
   // Utility function to handle collapse behavior for screens with max-width: 1199px
   const handleCollapse = (shouldCollapse: boolean) => {
@@ -141,7 +152,7 @@ const DashBoardSidebar = () => {
         <div className="common-scrollbar max-h-screen overflow-y-auto">
           <nav className="main-menu-container nav nav-pills flex-column sub-open mt-[80px]">
             <ul className="main-menu" style={{ display: "block" }}>
-              {sidebarData.map((category) => (
+              {currentSidebarData.map((category) => (
                 <React.Fragment key={category.id}>
                   <li className="sidebar__menu-category">
                     <span className="category-name">{category.category}</span>

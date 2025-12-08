@@ -161,7 +161,7 @@ const AdminAttendanceTable = () => {
                 className="manaz-pagination-button"
               />
             </Box>
-          </div>
+          </div> 
         </div>
       </div>
     </>

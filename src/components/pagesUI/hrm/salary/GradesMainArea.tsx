@@ -4,6 +4,7 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import Breadcrumb from "@/common/Breadcrumb/breadcrumb";
 import GradeTable from "./GradeTable";
+import Link from "next/link";
 
 const GradeMainArea = () => {
   const [grades, setGrades] = useState([]);
@@ -37,6 +38,9 @@ const GradeMainArea = () => {
     fetchGrades();
   }, []);
 
+
+
+
   if (loading) return <p className="text-center mt-5">Loading...</p>;
   if (error) return <p className="text-center mt-5 text-red-500">{error}</p>;
 
@@ -46,7 +50,9 @@ const GradeMainArea = () => {
 
       <div className="grid grid-cols-12 gap-x-5 maxXs:gap-x-0">
         <GradeTable grades={grades} />
+
       </div>
+
     </div>
   );
 };
