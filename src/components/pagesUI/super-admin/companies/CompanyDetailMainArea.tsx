@@ -8,7 +8,6 @@ interface Props {
   companyCode: string;
 }
 
-// Dummy data for now (replace with API later)
 const dummyCompaniesData: ICompany[] = [
   { id: 10, companyName: "Google", companyCode: "GOOG" },
   { id: 11, companyName: "Microsoft", companyCode: "MSFT" },
@@ -38,7 +37,7 @@ const CompanyDetailMainArea: React.FC<Props> = ({ companyCode }) => {
         <div className="card">
           <div className="card__body text-center">
             <p className="text-danger mb-4">
-              Company with code "{companyCode}" not found.
+              Company with code &quot;{companyCode}&quot; not found.
             </p>
             <Link href="/super-admin/companies" className="btn btn-primary">
               Back to Companies
