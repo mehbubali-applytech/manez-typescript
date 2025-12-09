@@ -1,6 +1,6 @@
 import MetaData from "@/hooks/useMetaData";
 import Wrapper from "@/components/layouts/DefaultWrapper";
-import CompanyStaffMainArea from "@/components/pagesUI/super-admin/companies/CompanyStaffMainArea";
+import CompanyStaffMainArea from "@/components/pagesUI/super-admin/staff/[companycode]/CompanyStaffMainArea";
 
 interface Props {
   params: {
@@ -8,14 +8,16 @@ interface Props {
   };
 }
 
-export default function StaffByCompanyPage({ params }: Props) {
+const CompanyDetailPage = ({ params }: Props) => {
   return (
     <>
-      <MetaData pageTitle={`Staff • ${params.companycode}`}>
+      <MetaData pageTitle="Company Details">
         <Wrapper isSuperAdmin={true}>
           <CompanyStaffMainArea companyCode={params.companycode} />
         </Wrapper>
       </MetaData>
     </>
   );
-}
+};
+
+export default CompanyDetailPage;

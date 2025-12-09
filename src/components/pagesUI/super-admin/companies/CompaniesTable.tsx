@@ -16,7 +16,7 @@ import { useRouter } from "next/navigation";
 import useMaterialTableHook from "@/hooks/useMaterialTableHook";
 import TableControls from "@/components/elements/SharedInputs/TableControls";
 import DeleteModal from "@/components/common/DeleteModal";
-import DesignationUpdateModal from "../../hrm/designations/DesignationUpdateModal";
+import UpdateCompanyDetailsModal from "./UpdateCompanyDetailsModal";
 import { ICompany } from "./CompaniesMainArea";
 
 const headCells = [
@@ -118,6 +118,7 @@ const CompaniesTable: React.FC<Props> = ({ data }) => {
                                                             <i className="fa-light fa-pen"></i>
                                                         </button>
 
+
                                                         {/* View */}
                                                         <button
                                                             className="table__icon delete"
@@ -153,6 +154,13 @@ const CompaniesTable: React.FC<Props> = ({ data }) => {
                     </Box>
                 </div>
             </div>
+            {modalOpen && (
+  <UpdateCompanyDetailsModal
+    open={modalOpen}
+    setOpen={setModalOpen}
+    editData={editData}
+  />
+)}
         </>
     );
 };

@@ -9,12 +9,7 @@ const superAdminSidebarData: SidebarCategory[] = [
         id: 2,
         label: "Dashboard",
         icon: "icon-house",
-        subItems: [
-          {
-            label: "Overview",
-            link: "/super-admin/dashboard",
-          },
-        ],
+         link: "/super-admin",
       },
 
       {
@@ -39,19 +34,19 @@ const superAdminSidebarData: SidebarCategory[] = [
           },
           {
             label:"HR Managers",
-            link:"/super-admin/staff/hr-managers"
+            link:"/super-admin/hr-manager"
           },
           {
             label:"Finance Executives",
-            link:"/super-admin/staff/finance-executives"
+            link:"/super-admin/finance-executives"
           },
           {
             label:"Compliance Officers",
-            link:"/super-admin/staff/compliance-officers"
+            link:"/super-admin/compliance-officers"
           },
           {
             label:"Employees",
-            link:"/super-admin/staff/employees"
+            link:"/super-admin/employees"
           }
         ],
       },

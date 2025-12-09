@@ -5,11 +5,9 @@ import SuperAdminDashboard from "@/components/pagesUI/super-admin/SuperAdminDash
 const SuperAdminPage = () => {
   return (
     <>
-      <MetaData pageTitle="Super Admin Dashboard">
-        <Wrapper isSuperAdmin={true}>
+
           <SuperAdminDashboard />
-        </Wrapper>
-      </MetaData>
+
     </>
   );
 };

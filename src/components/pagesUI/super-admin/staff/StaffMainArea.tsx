@@ -1,6 +1,6 @@
 "use client";
 import Link from "next/link";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import AddNewStaffModal from "./AddNewStaff";
 import StaffTable from "./StaffTable";
 
@@ -10,23 +10,20 @@ export interface IStaff {
   staffName: string;
   staffCode: string;
   department: string;
-  companyName?: string;
+  companyName: string;
 }
+
+const dummyStaffData: IStaff[] = [
+  { id: 1, staffName: "John Doe", staffCode: "EMP001", department: "HR", companyName: "Google" },
+  { id: 2, staffName: "Jane Smith", staffCode: "EMP002", department: "IT", companyName: "Microsoft" },
+  { id: 3, staffName: "Robert Brown", staffCode: "EMP003", department: "Finance", companyName: "Amazon" },
+  { id: 4, staffName: "Emily Clark", staffCode: "EMP004", department: "Sales", companyName: "Meta" },
+  { id: 5, staffName: "David Lee", staffCode: "EMP005", department: "Marketing", companyName: "Google" },
+];
 
 const StaffMainArea = () => {
   const [modalOpen, setModalOpen] = useState(false);
-  const [staff, setStaff] = useState<IStaff[]>([]);
-
-  useEffect(() => {
-    const dummyData: IStaff[] = [
-      { id: 1, staffName: "John Doe", staffCode: "EMP001", department: "HR", companyName: "TechCorp" },
-      { id: 2, staffName: "Jane Smith", staffCode: "EMP002", department: "IT", companyName: "InnovateTech" },
-      { id: 3, staffName: "Robert Brown", staffCode: "EMP003", department: "Finance", companyName: "Digital Solutions" },
-      { id: 4, staffName: "Emily Clark", staffCode: "EMP004", department: "Sales", companyName: "SalesForce" },
-      { id: 5, staffName: "David Lee", staffCode: "EMP005", department: "Marketing", companyName: "Marketify" },
-    ];
-    setStaff(dummyData);
-  }, []);
+  const [staff, setStaff] = useState<IStaff[]>(dummyStaffData);
 
   return (
     <div className="app__slide-wrapper">

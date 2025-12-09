@@ -9,16 +9,72 @@ interface Props {
 }
 
 const dummyCompaniesData: ICompany[] = [
-  { id: 10, companyName: "Google", companyCode: "GOOG" },
-  { id: 11, companyName: "Microsoft", companyCode: "MSFT" },
-  { id: 12, companyName: "Amazon", companyCode: "AMZN" },
-  { id: 15, companyName: "Meta", companyCode: "META" },
-  { id: 16, companyName: "Apple", companyCode: "AAPL" },
-  { id: 17, companyName: "Netflix", companyCode: "NFLX" },
-  { id: 18, companyName: "Tesla", companyCode: "TSLA" },
-  { id: 19, companyName: "IBM", companyCode: "IBM" },
-  { id: 20, companyName: "Intel", companyCode: "INTC" },
-];
+    {
+      id: 1,
+      companyName: "Google LLC",
+      companyCode: "GOOG",
+      domain: "google.com",
+      companyLogo: "",
+      address1: "1600 Amphitheatre Parkway",
+      address2: "Building 43",
+      city: "Mountain View",
+      stateProvince: "California",
+      country: "US",
+      postalCode: "94043",
+    },
+    {
+      id: 2,
+      companyName: "Microsoft Corporation",
+      companyCode: "MSFT",
+      domain: "microsoft.com",
+      companyLogo: "",
+      address1: "One Microsoft Way",
+      address2: "",
+      city: "Redmond",
+      stateProvince: "Washington",
+      country: "US",
+      postalCode: "98052",
+    },
+    {
+      id: 3,
+      companyName: "Amazon Inc",
+      companyCode: "AMZN",
+      domain: "amazon.com",
+      companyLogo: "",
+      address1: "410 Terry Ave North",
+      address2: "",
+      city: "Seattle",
+      stateProvince: "Washington",
+      country: "US",
+      postalCode: "98109",
+    },
+    {
+      id: 4,
+      companyName: "Meta Platforms",
+      companyCode: "META",
+      domain: "meta.com",
+      companyLogo: "",
+      address1: "1 Hacker Way",
+      address2: "",
+      city: "Menlo Park",
+      stateProvince: "California",
+      country: "US",
+      postalCode: "94025",
+    },
+    {
+      id: 5,
+      companyName: "Apple Inc",
+      companyCode: "AAPL",
+      domain: "apple.com",
+      companyLogo: "",
+      address1: "Apple Park Way",
+      address2: "",
+      city: "Cupertino",
+      stateProvince: "California",
+      country: "US",
+      postalCode: "95014",
+    },
+  ];
 
 const CompanyDetailMainArea: React.FC<Props> = ({ companyCode }) => {
   const [company, setCompany] = useState<ICompany | null>(null);
@@ -56,133 +112,115 @@ const CompanyDetailMainArea: React.FC<Props> = ({ companyCode }) => {
       />
 
       <div className="grid grid-cols-12 gap-x-5 maxXs:gap-x-0">
-        {/* Navigation/Go to Card - MOVED TO TOP */}
+
+        {/* ✅ Navigation */}
         <div className="col-span-12">
           <div className="card">
             <div className="card__header">
               <h5 className="card__title">Go to</h5>
             </div>
-            <div className="card__body">
-              <div className="flex gap-3 flex-wrap">
-                <Link href={`/super-admin/staff/${company.companyCode}`} className="btn btn-primary">All Staff</Link>
-                <button className="btn btn-primary">HR Manager</button>
-                <button className="btn btn-secondary">Finance Executive</button>
-                <button className="btn btn-info">Compliance Officer</button>
-                <button className="btn btn-warning">Employees</button>
+            <div className="card__body flex gap-3 flex-wrap">
+              <Link href={`/super-admin/staff/${company.companyCode}`} className="btn btn-primary">All Staff</Link>
+              <Link href={`/super-admin/hr-manager/${company.companyCode}`} className="btn btn-primary">HR Manager</Link>
+              <Link href={`/super-admin/finance-executives/${company.companyCode}`} className="btn btn-secondary">Finance Executive</Link>
+              <Link href={`/super-admin/compliance-officers/${company.companyCode}`} className="btn btn-info">Compliance Officer</Link>
+              <Link href={`/super-admin/employees/${company.companyCode}`} className="btn btn-warning">Employees</Link>
 
-                <Link
-                  href="/super-admin/companies"
-                  className="btn btn-outline-secondary"
-                >
-                  Back to Companies
-                </Link>
-              </div>
+              <Link href="/super-admin/companies" className="btn btn-outline-secondary">
+                Back to Companies
+              </Link>
             </div>
           </div>
         </div>
 
-        {/* ✅ Company Information Card (As Requested) */}
-        <div className="col-span-3 maxXl:col-span-4 maxLg:col-span-6 maxSm:col-span-12">
+        {/* ✅ Summary Cards */}
+        {[
+          { title: "Company Name", value: company.companyName, icon: "🏢" },
+          { title: "Company Code", value: company.companyCode, icon: "📋", sub: `ID: ${company.id}` },
+          { title: "Domain", value: company.domain || "—", icon: "🌐" },
+          { title: "Status", value: "Active", icon: "✓" },
+        ].map((item, idx) => (
+          <div
+            key={idx}
+            className="col-span-3 maxXl:col-span-4 maxLg:col-span-6 maxSm:col-span-12"
+          >
+            <div className="card">
+              <div className="card__body">
+                <div className="flex justify-between items-center mb-3">
+                  <h6 className="card__title">{item.title}</h6>
+                  <span className="text-xl">{item.icon}</span>
+                </div>
+                <h2 className="text-2xl font-bold">{item.value}</h2>
+                {item.sub && <p className="text-sm text-muted mt-2">{item.sub}</p>}
+              </div>
+            </div>
+          </div>
+        ))}
+
+        {/* ✅ Company Information (FULL DETAILS) */}
+        <div className="col-span-12">
           <div className="card">
+            <div className="card__header">
+              <h5 className="card__title">Company Information</h5>
+            </div>
+
             <div className="card__body">
-              <div className="flex justify-between items-center mb-3">
-                <h6 className="card__title">Company Name</h6>
-                <span className="text-primary text-xl">🏢</span>
+              <div className="grid grid-cols-12 gap-4">
+
+                {/* Logo */}
+                <div className="col-span-12">
+                  <strong>Company Logo:</strong>
+                  {company.companyLogo ? (
+                    <img
+                      src={company.companyLogo}
+                      alt="Company Logo"
+                      className="mt-2"
+                      style={{ width: 120 }}
+                    />
+                  ) : (
+                    <p className="text-muted mt-1">No logo uploaded</p>
+                  )}
+                </div>
+
+                <div className="col-span-6">
+                  <strong>Address Line 1:</strong>
+                  <p>{company.address1}</p>
+                </div>
+
+                <div className="col-span-6">
+                  <strong>Address Line 2:</strong>
+                  <p>{company.address2 || "—"}</p>
+                </div>
+
+                <div className="col-span-4">
+                  <strong>City:</strong>
+                  <p>{company.city}</p>
+                </div>
+
+                <div className="col-span-4">
+                  <strong>State / Province:</strong>
+                  <p>{company.stateProvince}</p>
+                </div>
+
+                <div className="col-span-4">
+                  <strong>Country:</strong>
+                  <p>{company.country}</p>
+                </div>
+
+                <div className="col-span-4">
+                  <strong>Postal Code:</strong>
+                  <p>{company.postalCode || "—"}</p>
+                </div>
+
               </div>
-              <h2 className="text-3xl font-bold">{company.companyName}</h2>
-              <p className="text-sm text-muted mt-2">Code: {company.companyCode}</p>
             </div>
           </div>
         </div>
 
-        {/* Company Code Card */}
-        <div className="col-span-3 maxXl:col-span-4 maxLg:col-span-6 maxSm:col-span-12">
-          <div className="card">
-            <div className="card__body">
-              <div className="flex justify-between items-center mb-3">
-                <h6 className="card__title">Company Code</h6>
-                <span className="text-success text-xl">📋</span>
-              </div>
-              <h2 className="text-3xl font-bold">{company.companyCode}</h2>
-              <p className="text-sm text-muted mt-2">ID: {company.id}</p>
-            </div>
-          </div>
-        </div>
-
-        {/* Status Card */}
-        <div className="col-span-3 maxXl:col-span-4 maxLg:col-span-6 maxSm:col-span-12">
-          <div className="card">
-            <div className="card__body">
-              <div className="flex justify-between items-center mb-3">
-                <h6 className="card__title">Status</h6>
-                <span className="text-success text-xl">✓</span>
-              </div>
-              <h2 className="text-3xl font-bold">Active</h2>
-              <p className="text-sm text-muted mt-2">
-                <span className="badge badge-success">Active</span>
-              </p>
-            </div>
-          </div>
-        </div>
-
-        {/* Total Employees Card */}
-        <div className="col-span-3 maxXl:col-span-4 maxLg:col-span-6 maxSm:col-span-12">
-          <div className="card">
-            <div className="card__body">
-              <div className="flex justify-between items-center mb-3">
-                <h6 className="card__title">Total Employees</h6>
-                <span className="text-warning text-xl">👥</span>
-              </div>
-              <h2 className="text-3xl font-bold">245</h2>
-              <p className="text-sm text-muted mt-2">Active employees</p>
-            </div>
-          </div>
-        </div>
-
-        {/* Active Users Card */}
-        <div className="col-span-3 maxXl:col-span-4 maxLg:col-span-6 maxSm:col-span-12">
-          <div className="card">
-            <div className="card__body">
-              <div className="flex justify-between items-center mb-3">
-                <h6 className="card__title">Active Users</h6>
-                <span className="text-info text-xl">🔗</span>
-              </div>
-              <h2 className="text-3xl font-bold">189</h2>
-              <p className="text-sm text-muted mt-2">System users</p>
-            </div>
-          </div>
-        </div>
-
-        {/* Departments Card */}
-        <div className="col-span-3 maxXl:col-span-4 maxLg:col-span-6 maxSm:col-span-12">
-          <div className="card">
-            <div className="card__body">
-              <div className="flex justify-between items-center mb-3">
-                <h6 className="card__title">Departments</h6>
-                <span className="text-secondary text-xl">🏛️</span>
-              </div>
-              <h2 className="text-3xl font-bold">12</h2>
-              <p className="text-sm text-muted mt-2">Departments</p>
-            </div>
-          </div>
-        </div>
-
-        {/* Projects Card */}
-        <div className="col-span-3 maxXl:col-span-4 maxLg:col-span-6 maxSm:col-span-12">
-          <div className="card">
-            <div className="card__body">
-              <div className="flex justify-between items-center mb-3">
-                <h6 className="card__title">Projects</h6>
-                <span className="text-danger text-xl">📊</span>
-              </div>
-              <h2 className="text-3xl font-bold">28</h2>
-              <p className="text-sm text-muted mt-2">Active projects</p>
-            </div>
-          </div>
-        </div>
       </div>
     </div>
   );
 };
+
 
 export default CompanyDetailMainArea;
