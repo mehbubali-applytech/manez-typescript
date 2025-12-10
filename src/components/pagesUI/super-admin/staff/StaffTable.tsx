@@ -14,7 +14,7 @@ import {
 } from "@mui/material";
 import { visuallyHidden } from "@mui/utils";
 import { useRouter } from "next/navigation";
-
+import UpdateStaffModal from "./UpdateStaffModal";
 import useMaterialTableHook from "@/hooks/useMaterialTableHook";
 import TableControls from "@/components/elements/SharedInputs/TableControls";
 import DeleteModal from "@/components/common/DeleteModal";
@@ -34,6 +34,9 @@ interface Props {
 const StaffTable: React.FC<Props> = ({ data }) => {
   const [modalDeleteOpen, setModalDeleteOpen] = useState(false);
   const [deleteId, setDeleteId] = useState<number>(0);
+  const [editModalOpen, setEditModalOpen] = useState(false);
+  const [editData, setEditData] = useState<IStaff | null>(null);
+
   const router = useRouter();
 
   const staffMemo = useMemo(() => data, [data]);
@@ -107,10 +110,17 @@ const StaffTable: React.FC<Props> = ({ data }) => {
                         <TableCell>{row.department}</TableCell>
                         <TableCell>
                           <div className="flex gap-[10px]">
-                            {/* Edit */}
-                            <button className="table__icon edit">
+                            <button
+                              className="table__icon edit"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setEditData(row);
+                                setEditModalOpen(true);
+                              }}
+                            >
                               <i className="fa-light fa-pen"></i>
                             </button>
+
 
                             {/* View */}
                             <button
@@ -167,6 +177,14 @@ const StaffTable: React.FC<Props> = ({ data }) => {
           handleDeleteFunc={handleDelete}
         />
       )}
+      {editModalOpen && (
+        <UpdateStaffModal
+          open={editModalOpen}
+          setOpen={setEditModalOpen}
+          editData={editData}
+        />
+      )}
+
     </>
   );
 };

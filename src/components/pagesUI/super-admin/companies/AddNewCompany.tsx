@@ -3,225 +3,284 @@
 import React, { useState } from "react";
 import { Dialog, DialogTitle, DialogContent } from "@mui/material";
 import { useForm } from "react-hook-form";
-import InputField from "@/components/elements/SharedInputs/InputField";
 import { toast } from "sonner";
-import { statePropsType } from "@/interface/common.interface";
+
+import InputField from "@/components/elements/SharedInputs/InputField";
+import SelectBox from "@/components/elements/SharedInputs/SelectBox";
+import BoxStepWithIcon, {
+  StepItem,
+} from "@/components/elements/advanced-ui/steps/BoxStepWithIcon";
+
 import { ICompany } from "./CompaniesMainArea";
 import { countriesData } from "@/data/country-data";
 
-const MAX_LOGO_SIZE = 5 * 1024 * 1024; // 5MB
-const allowedLogoTypes = ["image/png", "image/jpeg", "image/svg+xml"];
+interface Props {
+  open: boolean;
+  setOpen: (open: boolean) => void;
+}
 
-const hostnameRegex =
-  /^(?=.{1,253}$)((?!-)[A-Za-z0-9-]{1,63}(?<!-)\.)+[A-Za-z]{2,63}$|^[A-Za-z0-9.-]{1,253}$/;
+const steps: StepItem[] = [
+  { step: 1, title: "Company Info", icon: "fa-solid fa-building" },
+  { step: 2, title: "Primary Contact", icon: "fa-solid fa-user" },
+  { step: 3, title: "Settings", icon: "fa-solid fa-sliders" },
+  { step: 4, title: "Modules", icon: "fa-solid fa-layer-group" },
+];
 
-const AddNewCompanyModal = ({ open, setOpen }: statePropsType) => {
+const AddNewCompanyModal: React.FC<Props> = ({ open, setOpen }) => {
+  const [currentStep, setCurrentStep] = useState(1);
+
   const {
     register,
     handleSubmit,
+    control,
+    watch,
+    reset,
     formState: { errors },
-    setValue,
   } = useForm<ICompany>({
     defaultValues: {
-      id: 0, // ✅ added (useful for edit)
-      companyName: "",
-      companyCode: "",
-      domain: "",
-      companyLogo: "",
-      address1: "",
-      address2: "",
-      city: "",
-      stateProvince: "",
-      country: "",
-      postalCode: "",
+      companyStatus: "Active",
+      assignedPlan: "Free",
+      attendance: false,
     },
   });
 
-  const [logoPreview, setLogoPreview] = useState<string | null>(null);
+  const attendanceEnabled = watch("attendance");
 
-  const handleToggle = () => setOpen(!open);
-
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    if (!allowedLogoTypes.includes(file.type)) {
-      toast.error("Only PNG, JPG or SVG files are allowed.");
-      return;
-    }
-
-    if (file.size > MAX_LOGO_SIZE) {
-      toast.error("Logo must be 5MB or smaller.");
-      return;
-    }
-
-    const reader = new FileReader();
-    reader.onload = () => {
-      const result = reader.result as string;
-      setLogoPreview(result);
-      setValue("companyLogo", result);
-    };
-    reader.readAsDataURL(file);
+  const handleToggle = () => {
+    setOpen(false);
+    setCurrentStep(1);
+    reset();
   };
 
   const onSubmit = async (data: ICompany) => {
     try {
-      console.log("Company Payload:", data);
-      toast.success("Company saved successfully 🎉");
-      setTimeout(() => setOpen(false), 1200);
-    } catch (error) {
-      console.error(error);
-      toast.error("Failed to save company.");
+      console.log("New Company:", data);
+      toast.success("Company added successfully ✅");
+      setTimeout(handleToggle, 1200);
+    } catch {
+      toast.error("Failed to add company ❌");
     }
   };
 
   return (
-    <Dialog
-      open={open}
-      onClose={handleToggle}
-      fullWidth
-      maxWidth="sm"
-      sx={{ "& .MuiDialog-paper": { width: "600px" } }}
-    >
+    <Dialog open={open} onClose={handleToggle} fullWidth maxWidth="lg">
       <DialogTitle>
-        <div className="flex justify-between">
-          <h5 className="modal-title">Add / Edit Company</h5>
-          <button type="button" onClick={handleToggle} className="bd-btn-close">
-            <i className="fa-solid fa-xmark-large" />
+        <div className="flex justify-between items-center">
+          <h5 className="modal-title">Add New Company</h5>
+          <button onClick={handleToggle} className="bd-btn-close">
+            ✕
           </button>
         </div>
       </DialogTitle>
 
       <DialogContent>
-        <form onSubmit={handleSubmit(onSubmit)}>
-          {/* ✅ hidden id field */}
-          <input type="hidden" {...register("id")} />
+        {/* ✅ Steps */}
+        <BoxStepWithIcon
+          steps={steps}
+          currentStep={currentStep}
+          onStepChange={setCurrentStep}
+        />
 
-          <div className="grid grid-cols-12 gap-4">
-            <div className="col-span-12">
-              <InputField
-                label="Company Name"
-                id="companyName"
-                register={register("companyName", {
-                  required: "Company name is required",
-                  maxLength: { value: 150, message: "Max 150 characters" },
-                })}
-                error={errors.companyName}
-              />
-            </div>
-
-            <div className="col-span-6">
-              <InputField
-                label="Company Code"
-                id="companyCode"
-                register={register("companyCode", {
-                  required: "Company code is required",
-                })}
-                error={errors.companyCode}
-              />
-            </div>
-
-            <div className="col-span-6">
-              <InputField
-                label="Domain / Subdomain"
-                id="domain"
-                register={register("domain", {
-                  validate: (v) =>
-                    !v || hostnameRegex.test(v) || "Invalid hostname",
-                })}
-                error={errors.domain}
-              />
-            </div>
-
-            <div className="col-span-12">
-              <label className="form-label">Company Logo</label>
-              <input
-                type="file"
-                accept="image/png, image/jpeg, image/svg+xml"
-                onChange={handleFileChange}
-              />
-              {logoPreview && (
-                <img
-                  src={logoPreview}
-                  alt="Logo Preview"
-                  className="mt-2"
-                  style={{ width: 120 }}
+        <form onSubmit={handleSubmit(onSubmit)} className="mt-6">
+          {/* ================= STEP 1 ================= */}
+          {currentStep === 1 && (
+            <div className="grid grid-cols-12 gap-4">
+              <div className="col-span-12">
+                <InputField
+                  id="companyName"
+                  label="Company Name"
+                  register={register("companyName", { required: "Required" })}
+                  error={errors.companyName}
                 />
+              </div>
+
+              <div className="col-span-6">
+                <InputField
+                  id="companyCode"
+                  label="Company Code"
+                  register={register("companyCode", { required: "Required" })}
+                  error={errors.companyCode}
+                />
+              </div>
+
+              <div className="col-span-6">
+                <InputField
+                  id="domain"
+                  label="Domain"
+                  register={register("domain")}
+                  error={errors.domain}
+                />
+              </div>
+
+              <div className="col-span-12">
+                <InputField
+                  id="address1"
+                  label="Address Line 1"
+                  register={register("address1", { required: "Required" })}
+                  error={errors.address1}
+                />
+              </div>
+
+              <div className="col-span-6">
+                <InputField
+                  id="city"
+                  label="City"
+                  register={register("city", { required: "Required" })}
+                  error={errors.city}
+                />
+              </div>
+
+              <div className="col-span-6">
+                <SelectBox
+                  id="country"
+                  label="Country"
+                  options={countriesData}
+                  control={control}
+                  isRequired
+                />
+              </div>
+            </div>
+          )}
+
+          {/* ================= STEP 2 ================= */}
+          {currentStep === 2 && (
+            <div className="grid grid-cols-12 gap-4">
+              <div className="col-span-12">
+                <InputField
+                  id="contactName"
+                  label="Contact Name"
+                  register={register("contactName", { required: "Required" })}
+                  error={errors.contactName}
+                />
+              </div>
+
+              <div className="col-span-6">
+                <InputField
+                  id="contactEmail"
+                  label="Contact Email"
+                  register={register("contactEmail", { required: "Required" })}
+                  error={errors.contactEmail}
+                />
+              </div>
+
+              <div className="col-span-6">
+                <InputField
+                  id="contactPhone"
+                  label="Contact Phone"
+                  register={register("contactPhone")}
+                  error={errors.contactPhone}
+                />
+              </div>
+            </div>
+          )}
+
+          {/* ================= STEP 3 ================= */}
+          {currentStep === 3 && (
+            <div className="grid grid-cols-12 gap-4">
+              <div className="col-span-4">
+                <SelectBox
+                  id="companyStatus"
+                  label="Company Status"
+                  control={control}
+                  options={[
+                    { label: "Active", value: "Active" },
+                    { label: "Suspended", value: "Suspended" },
+                    { label: "Pending", value: "Pending" },
+                  ]}
+                  isRequired
+                />
+              </div>
+
+              <div className="col-span-4">
+                <SelectBox
+                  id="assignedPlan"
+                  label="Assigned Plan"
+                  control={control}
+                  options={[
+                    { label: "Free", value: "Free" },
+                    { label: "Pro", value: "Pro" },
+                    { label: "Enterprise", value: "Enterprise" },
+                  ]}
+                />
+              </div>
+
+              <div className="col-span-4">
+                <InputField
+                  id="employeeLimit"
+                  label="Employee Limit"
+                  register={register("employeeLimit")}
+                  error={errors.employeeLimit}
+                />
+              </div>
+            </div>
+          )}
+
+          {/* ================= STEP 4 ================= */}
+          {currentStep === 4 && (
+            <div className="grid grid-cols-12 gap-4">
+              <label className="col-span-6">
+                <input type="checkbox" {...register("attendance")} /> Attendance
+              </label>
+
+              {attendanceEnabled && (
+                <div className="col-span-6">
+                  <SelectBox
+                    id="attendanceLevel"
+                    label="Attendance Level"
+                    control={control}
+                    options={[
+                      { label: "Basic", value: "Basic" },
+                      { label: "Advanced", value: "Advanced" },
+                    ]}
+                  />
+                </div>
               )}
-            </div>
 
-            <div className="col-span-12">
-              <InputField
-                label="Address Line 1"
-                id="address1"
-                register={register("address1", {
-                  required: "Address is required",
-                })}
-                error={errors.address1}
-              />
-            </div>
+              <label className="col-span-6">
+                <input type="checkbox" {...register("leaveManagement")} /> Leave
+                Management
+              </label>
 
-            <div className="col-span-12">
-              <InputField
-                label="Address Line 2"
-                id="address2"
-                register={register("address2")}
-                error={errors.address2}
-              />
-            </div>
+              <label className="col-span-6">
+                <input type="checkbox" {...register("payroll")} /> Payroll
+              </label>
 
-            <div className="col-span-4">
-              <InputField
-                label="City"
-                id="city"
-                register={register("city", { required: "City is required" })}
-                error={errors.city}
-              />
-            </div>
+              <label className="col-span-6">
+                <input type="checkbox" {...register("offerLetters")} /> Offer
+                Letters
+              </label>
 
-            <div className="col-span-4">
-              <InputField
-                label="State / Province"
-                id="stateProvince"
-                register={register("stateProvince", {
-                  required: "State is required",
-                })}
-                error={errors.stateProvince}
-              />
+              <label className="col-span-6">
+                <input type="checkbox" {...register("compliance")} /> Compliance
+              </label>
             </div>
+          )}
 
-            <div className="col-span-4">
-              <label className="form-label">Country</label>
-              <select
-                className={`form-control ${errors.country ? "is-invalid" : ""}`}
-                {...register("country", { required: "Country is required" })}
+          {/* ✅ Buttons */}
+          <div className="flex justify-between mt-6">
+            {currentStep > 1 && (
+              <button
+                type="button"
+                className="btn btn-secondary"
+                onClick={() => setCurrentStep((s) => s - 1)}
               >
-                <option value="">Select country</option>
-                {countriesData.map((c) => (
-                  <option key={c.value} value={c.value}>
-                    {c.label}
-                  </option>
-                ))}
-              </select>
-              {errors.country && (
-                <p className="text-danger text-sm">{errors.country.message}</p>
-              )}
-            </div>
+                Back
+              </button>
+            )}
 
-            <div className="col-span-12">
-              <InputField
-                label="Postal Code / ZIP"
-                id="postalCode"
-                register={register("postalCode")}
-                error={errors.postalCode}
-              />
-            </div>
-          </div>
-
-          <div className="text-center mt-4">
-            <button className="btn btn-primary" type="submit">
-              Save Company
-            </button>
+            {currentStep < steps.length ? (
+              <button
+                type="button"
+                className="btn btn-primary ml-auto"
+                onClick={() => setCurrentStep((s) => s + 1)}
+              >
+                Next
+              </button>
+            ) : (
+              <button type="submit" className="btn btn-success ml-auto">
+                Add Company
+              </button>
+            )}
           </div>
         </form>
       </DialogContent>
