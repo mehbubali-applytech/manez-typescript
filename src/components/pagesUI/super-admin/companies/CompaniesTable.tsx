@@ -23,7 +23,7 @@ import TableControls from "@/components/elements/SharedInputs/TableControls";
 import DeleteModal from "@/components/common/DeleteModal";
 
 import useMaterialTableHook from "@/hooks/useMaterialTableHook";
-import { useTableStatusHook } from "@/hooks/use-condition-class";
+import { getTableStatusClass } from "@/hooks/use-condition-class";
 import { ICompany } from "./CompaniesMainArea";
 import UpdateCompanyDetailsModal from "./UpdateCompanyDetailsModal";
 
@@ -155,7 +155,7 @@ const CompaniesTable: React.FC<Props> = ({ data, onEdit, onDelete }) => {
 
                   <TableBody>
                     {paginatedRows.map((row, index) => {
-                      const statusClass = useTableStatusHook(row.status);
+                      const statusClass = getTableStatusClass(row.status);
 
                       return (
                         <TableRow

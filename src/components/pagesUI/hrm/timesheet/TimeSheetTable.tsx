@@ -19,7 +19,7 @@ import useMaterialTableHook from "@/hooks/useMaterialTableHook";
 import Link from "next/link";
 import Image from "next/image";
 import { timeSheetHeadCells } from "@/data/table-head-cell/table-head";
-import { useTableStatusHook } from "@/hooks/use-condition-class";
+import { getTableStatusClass } from "@/hooks/use-condition-class";
 import { timeSheetData } from "@/data/hrm/time-sheet-data";
 import EditTimeSheetModal from "./EditTimeSheetModal";
 import { ITimeSheet } from "@/interface/table.interface";
@@ -99,7 +99,7 @@ const TimeSheetTable = () => {
                     </TableHead>
                     <TableBody className="table__body">
                       {paginatedRows.map((row, index) => {
-                        const stausClass = useTableStatusHook(row?.status);
+                        const stausClass = getTableStatusClass(row?.status);
                         return (
                           <TableRow
                             key={index}

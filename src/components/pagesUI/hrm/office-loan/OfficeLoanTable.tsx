@@ -18,7 +18,7 @@ import Image from "next/image";
 import { IOfficeLoan } from "@/interface/table.interface";
 import { officeLoanHeadCells } from "@/data/table-head-cell/table-head";
 import { officeLoanData } from "@/data/hrm/office-loan-data";
-import { useTableStatusHook } from "@/hooks/use-condition-class";
+import { getTableStatusClass } from "@/hooks/use-condition-class";
 import EditOfficeLoanModal from "./EditOfficeLoanModal";
 import TableControls from "@/components/elements/SharedInputs/TableControls";
 import DeleteModal from "@/components/common/DeleteModal";
@@ -95,7 +95,7 @@ const OfficeLoanTable = () => {
                     </TableHead>
                     <TableBody className="table__body">
                       {paginatedRows.map((row, index) => {
-                        const stausClass = useTableStatusHook(row?.status);
+                        const stausClass = getTableStatusClass(row?.status);
                         return (
                           <TableRow
                             key={index}

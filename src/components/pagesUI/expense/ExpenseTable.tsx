@@ -17,7 +17,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { IExpese } from "@/interface/table.interface";
 import { expenseHeadCells } from "@/data/table-head-cell/table-head";
-import { useTableStatusHook } from "@/hooks/use-condition-class";
+import { getTableStatusClass } from "@/hooks/use-condition-class";
 import { expenseData } from "@/data/expense-data";
 import UpdateExpenseModal from "./UpdateExpenseModal";
 import TableControls from "@/components/elements/SharedInputs/TableControls";
@@ -97,7 +97,7 @@ const ExpenseTable = () => {
 
                     <TableBody className="table__body">
                       {paginatedRows.map((row, index) => {
-                        const stausClass = useTableStatusHook(row?.status);
+                        const stausClass = getTableStatusClass(row?.status);
                         return (
                           <TableRow
                             key={index}

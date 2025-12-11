@@ -15,7 +15,7 @@ import { visuallyHidden } from "@mui/utils";
 import useMaterialTableHook from "@/hooks/useMaterialTableHook";
 import { ICompany, ILead } from "@/interface/table.interface";
 import { withoutCheckListHeadCells } from "@/data/table-head-cell/table-head";
-import { useTableStatusHook } from "@/hooks/use-condition-class";
+import { getTableStatusClass } from "@/hooks/use-condition-class";
 import Link from "next/link";
 import Image from "next/image";
 import { materialData } from "@/data/material/material-data";
@@ -108,7 +108,7 @@ const TableWithoutCheckbox = () => {
 
                   <TableBody className="table__body">
                     {paginatedRows.map((row, index) => {
-                      const stausClass = useTableStatusHook(row?.status);
+                      const stausClass = getTableStatusClass(row?.status);
                       return (
                         <TableRow
                           key={index}

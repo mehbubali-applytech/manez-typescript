@@ -17,7 +17,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { IInvoice } from "@/interface/table.interface";
 import { invoiceHeadCells } from "@/data/table-head-cell/table-head";
-import { useTableStatusHook } from "@/hooks/use-condition-class";
+import { getTableStatusClass } from "@/hooks/use-condition-class";
 import { invoiceData } from "@/data/invoice-data";
 import TableControls from "@/components/elements/SharedInputs/TableControls";
 import DeleteModal from "@/components/common/DeleteModal";
@@ -95,7 +95,7 @@ const InvoiceListTable = () => {
 
                     <TableBody className="table__body">
                       {paginatedRows.map((row, index) => {
-                        const stausClass = useTableStatusHook(row?.status);
+                        const stausClass = getTableStatusClass(row?.status);
                         return (
                           <TableRow
                             key={index}

@@ -18,7 +18,7 @@ import { visuallyHidden } from "@mui/utils";
 import useMaterialTableHook from "@/hooks/useMaterialTableHook";
 import { IEmployeeLeave } from "@/interface/table.interface";
 import { adminLeaveHeadCells } from "@/data/table-head-cell/table-head";
-import { useTableStatusHook } from "@/hooks/use-condition-class";
+import { getTableStatusClass } from "@/hooks/use-condition-class";
 import LeavesEditModal from "./LeavesEditModal";
 import { employeeLeaveData } from "@/data/hrm/employee-leave";
 import Link from "next/link";
@@ -99,7 +99,7 @@ const LeavesTable = () => {
                     </TableHead>
                     <TableBody className="table__body">
                       {paginatedRows.map((row, index) => {
-                        const stausClass = useTableStatusHook(row?.status);
+                        const stausClass = getTableStatusClass(row?.status);
                         return (
                           <TableRow
                             key={index}

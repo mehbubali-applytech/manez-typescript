@@ -17,7 +17,7 @@ import { IDeal } from "@/interface/table.interface";
 import { dealHeadCells } from "@/data/table-head-cell/table-head";
 import {
   useTablePhaseHook,
-  useTableStatusHook,
+  getTableStatusClass,
 } from "@/hooks/use-condition-class";
 
 import { Checkbox } from "@mui/material";
@@ -122,7 +122,7 @@ const DealsTable = () => {
                     </TableHead>
                     <TableBody className="table__body">
                       {paginatedRows.map((row, index) => {
-                        const stausClass = useTableStatusHook(row?.status);
+                        const stausClass = getTableStatusClass(row?.status);
                         const phaseClass = useTablePhaseHook(row?.phase);
                         return (
                           <TableRow

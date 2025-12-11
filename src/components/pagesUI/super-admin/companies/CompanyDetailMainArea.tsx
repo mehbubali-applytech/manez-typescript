@@ -3,6 +3,7 @@ import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import Breadcrumb from "@/common/Breadcrumb/breadcrumb";
 import { ICompany } from "./CompaniesMainArea";
+import Image from 'next/image';
 
 interface Props {
   id: number;
@@ -51,7 +52,7 @@ const CompanyDetailMainArea: React.FC<Props> = ({ id }) => {
         <Breadcrumb breadTitle="Company Not Found" subTitle="Super Admin" />
         <div className="card">
           <div className="card__body text-center">
-            <p className="text-danger mb-4">Company with ID "{id}" not found.</p>
+            <p className="text-danger mb-4">Company with ID &quot;{id}&quot; not found.</p>
             <Link href="/super-admin/companies" className="btn btn-primary">
               Back to Companies
             </Link>
@@ -105,7 +106,7 @@ const CompanyDetailMainArea: React.FC<Props> = ({ id }) => {
               <div className="col-span-12">
                 <strong>Company Logo:</strong>
                 {company.companyImg ? (
-                  <img src={company.companyImg.src} alt="Logo" style={{ width: 120 }} />
+                 <Image src={company.companyImg.src} alt="Company Logo" width={150} height={150} />
                 ) : (
                   <p className="text-muted">No logo uploaded</p>
                 )}

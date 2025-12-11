@@ -17,7 +17,7 @@ import { ITicket } from "@/interface/table.interface";
 import { ticketsHeadCells } from "@/data/table-head-cell/table-head";
 import {
   useTablePrirotyHook,
-  useTableStatusHook,
+  getTableStatusClass,
 } from "@/hooks/use-condition-class";
 import { ticketsData } from "@/data/tickets-data";
 import TableControls from "@/components/elements/SharedInputs/TableControls";
@@ -95,7 +95,7 @@ const TicketsTable = () => {
 
                     <TableBody className="table__body">
                       {paginatedRows.map((row, index) => {
-                        const stausClass = useTableStatusHook(row?.status);
+                        const stausClass = getTableStatusClass(row?.status);
                         const priorityClass = useTablePrirotyHook(
                           row?.priority
                         );

@@ -17,7 +17,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { IPaylist } from "@/interface/table.interface";
 import { payListHeadCells } from "@/data/table-head-cell/table-head";
-import { useTableStatusHook } from "@/hooks/use-condition-class";
+import { getTableStatusClass } from "@/hooks/use-condition-class";
 import { payListData } from "@/data/payroll/pay-list-data";
 import EditSalaryModal from "./EditSalaryModal";
 import DeleteModal from "@/components/common/DeleteModal";
@@ -97,7 +97,7 @@ const PayrollTable = () => {
                     </TableHead>
                     <TableBody className="table__body">
                       {paginatedRows.map((row, index) => {
-                        const stausClass = useTableStatusHook(row?.status);
+                        const stausClass = getTableStatusClass(row?.status);
                         return (
                           <TableRow
                             key={index}

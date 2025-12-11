@@ -20,7 +20,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { IPersonalLoan } from "@/interface/table.interface";
 import { personalLoanHeadCells } from "@/data/table-head-cell/table-head";
-import { useTableStatusHook } from "@/hooks/use-condition-class";
+import { getTableStatusClass } from "@/hooks/use-condition-class";
 import EditPersonalLoanModal from "./EditPersonalLoanModal";
 import { personalLoan } from "@/data/hrm/personal-loan-data";
 import TableControls from "@/components/elements/SharedInputs/TableControls";
@@ -99,7 +99,7 @@ const PersonalLoanTable = () => {
                     </TableHead>
                     <TableBody className="table__body">
                       {paginatedRows.map((row, index) => {
-                        const stausClass = useTableStatusHook(row?.status);
+                        const stausClass = getTableStatusClass(row?.status);
                         return (
                           <TableRow
                             key={index}

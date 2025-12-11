@@ -19,7 +19,7 @@ export const useAttendanceHook = (tag: any) => {
   }
 };
 // "Paid" | "Unpaid" | "Cancel" | "Refund";
-export const useTableStatusHook = (tag: any) => {
+export const getTableStatusClass = (tag: any) => {
   switch (tag) {
     case "Pending":
       return "bg-warning";
