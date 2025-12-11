@@ -1,19 +1,19 @@
 import MetaData from "@/hooks/useMetaData";
 import Wrapper from "@/components/layouts/DefaultWrapper";
-import CompanyComplianceOfficersMainArea from "@/components/pagesUI/super-admin/compliance-officers/[companycode]/CompanyComplianceOfficersMainArea";
+import CompanyComplianceOfficersMainArea from "@/components/pagesUI/super-admin/compliance-officers/[id]/CompanyComplianceOfficersMainArea";
 
 interface Props {
   params: {
-    companycode: string;
+    id: number;
   };
 }
 
 const CompanyComplianceOfficersPage = ({ params }: Props) => {
   return (
     <>
-      <MetaData pageTitle={`Compliance Officers • ${params.companycode}`}>
+      <MetaData pageTitle={`Compliance Officers • ${params.id}`}>
         <Wrapper isSuperAdmin={true}>
-          <CompanyComplianceOfficersMainArea companyCode={params.companycode} />
+          <CompanyComplianceOfficersMainArea id={params.id} />
         </Wrapper>
       </MetaData>
     </>

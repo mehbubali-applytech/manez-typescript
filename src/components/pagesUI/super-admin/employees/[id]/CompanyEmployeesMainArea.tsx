@@ -13,16 +13,16 @@ const DUMMY_EMPLOYEES: any[] = [
   { id: 5, empName: "Eve Davis", empCode: "EMP005", department: "Engineering", company: "Google", companyCode: "GOOG" },
 ];
 
-const CompanyEmployeesMainArea: React.FC<{ companyCode: string }> = ({ companyCode }) => {
+const CompanyEmployeesMainArea: React.FC<{ id: number }> = ({ id }) => {
   const [modalOpen, setModalOpen] = useState(false);
   const [employees, setEmployees] = useState<IEmployee[]>([]);
 
   useEffect(() => {
     const filteredEmployees = DUMMY_EMPLOYEES.filter(
-      (emp) => emp.companyCode?.toLowerCase() === companyCode.toLowerCase()
+      (emp) => emp.id === id
     );
     setEmployees(filteredEmployees);
-  }, [companyCode]);
+  }, [id]);
 
   return (
     <div className="app__slide-wrapper">
@@ -40,7 +40,7 @@ const CompanyEmployeesMainArea: React.FC<{ companyCode: string }> = ({ companyCo
               <Link href="/super-admin/employees">Employees</Link>
             </li>
             <li className="breadcrumb-item active">
-              {companyCode}
+              {id}
             </li>
           </ol>
         </nav>

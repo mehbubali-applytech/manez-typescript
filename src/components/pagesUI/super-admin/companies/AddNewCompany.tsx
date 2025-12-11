@@ -1,286 +1,158 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Dialog, DialogTitle, DialogContent } from "@mui/material";
-import { useForm } from "react-hook-form";
-import { toast } from "sonner";
-
-import InputField from "@/components/elements/SharedInputs/InputField";
-import SelectBox from "@/components/elements/SharedInputs/SelectBox";
-import BoxStepWithIcon, {
-  StepItem,
-} from "@/components/elements/advanced-ui/steps/BoxStepWithIcon";
-
+import CompanyInformationForm from "./CompanyInformationForm";
+import CompanyAddress from "./CompanyAddress";
+import SocialMedai from "./SocialMediai";
+import Access from "./Access";
+// NOTE: import ICompany from local file to keep types consistent
 import { ICompany } from "./CompaniesMainArea";
-import { countriesData } from "@/data/country-data";
+import { useForm } from "react-hook-form";
 
-interface Props {
+interface AddCompanyModalProps {
   open: boolean;
-  setOpen: (open: boolean) => void;
+  setOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  editData?: ICompany | null;
+  onSave?: (payload: ICompany) => void; // callback to parent
 }
 
-const steps: StepItem[] = [
-  { step: 1, title: "Company Info", icon: "fa-solid fa-building" },
-  { step: 2, title: "Primary Contact", icon: "fa-solid fa-user" },
-  { step: 3, title: "Settings", icon: "fa-solid fa-sliders" },
-  { step: 4, title: "Modules", icon: "fa-solid fa-layer-group" },
-];
-
-const AddNewCompanyModal: React.FC<Props> = ({ open, setOpen }) => {
-  const [currentStep, setCurrentStep] = useState(1);
-
+const AddNewCompanyModal: React.FC<AddCompanyModalProps> = ({
+  open,
+  setOpen,
+  editData = null,
+  onSave,
+}) => {
   const {
     register,
     handleSubmit,
-    control,
     watch,
+    control,
     reset,
     formState: { errors },
   } = useForm<ICompany>({
-    defaultValues: {
-      companyStatus: "Active",
-      assignedPlan: "Free",
-      attendance: false,
-    },
+    defaultValues: editData || ({} as ICompany),
   });
 
-  const attendanceEnabled = watch("attendance");
-
-  const handleToggle = () => {
-    setOpen(false);
-    setCurrentStep(1);
-    reset();
-  };
+  // whenever editData changes, reset form with values
+  useEffect(() => {
+    if (editData) {
+      reset(editData);
+    } else {
+      reset({});
+    }
+  }, [editData, reset]);
 
   const onSubmit = async (data: ICompany) => {
-    try {
-      console.log("New Company:", data);
-      toast.success("Company added successfully ✅");
-      setTimeout(handleToggle, 1200);
-    } catch {
-      toast.error("Failed to add company ❌");
+    // if editData exists, this acts as update
+    // Replace below with API call and proper error handling
+    if (editData) {
+      const payload = { ...editData, ...data };
+      console.log("Updating company:", payload);
+      if (onSave) onSave(payload);
+    } else {
+      const payload = { ...data };
+      console.log("Creating company:", payload);
+      if (onSave) onSave(payload);
+    }
+    // close modal
+    setOpen(false);
+  };
+
+  const handleToggle = () => setOpen((v) => !v);
+  const [activeIndex, setActiveIndex] = useState(0);
+
+  const steps = [
+    { label: "Company Information" },
+    { label: "Company Address" },
+    { label: "Social Media" },
+    { label: "Access" },
+  ];
+
+  const renderStepContent = (index: number) => {
+    switch (index) {
+      case 0:
+        return (
+          <CompanyInformationForm
+            register={register}
+            errors={errors}
+            control={control}
+          />
+        );
+      case 1:
+        return <CompanyAddress register={register} errors={errors} />;
+      case 2:
+        return <SocialMedai register={register} errors={errors} />;
+      case 3:
+        return <Access register={register} errors={errors} />;
+      default:
+        return null;
     }
   };
 
   return (
-    <Dialog open={open} onClose={handleToggle} fullWidth maxWidth="lg">
+    <Dialog open={open} onClose={handleToggle} fullWidth maxWidth="md">
       <DialogTitle>
-        <div className="flex justify-between items-center">
-          <h5 className="modal-title">Add New Company</h5>
-          <button onClick={handleToggle} className="bd-btn-close">
-            ✕
+        <div className="flex justify-between">
+          <h5 className="modal-title">{editData ? "Edit Company" : "Add New Company"}</h5>
+          <button onClick={handleToggle} type="button" className="bd-btn-close">
+            <i className="fa-solid fa-xmark-large"></i>
           </button>
         </div>
       </DialogTitle>
 
-      <DialogContent>
-        {/* ✅ Steps */}
-        <BoxStepWithIcon
-          steps={steps}
-          currentStep={currentStep}
-          onStepChange={setCurrentStep}
-        />
-
-        <form onSubmit={handleSubmit(onSubmit)} className="mt-6">
-          {/* ================= STEP 1 ================= */}
-          {currentStep === 1 && (
-            <div className="grid grid-cols-12 gap-4">
-              <div className="col-span-12">
-                <InputField
-                  id="companyName"
-                  label="Company Name"
-                  register={register("companyName", { required: "Required" })}
-                  error={errors.companyName}
-                />
-              </div>
-
-              <div className="col-span-6">
-                <InputField
-                  id="companyCode"
-                  label="Company Code"
-                  register={register("companyCode", { required: "Required" })}
-                  error={errors.companyCode}
-                />
-              </div>
-
-              <div className="col-span-6">
-                <InputField
-                  id="domain"
-                  label="Domain"
-                  register={register("domain")}
-                  error={errors.domain}
-                />
-              </div>
-
-              <div className="col-span-12">
-                <InputField
-                  id="address1"
-                  label="Address Line 1"
-                  register={register("address1", { required: "Required" })}
-                  error={errors.address1}
-                />
-              </div>
-
-              <div className="col-span-6">
-                <InputField
-                  id="city"
-                  label="City"
-                  register={register("city", { required: "Required" })}
-                  error={errors.city}
-                />
-              </div>
-
-              <div className="col-span-6">
-                <SelectBox
-                  id="country"
-                  label="Country"
-                  options={countriesData}
-                  control={control}
-                  isRequired
-                />
+      <DialogContent className="common-scrollbar overflow-y-auto">
+        <form onSubmit={handleSubmit(onSubmit)}>
+          <div className="card__wrapper">
+            <div className="steps__form mb-[20px]">
+              <div className="steps__row style_two setup-panel-2 flex flex-wrap justify-start md:justify-between gap-4 ">
+                {steps.map((step, index) => (
+                  <div className="steps__step" key={index}>
+                    <button
+                      onClick={() => setActiveIndex(index)}
+                      type="button"
+                      className={`steps__title ${activeIndex === index ? "step-active" : ""}`}
+                    >
+                      {step.label}
+                    </button>
+                  </div>
+                ))}
               </div>
             </div>
-          )}
 
-          {/* ================= STEP 2 ================= */}
-          {currentStep === 2 && (
-            <div className="grid grid-cols-12 gap-4">
-              <div className="col-span-12">
-                <InputField
-                  id="contactName"
-                  label="Contact Name"
-                  register={register("contactName", { required: "Required" })}
-                  error={errors.contactName}
-                />
-              </div>
+            <div className="step-content mt-[20px]">{renderStepContent(activeIndex)}</div>
 
-              <div className="col-span-6">
-                <InputField
-                  id="contactEmail"
-                  label="Contact Email"
-                  register={register("contactEmail", { required: "Required" })}
-                  error={errors.contactEmail}
-                />
-              </div>
-
-              <div className="col-span-6">
-                <InputField
-                  id="contactPhone"
-                  label="Contact Phone"
-                  register={register("contactPhone")}
-                  error={errors.contactPhone}
-                />
-              </div>
-            </div>
-          )}
-
-          {/* ================= STEP 3 ================= */}
-          {currentStep === 3 && (
-            <div className="grid grid-cols-12 gap-4">
-              <div className="col-span-4">
-                <SelectBox
-                  id="companyStatus"
-                  label="Company Status"
-                  control={control}
-                  options={[
-                    { label: "Active", value: "Active" },
-                    { label: "Suspended", value: "Suspended" },
-                    { label: "Pending", value: "Pending" },
-                  ]}
-                  isRequired
-                />
-              </div>
-
-              <div className="col-span-4">
-                <SelectBox
-                  id="assignedPlan"
-                  label="Assigned Plan"
-                  control={control}
-                  options={[
-                    { label: "Free", value: "Free" },
-                    { label: "Pro", value: "Pro" },
-                    { label: "Enterprise", value: "Enterprise" },
-                  ]}
-                />
-              </div>
-
-              <div className="col-span-4">
-                <InputField
-                  id="employeeLimit"
-                  label="Employee Limit"
-                  register={register("employeeLimit")}
-                  error={errors.employeeLimit}
-                />
-              </div>
-            </div>
-          )}
-
-          {/* ================= STEP 4 ================= */}
-          {currentStep === 4 && (
-            <div className="grid grid-cols-12 gap-4">
-              <label className="col-span-6">
-                <input type="checkbox" {...register("attendance")} /> Attendance
-              </label>
-
-              {attendanceEnabled && (
-                <div className="col-span-6">
-                  <SelectBox
-                    id="attendanceLevel"
-                    label="Attendance Level"
-                    control={control}
-                    options={[
-                      { label: "Basic", value: "Basic" },
-                      { label: "Advanced", value: "Advanced" },
-                    ]}
-                  />
-                </div>
+            <div className="flex gap-[20px] flex-wrap justify-between items-center mt-[20px]">
+              {activeIndex !== 0 && (
+                <button
+                  type="button"
+                  className="prevBtn-2 btn btn-secondary"
+                  onClick={() => setActiveIndex(Math.max(activeIndex - 1, 0))}
+                  disabled={activeIndex === 0}
+                >
+                  Previous
+                </button>
               )}
 
-              <label className="col-span-6">
-                <input type="checkbox" {...register("leaveManagement")} /> Leave
-                Management
-              </label>
+              {steps.length - 1 !== activeIndex ? (
+                <button
+                  type="button"
+                  className="nextBtn-2 btn btn-primary"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    setActiveIndex(Math.min(activeIndex + 1, steps.length - 1));
+                  }}
+                >
+                  Next
+                </button>
 
-              <label className="col-span-6">
-                <input type="checkbox" {...register("payroll")} /> Payroll
-              </label>
-
-              <label className="col-span-6">
-                <input type="checkbox" {...register("offerLetters")} /> Offer
-                Letters
-              </label>
-
-              <label className="col-span-6">
-                <input type="checkbox" {...register("compliance")} /> Compliance
-              </label>
+              ) : (
+                <button type="submit" className="btn btn-primary">
+                  {editData ? "Update" : "Submit"}
+                </button>
+              )}
             </div>
-          )}
-
-          {/* ✅ Buttons */}
-          <div className="flex justify-between mt-6">
-            {currentStep > 1 && (
-              <button
-                type="button"
-                className="btn btn-secondary"
-                onClick={() => setCurrentStep((s) => s - 1)}
-              >
-                Back
-              </button>
-            )}
-
-            {currentStep < steps.length ? (
-              <button
-                type="button"
-                className="btn btn-primary ml-auto"
-                onClick={() => setCurrentStep((s) => s + 1)}
-              >
-                Next
-              </button>
-            ) : (
-              <button type="submit" className="btn btn-success ml-auto">
-                Add Company
-              </button>
-            )}
           </div>
         </form>
       </DialogContent>

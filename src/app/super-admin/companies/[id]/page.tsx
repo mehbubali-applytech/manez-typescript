@@ -1,10 +1,10 @@
 import MetaData from "@/hooks/useMetaData";
 import Wrapper from "@/components/layouts/DefaultWrapper";
-import CompanyDetailMainArea from "@/components/pagesUI/super-admin/companies/CompanyDetailMainArea";
+import CompanyDetailsMainArea from "@/components/pagesUI/super-admin/companies/[id]/CompanyDetailsMainArea";
 
 interface Props {
   params: {
-    companycode: string;
+    id: number;
   };
 }
 
@@ -13,7 +13,7 @@ const CompanyDetailPage = ({ params }: Props) => {
     <>
       <MetaData pageTitle="Company Details">
         <Wrapper isSuperAdmin={true}>
-          <CompanyDetailMainArea companyCode={params.companycode} />
+          <CompanyDetailsMainArea />
         </Wrapper>
       </MetaData>
     </>

@@ -1,19 +1,19 @@
 import MetaData from "@/hooks/useMetaData";
 import Wrapper from "@/components/layouts/DefaultWrapper";
-import CompanyFinanceExecutivesMainArea from "@/components/pagesUI/super-admin/finance-executives/[companycode]/CompanyFinanceExecutivesMainArea";
+import CompanyFinanceExecutivesMainArea from "@/components/pagesUI/super-admin/finance-executives/[id]/CompanyFinanceExecutivesMainArea";
 
 interface Props {
   params: {
-    companycode: string;
+    id: number;
   };
 }
 
 const CompanyFinanceExecutivesPage = ({ params }: Props) => {
   return (
     <>
-      <MetaData pageTitle={`Finance Executives • ${params.companycode}`}>
+      <MetaData pageTitle={`Finance Executives • ${params.id}`}>
         <Wrapper isSuperAdmin={true}>
-          <CompanyFinanceExecutivesMainArea companyCode={params.companycode} />
+          <CompanyFinanceExecutivesMainArea id={params.id} />
         </Wrapper>
       </MetaData>
     </>

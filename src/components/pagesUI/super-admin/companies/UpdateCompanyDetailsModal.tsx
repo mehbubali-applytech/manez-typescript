@@ -27,17 +27,12 @@ const steps: StepItem[] = [
   },
   {
     step: 2,
-    title: "Primary Contact",
-    icon: "fa-solid fa-user",
+    title: "Contact Details",
+    icon: "fa-solid fa-address-book",
   },
   {
     step: 3,
-    title: "Settings",
-    icon: "fa-solid fa-sliders",
-  },
-  {
-    step: 4,
-    title: "Modules",
+    title: "Additional Info",
     icon: "fa-solid fa-layer-group",
   },
 ];
@@ -54,11 +49,8 @@ const UpdateCompanyDetailsModal: React.FC<Props> = ({
     handleSubmit,
     control,
     reset,
-    watch,
     formState: { errors },
   } = useForm<ICompany>();
-
-  const attendanceEnabled = watch("attendance");
 
   useEffect(() => {
     if (editData) {
@@ -66,31 +58,24 @@ const UpdateCompanyDetailsModal: React.FC<Props> = ({
     }
   }, [editData, reset]);
 
-  const handleToggle = () => setOpen(false);
+  const handleClose = () => setOpen(false);
 
   const onSubmit = async (data: ICompany) => {
     try {
       console.log("Updated Company:", data);
-      toast.success("Company updated successfully ✅");
-      setTimeout(() => setOpen(false), 1500);
+      toast.success("Company updated successfully");
+      setTimeout(() => setOpen(false), 800);
     } catch {
-      toast.error("Failed to update company ❌");
+      toast.error("Failed to update company");
     }
   };
 
   return (
-<Dialog
-  open={open}
-  onClose={handleToggle}
-  fullWidth
-  maxWidth="lg"
->
-
-
+    <Dialog open={open} onClose={handleClose} fullWidth maxWidth="lg">
       <DialogTitle>
         <div className="flex justify-between items-center">
-          <h5 className="modal-title">Update Company Details</h5>
-          <button onClick={handleToggle} className="bd-btn-close">✕</button>
+          <h5 className="modal-title">Update Company</h5>
+          <button onClick={handleClose} className="bd-btn-close">✕</button>
         </div>
       </DialogTitle>
 
@@ -103,51 +88,62 @@ const UpdateCompanyDetailsModal: React.FC<Props> = ({
 
         <form onSubmit={handleSubmit(onSubmit)} className="mt-6">
 
-          {/* ================= STEP 1 ================= */}
+          {/* ========== STEP 1: COMPANY INFO ========== */}
           {currentStep === 1 && (
             <div className="grid grid-cols-12 gap-4">
-              <div className="col-span-12">
+              
+              <div className="col-span-6">
                 <InputField
-                  id="companyName"
+                  id="name"
                   label="Company Name"
-                  register={register("companyName", { required: true })}
-                  error={errors.companyName}
+                  register={register("name", { required: true })}
+                  error={errors.name}
                 />
               </div>
 
               <div className="col-span-6">
-                <InputField
-                  id="companyCode"
-                  label="Company Code"
-                  register={register("companyCode", { required: true })}
-                  error={errors.companyCode}
-                />
-              </div>
-
-              <div className="col-span-6">
-                <InputField
-                  id="domain"
-                  label="Domain / Subdomain"
-                  register={register("domain")}
-                  error={errors.domain}
+                <SelectBox
+                  id="industry"
+                  label="Industry"
+                  control={control}
+                  options={[
+                    { label: "IT", value: "IT" },
+                    { label: "Finance", value: "Finance" },
+                    { label: "Retail", value: "Retail" },
+                  ]}
                 />
               </div>
 
               <div className="col-span-12">
                 <InputField
-                  id="address1"
-                  label="Address Line 1"
-                  register={register("address1", { required: true })}
-                  error={errors.address1}
+                  id="address"
+                  label="Address"
+                  register={register("address")}
+                  error={errors.address}
                 />
               </div>
 
-              <div className="col-span-6">
+              <div className="col-span-4">
                 <InputField
                   id="city"
                   label="City"
-                  register={register("city", { required: true })}
-                  error={errors.city}
+                  register={register("city")}
+                />
+              </div>
+
+              <div className="col-span-4">
+                <InputField
+                  id="state"
+                  label="State"
+                  register={register("state")}
+                />
+              </div>
+
+              <div className="col-span-4">
+                <InputField
+                  id="zipCode"
+                  label="Zip Code"
+                  register={register("zipCode")}
                 />
               </div>
 
@@ -155,128 +151,118 @@ const UpdateCompanyDetailsModal: React.FC<Props> = ({
                 <SelectBox
                   id="country"
                   label="Country"
-                  options={countriesData}
                   control={control}
-                  isRequired
+                  options={countriesData}
+                />
+              </div>
+
+              <div className="col-span-6">
+                <InputField
+                  id="location"
+                  label="Location"
+                  register={register("location")}
                 />
               </div>
             </div>
           )}
 
-          {/* ================= STEP 2 ================= */}
+          {/* ========== STEP 2: CONTACT DETAILS ========== */}
           {currentStep === 2 && (
             <div className="grid grid-cols-12 gap-4">
+
+              <div className="col-span-6">
+                <InputField
+                  id="email"
+                  label="Email"
+                  register={register("email", { required: true })}
+                  error={errors.email}
+                />
+              </div>
+
+              <div className="col-span-6">
+                <InputField
+                  id="owner"
+                  label="Owner Name"
+                  register={register("owner", { required: true })}
+                  error={errors.owner}
+                />
+              </div>
+
+              <div className="col-span-4">
+                <InputField id="phone" label="Phone" register={register("phone")} />
+              </div>
+
+              <div className="col-span-4">
+                <InputField id="mobile" label="Mobile" register={register("mobile")} />
+              </div>
+
+              <div className="col-span-4">
+                <InputField id="fax" label="Fax" register={register("fax")} />
+              </div>
+
               <div className="col-span-12">
                 <InputField
-                  id="contactName"
-                  label="Contact Person Name"
-                  register={register("contactName", { required: true })}
-                  error={errors.contactName}
-                />
-              </div>
-
-              <div className="col-span-6">
-                <InputField
-                  id="contactEmail"
-                  label="Contact Email"
-                  register={register("contactEmail", { required: true })}
-                  error={errors.contactEmail}
-                />
-              </div>
-
-              <div className="col-span-6">
-                <InputField
-                  id="contactPhone"
-                  label="Contact Phone"
-                  register={register("contactPhone")}
-                  error={errors.contactPhone}
+                  id="websites"
+                  label="Website URL"
+                  register={register("websites")}
                 />
               </div>
             </div>
           )}
 
-          {/* ================= STEP 3 ================= */}
+          {/* ========== STEP 3: ADDITIONAL INFO ========== */}
           {currentStep === 3 && (
             <div className="grid grid-cols-12 gap-4">
-              <div className="col-span-4">
+
+              <div className="col-span-6">
+                <InputField
+                  id="tag"
+                  label="Tag"
+                  register={register("tag")}
+                />
+              </div>
+
+              <div className="col-span-6">
+                <InputField
+                  id="currencyType"
+                  label="Currency"
+                  register={register("currencyType")}
+                />
+              </div>
+
+              <div className="col-span-12">
+                <InputField
+                  id="description"
+                  label="Description"
+                  register={register("description")}
+                />
+              </div>
+
+              <div className="col-span-6">
                 <SelectBox
-                  id="companyStatus"
-                  label="Company Status"
+                  id="status"
+                  label="Status"
                   control={control}
                   options={[
                     { label: "Active", value: "Active" },
-                    { label: "Suspended", value: "Suspended" },
+                    { label: "Inactive", value: "Inactive" },
                     { label: "Pending", value: "Pending" },
                   ]}
                   isRequired
                 />
               </div>
 
-              <div className="col-span-4">
-                <SelectBox
-                  id="assignedPlan"
-                  label="Assigned Plan"
-                  control={control}
-                  options={[
-                    { label: "Free", value: "Free" },
-                    { label: "Pro", value: "Pro" },
-                    { label: "Enterprise", value: "Enterprise" },
-                  ]}
-                />
-              </div>
-
-              <div className="col-span-4">
+              <div className="col-span-6">
                 <InputField
-                  id="employeeLimit"
-                  label="Employee Limit"
-                  register={register("employeeLimit")}
-                  error={errors.employeeLimit}
+                  id="rating"
+                  label="Rating"
+                  register={register("rating")}
                 />
               </div>
             </div>
           )}
 
-          {/* ================= STEP 4 ================= */}
-          {currentStep === 4 && (
-            <div className="grid grid-cols-12 gap-4">
-              <label className="col-span-6">
-                <input type="checkbox" {...register("attendance")} /> Attendance
-              </label>
-
-              {attendanceEnabled && (
-                <div className="col-span-6">
-                  <SelectBox
-                    id="attendanceLevel"
-                    label="Attendance Level"
-                    control={control}
-                    options={[
-                      { label: "Basic", value: "Basic" },
-                      { label: "Advanced", value: "Advanced" },
-                    ]}
-                  />
-                </div>
-              )}
-
-              <label className="col-span-6">
-                <input type="checkbox" {...register("leaveManagement")} /> Leave
-                Management
-              </label>
-
-              <label className="col-span-6">
-                <input type="checkbox" {...register("payroll")} /> Payroll
-              </label>
-
-              <label className="col-span-6">
-                <input type="checkbox" {...register("offerLetters")} /> Offer Letters
-              </label>
-
-              <label className="col-span-6">
-                <input type="checkbox" {...register("compliance")} /> Compliance
-              </label>
-            </div>
-          )}
-
-          {/* ✅ ACTION BUTTONS */}
+          {/* ACTION BUTTONS */}
           <div className="flex justify-between mt-6">
             {currentStep > 1 && (
               <button
@@ -302,6 +288,7 @@ const UpdateCompanyDetailsModal: React.FC<Props> = ({
               </button>
             )}
           </div>
+
         </form>
       </DialogContent>
     </Dialog>

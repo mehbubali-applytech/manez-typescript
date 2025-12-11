@@ -13,16 +13,16 @@ const DUMMY_COMPLIANCE_OFFICERS: any[] = [
   { id: 5, compName: "Vikram Singh", compCode: "COMP005", department: "Legal", company: "Google", companyCode: "GOOG" },
 ];
 
-const CompanyComplianceOfficersMainArea: React.FC<{ companyCode: string }> = ({ companyCode }) => {
+const CompanyComplianceOfficersMainArea: React.FC<{ id: number }> = ({ id }) => {
   const [modalOpen, setModalOpen] = useState(false);
   const [complianceOfficers, setComplianceOfficers] = useState<IComplianceOfficer[]>([]);
 
   useEffect(() => {
     const filteredOfficers = DUMMY_COMPLIANCE_OFFICERS.filter(
-      (officer) => officer.companyCode?.toLowerCase() === companyCode.toLowerCase()
+      (officer) => officer.id === id
     );
     setComplianceOfficers(filteredOfficers);
-  }, [companyCode]);
+  }, [id]);
 
   return (
     <div className="app__slide-wrapper">
@@ -40,7 +40,7 @@ const CompanyComplianceOfficersMainArea: React.FC<{ companyCode: string }> = ({ 
               <Link href="/super-admin/compliance-officers">Compliance Officers</Link>
             </li>
             <li className="breadcrumb-item active">
-              {companyCode}
+              {id}
             </li>
           </ol>
         </nav>

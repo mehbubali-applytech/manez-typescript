@@ -1,51 +1,50 @@
 "use client";
+
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
+import { useParams } from "next/navigation";
 import Breadcrumb from "@/common/Breadcrumb/breadcrumb";
 import { ICompany } from "./CompaniesMainArea";
-
-interface Props {
-  companyCode: string;
-}
 
 const dummyCompaniesData: ICompany[] = [
   {
     id: 1,
-    companyName: "Google LLC",
-    companyCode: "GOOG",
-    domain: "google.com",
-    companyLogo: "",
-    address1: "1600 Amphitheatre Parkway",
-    city: "Mountain View",
-    stateProvince: "California",
-    country: "US",
-    postalCode: "94043",
-    contactName: "John Doe",
-    contactEmail: "admin@google.com",
-    contactPhone: "+1 555-1234",
-    companyStatus: "Active",
-    assignedPlan: "Enterprise",
-    employeeLimit: 10000,
-    attendance: true,
-    attendanceLevel: "Advanced",
-    leaveManagement: true,
-    payroll: true,
-    offerLetters: true,
-    compliance: true,
-    createdAt: "2024-01-01",
-    updatedAt: "2024-06-10",
+    name: "TechVision Pvt Ltd",
+    location: "Bangalore, India",
+    phone: "080-23456789",
+    mobile: "+91-9876543210",
+    fax: "080-987654",
+    websites: "https://techvision.com",
+    industry: "Software",
+    currencyType: "INR",
+    source: "LinkedIn",
+    description: "A leading software development company",
+    language: "English",
+    country: "India",
+    city: "Bangalore",
+    zipCode: "560001",
+    state: "Karnataka",
+    address: "MG Road, Bangalore",
+    email: "contact@techvision.com",
+    owner: "Rahul Sharma",
+    rating: 4.5,
+    tag: "IT",
+    status: "Active",
+    companyImg: undefined,
   },
 ];
 
-const CompanyDetailMainArea: React.FC<Props> = ({ companyCode }) => {
+const CompanyDetailMainArea = () => {
+  const params = useParams();
+  const id = Number(params.id);
+
   const [company, setCompany] = useState<ICompany | null>(null);
 
   useEffect(() => {
-    const found = dummyCompaniesData.find(
-      (c) => c.companyCode.toLowerCase() === companyCode.toLowerCase()
-    );
+    console.log("Fetching details for company ID:", id);
+    const found = dummyCompaniesData.find((c) => c.id === id);
     setCompany(found || null);
-  }, [companyCode]);
+  }, [id]);
 
   if (!company) {
     return (
@@ -53,9 +52,7 @@ const CompanyDetailMainArea: React.FC<Props> = ({ companyCode }) => {
         <Breadcrumb breadTitle="Company Not Found" subTitle="Super Admin" />
         <div className="card">
           <div className="card__body text-center">
-            <p className="text-danger mb-4">
-              Company with code &quot;{companyCode}&quot; not found.
-            </p>
+            <p className="text-danger mb-4">Company with ID "{id}" not found.</p>
             <Link href="/super-admin/companies" className="btn btn-primary">
               Back to Companies
             </Link>
@@ -67,60 +64,49 @@ const CompanyDetailMainArea: React.FC<Props> = ({ companyCode }) => {
 
   return (
     <div className="app__slide-wrapper">
-      <Breadcrumb
-        breadTitle={`${company.companyName} Details`}
-        subTitle="Super Admin"
-      />
+      <Breadcrumb breadTitle={`${company.name} Details`} subTitle="Super Admin" />
 
       <div className="grid grid-cols-12 gap-5">
 
-        {/* ✅ Navigation */}
+        {/* Navigation Buttons */}
         <div className="col-span-12">
           <div className="card">
             <div className="card__body flex gap-3 flex-wrap">
-              <Link href={`/super-admin/staff/${company.companyCode}`} className="btn btn-primary">
-                All Staff
-              </Link>
-              <Link href={`/super-admin/hr-manager/${company.companyCode}`} className="btn btn-primary">
-                HR Manager
-              </Link>
-              <Link href={`/super-admin/finance-executives/${company.companyCode}`} className="btn btn-secondary">
-                Finance Executive
-              </Link>
-                <Link href={`/super-admin/compliance-officers/${company.companyCode}`} className="btn btn-danger">
-                Compliance Officer
-              </Link>
-              <Link href={`/super-admin/companies`} className="btn btn-outline-secondary">
-                Back to Companies
-              </Link>
+              <Link href={`/super-admin/staff/${company.id}`} className="btn btn-primary">All Staff</Link>
+              <Link href={`/super-admin/hr-manager/${company.id}`} className="btn btn-primary">HR Manager</Link>
+              <Link href={`/super-admin/finance-executives/${company.id}`} className="btn btn-secondary">Finance Executive</Link>
+              <Link href={`/super-admin/compliance-officers/${company.id}`} className="btn btn-danger">Compliance Officer</Link>
+              <Link href={`/super-admin/companies`} className="btn btn-outline-secondary">Back to Companies</Link>
             </div>
           </div>
         </div>
 
-        {/* ✅ BASIC INFO */}
+        {/* BASIC INFORMATION */}
         <div className="col-span-12">
           <div className="card">
-            <div className="card__header">
-              <h5 className="card__title">Basic Information</h5>
-            </div>
+            <div className="card__header"><h5 className="card__title">Basic Information</h5></div>
+
             <div className="card__body grid grid-cols-12 gap-4">
-              <div className="col-span-4">
-                <strong>Company Name:</strong>
-                <p>{company.companyName}</p>
-              </div>
-              <div className="col-span-4">
-                <strong>Company Code:</strong>
-                <p>{company.companyCode}</p>
-              </div>
-              <div className="col-span-4">
-                <strong>Domain:</strong>
-                <p>{company.domain || "—"}</p>
+              <div className="col-span-4"><strong>Name:</strong><p>{company.name}</p></div>
+              <div className="col-span-4"><strong>Location:</strong><p>{company.location}</p></div>
+              <div className="col-span-4"><strong>Industry:</strong><p>{company.industry || "—"}</p></div>
+
+              <div className="col-span-4"><strong>Source:</strong><p>{company.source || "—"}</p></div>
+              <div className="col-span-4"><strong>Language:</strong><p>{company.language || "—"}</p></div>
+              <div className="col-span-4"><strong>Rating:</strong><p>{company.rating}</p></div>
+
+              <div className="col-span-4"><strong>Tag:</strong><p>{company.tag}</p></div>
+              <div className="col-span-4"><strong>Status:</strong><p>{company.status}</p></div>
+
+              <div className="col-span-12">
+                <strong>Description:</strong>
+                <p>{company.description || "—"}</p>
               </div>
 
               <div className="col-span-12">
-                <strong>Logo:</strong>
-                {company.companyLogo ? (
-                  <img src={company.companyLogo} alt="Logo" style={{ width: 120 }} />
+                <strong>Company Logo:</strong>
+                {company.companyImg ? (
+                  <img src={company.companyImg.src} alt="Logo" style={{ width: 120 }} />
                 ) : (
                   <p className="text-muted">No logo uploaded</p>
                 )}
@@ -129,119 +115,45 @@ const CompanyDetailMainArea: React.FC<Props> = ({ companyCode }) => {
           </div>
         </div>
 
-        {/* ✅ ADDRESS */}
+        {/* ADDRESS */}
         <div className="col-span-12">
           <div className="card">
-            <div className="card__header">
-              <h5 className="card__title">Address</h5>
-            </div>
+            <div className="card__header"><h5 className="card__title">Address</h5></div>
+
             <div className="card__body grid grid-cols-12 gap-4">
-              <div className="col-span-6">
-                <strong>Address Line 1:</strong>
-                <p>{company.address1}</p>
-              </div>
-              <div className="col-span-6">
-                <strong>Address Line 2:</strong>
-                <p>{company.address2 || "—"}</p>
-              </div>
-              <div className="col-span-4">
-                <strong>City:</strong>
-                <p>{company.city}</p>
-              </div>
-              <div className="col-span-4">
-                <strong>State:</strong>
-                <p>{company.stateProvince || "—"}</p>
-              </div>
-              <div className="col-span-4">
-                <strong>Country:</strong>
-                <p>{company.country}</p>
-              </div>
-              <div className="col-span-4">
-                <strong>Postal Code:</strong>
-                <p>{company.postalCode || "—"}</p>
-              </div>
+              <div className="col-span-6"><strong>Address:</strong><p>{company.address || "—"}</p></div>
+              <div className="col-span-3"><strong>City:</strong><p>{company.city}</p></div>
+              <div className="col-span-3"><strong>State:</strong><p>{company.state || "—"}</p></div>
+              <div className="col-span-4"><strong>Country:</strong><p>{company.country}</p></div>
+              <div className="col-span-4"><strong>Zip Code:</strong><p>{company.zipCode || "—"}</p></div>
             </div>
           </div>
         </div>
 
-        {/* ✅ CONTACT */}
+        {/* CONTACT */}
         <div className="col-span-12">
           <div className="card">
-            <div className="card__header">
-              <h5 className="card__title">Primary Contact</h5>
-            </div>
+            <div className="card__header"><h5 className="card__title">Contact Information</h5></div>
+
             <div className="card__body grid grid-cols-12 gap-4">
-              <div className="col-span-4">
-                <strong>Name:</strong>
-                <p>{company.contactName || "—"}</p>
-              </div>
-              <div className="col-span-4">
-                <strong>Email:</strong>
-                <p>{company.contactEmail || "—"}</p>
-              </div>
-              <div className="col-span-4">
-                <strong>Phone:</strong>
-                <p>{company.contactPhone || "—"}</p>
-              </div>
+              <div className="col-span-4"><strong>Owner:</strong><p>{company.owner}</p></div>
+              <div className="col-span-4"><strong>Email:</strong><p>{company.email}</p></div>
+              <div className="col-span-4"><strong>Phone:</strong><p>{company.phone || "—"}</p></div>
+
+              <div className="col-span-4"><strong>Mobile:</strong><p>{company.mobile || "—"}</p></div>
+              <div className="col-span-4"><strong>Fax:</strong><p>{company.fax || "—"}</p></div>
+              <div className="col-span-4"><strong>Website:</strong><p>{company.websites || "—"}</p></div>
             </div>
           </div>
         </div>
 
-        {/* ✅ SETTINGS */}
+        {/* FINANCIAL / SYSTEM */}
         <div className="col-span-12">
           <div className="card">
-            <div className="card__header">
-              <h5 className="card__title">Settings</h5>
-            </div>
-            <div className="card__body grid grid-cols-12 gap-4">
-              <div className="col-span-4">
-                <strong>Status:</strong>
-                <p>{company.companyStatus || "—"}</p>
-              </div>
-              <div className="col-span-4">
-                <strong>Plan:</strong>
-                <p>{company.assignedPlan || "—"}</p>
-              </div>
-              <div className="col-span-4">
-                <strong>Employee Limit:</strong>
-                <p>{company.employeeLimit ?? "—"}</p>
-              </div>
-            </div>
-          </div>
-        </div>
+            <div className="card__header"><h5 className="card__title">Financial & System Details</h5></div>
 
-        {/* ✅ MODULES */}
-        <div className="col-span-12">
-          <div className="card">
-            <div className="card__header">
-              <h5 className="card__title">Modules</h5>
-            </div>
             <div className="card__body grid grid-cols-12 gap-4">
-              <div className="col-span-3">Attendance: {company.attendance ? "✅" : "❌"}</div>
-              <div className="col-span-3">Attendance Level: {company.attendanceLevel || "—"}</div>
-              <div className="col-span-3">Leave: {company.leaveManagement ? "✅" : "❌"}</div>
-              <div className="col-span-3">Payroll: {company.payroll ? "✅" : "❌"}</div>
-              <div className="col-span-3">Offer Letters: {company.offerLetters ? "✅" : "❌"}</div>
-              <div className="col-span-3">Compliance: {company.compliance ? "✅" : "❌"}</div>
-            </div>
-          </div>
-        </div>
-
-        {/* ✅ AUDIT */}
-        <div className="col-span-12">
-          <div className="card">
-            <div className="card__header">
-              <h5 className="card__title">Audit</h5>
-            </div>
-            <div className="card__body grid grid-cols-12 gap-4">
-              <div className="col-span-6">
-                <strong>Created At:</strong>
-                <p>{company.createdAt || "—"}</p>
-              </div>
-              <div className="col-span-6">
-                <strong>Updated At:</strong>
-                <p>{company.updatedAt || "—"}</p>
-              </div>
+              <div className="col-span-4"><strong>Currency Type:</strong><p>{company.currencyType || "—"}</p></div>
             </div>
           </div>
         </div>

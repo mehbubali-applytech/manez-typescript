@@ -17,16 +17,16 @@ interface IFinanceExecutiveExtended extends IFinanceExecutive {
   companyCode?: string;
 }
 
-const CompanyFinanceExecutivesMainArea: React.FC<{ companyCode: string }> = ({ companyCode }) => {
+const CompanyFinanceExecutivesMainArea: React.FC<{ id: number }> = ({ id }) => {
   const [modalOpen, setModalOpen] = useState(false);
   const [financeExecutives, setFinanceExecutives] = useState<IFinanceExecutive[]>([]);
 
   useEffect(() => {
     const filteredExecutives = DUMMY_FINANCE_EXECUTIVES.filter(
-      (exec: any) => exec.companyCode?.toLowerCase() === companyCode.toLowerCase()
+      (exec: any) => exec.id === id
     );
     setFinanceExecutives(filteredExecutives);
-  }, [companyCode]);
+  }, [id]);
 
   return (
     <div className="app__slide-wrapper">
@@ -44,7 +44,7 @@ const CompanyFinanceExecutivesMainArea: React.FC<{ companyCode: string }> = ({ c
               <Link href="/super-admin/finance-executives">Finance Executives</Link>
             </li>
             <li className="breadcrumb-item active">
-              {companyCode}
+              {id}
             </li>
           </ol>
         </nav>

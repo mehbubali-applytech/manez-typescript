@@ -13,16 +13,16 @@ const DUMMY_HR_MANAGERS: any[] = [
   { id: 5, hrName: "Priya Reddy", hrCode: "HR005", department: "Recruitment", company: "Google", companyCode: "GOOG" },
 ];
 
-const CompanyHrManagersMainArea: React.FC<{ companyCode: string }> = ({ companyCode }) => {
+const CompanyHrManagersMainArea: React.FC<{ id: number }> = ({ id }) => {
   const [modalOpen, setModalOpen] = useState(false);
   const [hrManagers, setHrManagers] = useState<IHrManager[]>([]);
 
   useEffect(() => {
     const filteredManagers = DUMMY_HR_MANAGERS.filter(
-      (mgr) => mgr.companyCode?.toLowerCase() === companyCode.toLowerCase()
+      (mgr) => mgr.id === id
     );
     setHrManagers(filteredManagers);
-  }, [companyCode]);
+  }, [id]);
 
   return (
     <div className="app__slide-wrapper">
@@ -40,7 +40,7 @@ const CompanyHrManagersMainArea: React.FC<{ companyCode: string }> = ({ companyC
               <Link href="/super-admin/hr-manager">HR Managers</Link>
             </li>
             <li className="breadcrumb-item active">
-              {companyCode}
+              {id}
             </li>
           </ol>
         </nav>

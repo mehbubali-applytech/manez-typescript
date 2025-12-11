@@ -1,132 +1,126 @@
 "use client";
 import Link from "next/link";
+import { StaticImageData } from "next/image";
 import React, { useEffect, useState } from "react";
 import AddNewCompanyModal from "./AddNewCompany";
 import CompaniesTable from "./CompaniesTable";
 
 /* ✅ Updated & Scalable Company Interface */
 export interface ICompany {
+  [key: string]: any; // required for dynamic row access in table hooks
+
   id: number;
-
-  /* ===== Basic Info ===== */
-  companyName: string;
-  companyCode: string;
-  domain?: string;
-  companyLogo?: string;
-
-  /* ===== Address ===== */
-  address1: string;
-  address2?: string;
-  city: string;
-  stateProvince?: string;
-  country: string;
-  postalCode?: string;
-
-  /* ===== Contact ===== */
-  contactName?: string;
-  contactEmail?: string;
-  contactPhone?: string;
-
-  /* ===== Settings ===== */
-  companyStatus?: "Active" | "Suspended" | "Pending";
-  assignedPlan?: "Free" | "Pro" | "Enterprise";
-  employeeLimit?: number;
-
-  /* ===== Modules ===== */
-  attendance?: boolean;
-  attendanceLevel?: "Basic" | "Advanced";
-  leaveManagement?: boolean;
-  payroll?: boolean;
-  offerLetters?: boolean;
-  compliance?: boolean;
-
-  /* ===== Audit ===== */
-  createdAt?: string;
-  updatedAt?: string;
-
-  /* ✅ Escape hatch */
-  [key: string]: any;
+  name: string; // Name of the company
+  location: string; // Location of the company
+  phone?: string;
+  mobile?: string;
+  fax?: string;
+  websites?: string;
+  industry?: string;
+  currencyType?: string;
+  source?: string;
+  description?: string;
+  language?: string;
+  country?: string;
+  city?: string;
+  zipCode?: string;
+  state?: string;
+  address?: string;
+  email: string; // Email address
+  owner: string; // Name of the owner
+  rating: number; // Rating of the company
+  tag: string; // Tag/category of the company
+  status: "Active" | "Inactive" | "Pending"; // Status of the company
+  companyImg?: StaticImageData;
 }
 
-const CompaniesMainArea = () => {
+const CompaniesMainArea: React.FC = () => {
   const [modalOpen, setModalOpen] = useState(false);
   const [companies, setCompanies] = useState<ICompany[]>([]);
+  const [editingCompany, setEditingCompany] = useState<ICompany | null>(null);
 
   useEffect(() => {
     const dummyData: ICompany[] = [
       {
-        id: 10,
-        companyName: "Google",
-        companyCode: "GOOG",
-        domain: "google.com",
-        address1: "1600 Amphitheatre Parkway",
-        city: "Mountain View",
-        stateProvince: "California",
-        country: "US",
-        postalCode: "94043",
-        companyStatus: "Active",
-        assignedPlan: "Enterprise",
-        attendance: true,
-        payroll: true,
+        id: 1,
+        name: "TechVision Pvt Ltd",
+        location: "Bangalore, India",
+        phone: "080-23456789",
+        mobile: "+91-9876543210",
+        fax: "080-987654",
+        websites: "https://techvision.com",
+        industry: "Software",
+        currencyType: "INR",
+        source: "LinkedIn",
+        description: "A leading software development company",
+        language: "English",
+        country: "India",
+        city: "Bangalore",
+        zipCode: "560001",
+        state: "Karnataka",
+        address: "MG Road, Bangalore",
+        email: "contact@techvision.com",
+        owner: "Rahul Sharma",
+        rating: 4.5,
+        tag: "IT",
+        status: "Active",
       },
       {
-        id: 11,
-        companyName: "Microsoft",
-        companyCode: "MSFT",
-        domain: "microsoft.com",
-        address1: "One Microsoft Way",
-        city: "Redmond",
-        stateProvince: "Washington",
-        country: "US",
-        postalCode: "98052",
-        companyStatus: "Active",
-        assignedPlan: "Enterprise",
-        attendance: true,
-        leaveManagement: true,
-      },
-      {
-        id: 12,
-        companyName: "Amazon",
-        companyCode: "AMZN",
-        domain: "amazon.com",
-        address1: "410 Terry Ave N",
-        city: "Seattle",
-        stateProvince: "Washington",
-        country: "US",
-        postalCode: "98109",
-        companyStatus: "Active",
-        assignedPlan: "Enterprise",
-      },
-      {
-        id: 15,
-        companyName: "Meta",
-        companyCode: "META",
-        domain: "meta.com",
-        address1: "1 Hacker Way",
-        city: "Menlo Park",
-        stateProvince: "California",
-        country: "US",
-        postalCode: "94025",
-        companyStatus: "Active",
-        assignedPlan: "Pro",
-      },
-      {
-        id: 16,
-        companyName: "Apple",
-        companyCode: "AAPL",
-        domain: "apple.com",
-        address1: "Apple Park",
-        city: "Cupertino",
-        stateProvince: "California",
-        country: "US",
-        postalCode: "95014",
-        companyStatus: "Active",
-        assignedPlan: "Enterprise",
+        id: 2,
+        name: "Global Traders Inc",
+        location: "Mumbai, India",
+        phone: "022-28976543",
+        mobile: "+91-9123456780",
+        fax: "022-345678",
+        websites: "https://globaltraders.com",
+        industry: "Import/Export",
+        currencyType: "USD",
+        source: "Website",
+        description: "Deals in international trade and logistics",
+        language: "English",
+        country: "India",
+        city: "Mumbai",
+        zipCode: "400001",
+        state: "Maharashtra",
+        address: "Andheri East, Mumbai",
+        email: "info@globaltraders.com",
+        owner: "Sanjay Mehta",
+        rating: 4.2,
+        tag: "Trading",
+        status: "Active",
       },
     ];
 
     setCompanies(dummyData);
   }, []);
+
+  // open modal for creating new
+  const openAddModal = () => {
+    setEditingCompany(null);
+    setModalOpen(true);
+  };
+
+  // open modal for editing a specific company
+  const openEditModal = (company: ICompany) => {
+    setEditingCompany(company);
+    setModalOpen(true);
+  };
+
+  // Replace this with actual create/update logic (API)
+  const handleSaveCompany = (payload: ICompany) => {
+    if (payload.id) {
+      // update existing
+      setCompanies((prev) =>
+        prev.map((c) => (c.id === payload.id ? { ...c, ...payload } : c))
+      );
+    } else {
+      // create new - assign a new ID
+      const newId = companies.length ? Math.max(...companies.map((c) => c.id)) + 1 : 1;
+      setCompanies((prev) => [{ ...payload, id: newId }, ...prev]);
+    }
+    setModalOpen(false);
+    setEditingCompany(null);
+  };
 
   return (
     <div className="app__slide-wrapper">
@@ -145,22 +139,28 @@ const CompaniesMainArea = () => {
         </nav>
 
         <div className="breadcrumb__btn">
-          <button
-            type="button"
-            className="btn btn-primary"
-            onClick={() => setModalOpen(true)}
-          >
+          <button type="button" className="btn btn-primary" onClick={openAddModal}>
             Add Company
           </button>
         </div>
       </div>
 
-      {/* Pass key to force remount when companies length changes (keeps prior behavior) */}
-      <CompaniesTable key={companies.length} data={companies} />
+      {/* Companies Table - pass data + edit opener */}
+      <CompaniesTable
+        key={companies.length}
+        data={companies}
+        onEdit={(company: ICompany) => openEditModal(company)}
+        onDelete={(id: number) => setCompanies((prev) => prev.filter((c) => c.id !== id))}
+      />
 
-      {/* Modal */}
+      {/* Modal for Add / Edit */}
       {modalOpen && (
-        <AddNewCompanyModal open={modalOpen} setOpen={setModalOpen} />
+        <AddNewCompanyModal
+          open={modalOpen}
+          setOpen={setModalOpen}
+          editData={editingCompany}
+          onSave={handleSaveCompany}
+        />
       )}
     </div>
   );
