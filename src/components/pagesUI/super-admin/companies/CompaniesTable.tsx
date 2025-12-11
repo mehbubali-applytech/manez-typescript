@@ -23,7 +23,7 @@ import TableControls from "@/components/elements/SharedInputs/TableControls";
 import DeleteModal from "@/components/common/DeleteModal";
 
 import useMaterialTableHook from "@/hooks/useMaterialTableHook";
-import { useTableStatusHook } from "@/hooks/use-condition-class";
+import { getTableStatusClass } from "@/hooks/use-condition-class"; // ❗ Updated import
 import { ICompany } from "./CompaniesMainArea";
 import UpdateCompanyDetailsModal from "./UpdateCompanyDetailsModal";
 
@@ -52,7 +52,6 @@ const CompaniesTable: React.FC<Props> = ({ data, onEdit, onDelete }) => {
   const [editData, setEditData] = useState<ICompany | null>(null);
   const [deleteId, setDeleteId] = useState<number | null>(null);
 
-  /** ✅ Memoized data */
   const memoData = useMemo(() => data, [data]);
 
   const {
@@ -79,20 +78,10 @@ const CompaniesTable: React.FC<Props> = ({ data, onEdit, onDelete }) => {
   };
 
   const confirmDelete = (index: number) => {
-    // map paginated/filtered index to actual company id
     const row = filteredRows[index];
     if (!row) return;
     setDeleteId(row.id);
     setModalDeleteOpen(true);
-  };
-
-  const handleDeleteConfirmed = (idx: number) => {
-    // remove from local hook data using handleDelete (it expects index)
-    handleDelete(idx);
-    // also inform parent if they passed onDelete
-    if (deleteId && onDelete) onDelete(deleteId);
-    setModalDeleteOpen(false);
-    setDeleteId(null);
   };
 
   return (
@@ -155,7 +144,7 @@ const CompaniesTable: React.FC<Props> = ({ data, onEdit, onDelete }) => {
 
                   <TableBody>
                     {paginatedRows.map((row, index) => {
-                      const statusClass = useTableStatusHook(row.status);
+                      const statusClass = getTableStatusClass(row.status); // ❗ FIXED
 
                       return (
                         <TableRow
@@ -179,6 +168,8 @@ const CompaniesTable: React.FC<Props> = ({ data, onEdit, onDelete }) => {
                                   src={row.companyImg}
                                   alt="Company"
                                   className="img-36 me-[10px]"
+                                  width={36}
+                                  height={36}
                                 />
                               )}
 
@@ -216,7 +207,7 @@ const CompaniesTable: React.FC<Props> = ({ data, onEdit, onDelete }) => {
                                 className="table__icon download"
                                 onClick={(e) => {
                                   e.stopPropagation();
-                                  router.push(`companies//${row.id}`);
+                                  router.push(`/super-admin/companies/${row.id}`);
                                 }}
                               >
                                 <i className="fa-regular fa-eye"></i>
@@ -269,7 +260,6 @@ const CompaniesTable: React.FC<Props> = ({ data, onEdit, onDelete }) => {
         </div>
       </div>
 
-
       {/* Delete Modal */}
       {modalDeleteOpen && (
         <DeleteModal
@@ -277,7 +267,6 @@ const CompaniesTable: React.FC<Props> = ({ data, onEdit, onDelete }) => {
           setOpen={setModalDeleteOpen}
           deleteId={deleteId ?? 0}
           handleDeleteFunc={() => {
-            // call handleDelete from hook - expects index; easier to map id -> index if needed
             if (deleteId == null) return;
             const idx = filteredRows.findIndex((r) => r.id === deleteId);
             if (idx >= 0) handleDelete(idx);
@@ -287,15 +276,14 @@ const CompaniesTable: React.FC<Props> = ({ data, onEdit, onDelete }) => {
           }}
         />
       )}
-      {
-        modalOpen && editData && (
-          <UpdateCompanyDetailsModal
-            open={modalOpen}
-            setOpen={setModalOpen}
-            editData={editData}
-          />
-        )
-      }
+
+      {modalOpen && editData && (
+        <UpdateCompanyDetailsModal
+          open={modalOpen}
+          setOpen={setModalOpen}
+          editData={editData}
+        />
+      )}
     </>
   );
 };
