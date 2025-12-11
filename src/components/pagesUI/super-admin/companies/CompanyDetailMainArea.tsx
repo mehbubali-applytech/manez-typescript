@@ -1,10 +1,12 @@
 "use client";
-
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
-import { useParams } from "next/navigation";
 import Breadcrumb from "@/common/Breadcrumb/breadcrumb";
 import { ICompany } from "./CompaniesMainArea";
+
+interface Props {
+  id: number;
+}
 
 const dummyCompaniesData: ICompany[] = [
   {
@@ -34,10 +36,7 @@ const dummyCompaniesData: ICompany[] = [
   },
 ];
 
-const CompanyDetailMainArea = () => {
-  const params = useParams();
-  const id = Number(params.id);
-
+const CompanyDetailMainArea: React.FC<Props> = ({ id }) => {
   const [company, setCompany] = useState<ICompany | null>(null);
 
   useEffect(() => {

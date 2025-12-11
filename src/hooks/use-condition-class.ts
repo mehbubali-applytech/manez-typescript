@@ -66,33 +66,6 @@ export const useTableStatusHook = (tag: any) => {
   }
 };
 
-// STATUS BADGES
-export const getTableStatusClass = (tag: any) => {
-  switch (tag) {
-    case "Pending": return "bg-warning";
-    case "Reject":
-    case "Rejected": return "bg-danger";
-    case "Contacted": return "bg-info";
-    case "Approved":
-    case "Active": return "bg-success";
-    case "Inactive": return "bg-danger";
-    case "Paid": return "bg-success";
-    case "Unpaid": return "bg-secondary";
-    case "Partial": return "bg-warning";
-    case "Won": return "bg-success";
-    case "Open": return "bg-primary";
-    case "Lost": return "bg-danger";
-    case "Returned": return "bg-warning";
-    case "Upcoming": return "bg-warning";
-    case "Complete": return "bg-success";
-    case "Cancel": return "bg-danger";
-    case "In Progress": return "bg-warning";
-    case "Closed": return "bg-danger";
-    case "Refund": return "bg-link";
-    default: return "";
-  }
-};
-
 
 export const useTablePrirotyHook = (tag: any) => {
   switch (tag) {
