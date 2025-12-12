@@ -6,7 +6,7 @@ const ReportsPage = () => {
   return (
     <>
       <MetaData pageTitle="Reports & Analytics">
-        <Wrapper isSuperAdmin={true}>
+        <Wrapper role="super-admin">
           <ReportsMainArea />
         </Wrapper>
       </MetaData>

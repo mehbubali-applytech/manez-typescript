@@ -9,12 +9,14 @@ import sidebarImg from "../../../../public/assets/images/bg/side-bar.png";
 import sidebarData from "@/data/sidebar-data";
 import superAdminSidebarData from "@/data/sidebar-data-super-admin";
 import { usePathname } from "next/navigation";
+import businessOwnerSidebarData from "@/data/sidebar-data-owner";
+import { SidebarCategory } from "@/interface/dashboardSidebar.interface";
 
 interface DashBoardSidebarProps {
-  isSuperAdmin?: boolean;
+  role: string;
 }
 
-const DashBoardSidebar: React.FC<DashBoardSidebarProps> = ({ isSuperAdmin = false }) => {
+const DashBoardSidebar: React.FC<DashBoardSidebarProps> = ({ role }) => {
   const { isCollapse, setIsCollapse } = useGlobalContext();
   const [linkId, setlinkId] = useState<number | null>(null);
   const [linkIdTwo, setlinkIdTwo] = useState<number | null>(null);
@@ -22,11 +24,17 @@ const DashBoardSidebar: React.FC<DashBoardSidebarProps> = ({ isSuperAdmin = fals
   const [linkIdFour, setlinkIdFour] = useState<number | null>(null);
   const pathName = usePathname(); // Current route
   
-  // Detect super-admin from URL or prop
-  const isSuperAdminRoute = isSuperAdmin || pathName.startsWith("/super-admin");
-  
-  // Use appropriate sidebar data
-  const currentSidebarData = isSuperAdminRoute ? superAdminSidebarData : sidebarData;
+
+let currentSidebarData: SidebarCategory[] = sidebarData; 
+
+if (role === "super-admin") {
+  currentSidebarData = superAdminSidebarData;
+} else if (role === "owner") {
+  currentSidebarData = businessOwnerSidebarData;
+} else if (role === "hrm") {
+  currentSidebarData = sidebarData;
+}
+
 
   // Utility function to handle collapse behavior for screens with max-width: 1199px
   const handleCollapse = (shouldCollapse: boolean) => {

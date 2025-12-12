@@ -6,7 +6,7 @@ const LogsPage = () => {
   return (
     <>
       <MetaData pageTitle="Support & Logs">
-        <Wrapper isSuperAdmin={true}>
+        <Wrapper role="super-admin">
           <HrManagersMainArea />
         </Wrapper>
       </MetaData>

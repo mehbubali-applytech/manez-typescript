@@ -8,9 +8,8 @@ import CustomerSatisfaction from "@/components/pagesUI/apps/home/CustomerSatisfa
 import UserActivity from "@/components/pagesUI/apps/home/UserActivity";
 import AnnouncementTable from "@/components/pagesUI/apps/home/AnnouncementTable";
 
-const SuperAdminDashboard = () => {
-
-  const cardsData = [
+const OwnerDashboard = () => {
+      const cardsData = [
     {
       iconClass: "fa-sharp fa-regular fa-user",
       title: "Total Employee",
@@ -29,24 +28,22 @@ const SuperAdminDashboard = () => {
     },
     {
       iconClass: "fa-sharp fa-regular fa-gear",
-      title: "Total Project",
-      value: 313,
+      title: "Attendance Percentage",
+      value: 98.5,
       description: "Than Last Month",
       percentageChange: "+5.15%",
       isIncrease: true,
     },
     {
       iconClass: "fa-light fa-badge-check",
-      title: "Compleat Project",
-      value: 150,
-      description: "Than Last Month",
-      percentageChange: "+5.5%",
-      isIncrease: false,
+      title: "Payroll Status",
+      value: "Completed",
+      isIncrease: true,
     },
     {
       iconClass: "fa-sharp fa-regular fa-users",
-      title: "Total Client",
-      value: 151,
+      title: "Pending Leaves",
+      value: 11,
       description: "Than Last Month",
       percentageChange: "+2.15%",
       isIncrease: true,
@@ -76,11 +73,10 @@ const SuperAdminDashboard = () => {
       isIncrease: true,
     },
   ];
-
   return (
     <>
       <MetaData pageTitle="HRM Dashboard">
-        <Wrapper role="super-admin">
+        <Wrapper role={"owner"}>
       <div className="app__slide-wrapper">
         <div className="grid grid-cols-12 gap-x-5 maxXs:gap-x-0">
           <DashboardDetailsCards cardsData={cardsData} />
@@ -98,4 +94,4 @@ const SuperAdminDashboard = () => {
   );
 };
 
-export default SuperAdminDashboard;
+export default OwnerDashboard;

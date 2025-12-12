@@ -6,7 +6,7 @@ const ModulesPage = () => {
   return (
     <>
       <MetaData pageTitle="Module Management">
-        <Wrapper isSuperAdmin={true}>
+        <Wrapper role="super-admin">
           <ModulesMainArea />
         </Wrapper>
       </MetaData>

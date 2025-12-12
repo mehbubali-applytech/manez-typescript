@@ -1,13 +1,13 @@
 import MetaData from "@/hooks/useMetaData";
 import Wrapper from "@/components/layouts/DefaultWrapper";
-import SettingsMainArea from "@/components/pagesUI/super-admin/settings/SettingsMainArea";
+import GeneralSettingsMainArea from "@/components/pagesUI/super-admin/settings/general/GeneralSettingsMainArea";
 
 const SettingsPage = () => {
   return (
     <>
       <MetaData pageTitle="Platform Settings">
         <Wrapper role="super-admin">
-          <SettingsMainArea />
+          <GeneralSettingsMainArea />
         </Wrapper>
       </MetaData>
     </>

@@ -7,7 +7,7 @@ const AllCompaniesPage = () => {
   return (
     <>
       <MetaData pageTitle="All Companies">
-        <Wrapper isSuperAdmin={true}>
+        <Wrapper role="super-admin">
           <CompaniesMainArea />
         </Wrapper>
       </MetaData>

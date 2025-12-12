@@ -6,7 +6,7 @@ const SubscriptionsPage = () => {
   return (
     <>
       <MetaData pageTitle="Subscription Plans">
-        <Wrapper isSuperAdmin={true}>
+        <Wrapper role="super-admin">
           <SubscriptionsMainArea />
         </Wrapper>
       </MetaData>

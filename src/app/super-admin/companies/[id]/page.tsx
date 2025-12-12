@@ -12,7 +12,7 @@ const CompanyDetailPage = ({ params }: Props) => {
   return (
     <>
       <MetaData pageTitle="Company Details">
-        <Wrapper isSuperAdmin={true}>
+        <Wrapper role="super-admin">
           <CompanyDetailsMainArea />
         </Wrapper>
       </MetaData>

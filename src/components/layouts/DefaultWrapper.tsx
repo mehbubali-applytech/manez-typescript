@@ -10,10 +10,10 @@ import useGlobalContext from "@/hooks/use-context";
 
 interface WrapperProps {
   children: React.ReactNode;
-  isSuperAdmin?: boolean;
+  role?: string;
 }
 
-const Wrapper: React.FC<WrapperProps> = ({ children, isSuperAdmin = false }) => {
+const Wrapper: React.FC<WrapperProps> = ({ children, role="hrm" }) => {
   const { theme } = useGlobalContext();
   const pathName = usePathname();
   const [isLoading, setIsLoading] = useState<boolean>(true);
@@ -42,7 +42,7 @@ const Wrapper: React.FC<WrapperProps> = ({ children, isSuperAdmin = false }) => 
       <div
         className={`page__full-wrapper ${theme === "dark" ? "dark" : "light"}`}
       >
-        <DashBoardSidebar isSuperAdmin={isSuperAdmin} />
+        <DashBoardSidebar role={role} />
         <div className="page__body-wrapper">
           {isLoading ? (
             <Preloader />

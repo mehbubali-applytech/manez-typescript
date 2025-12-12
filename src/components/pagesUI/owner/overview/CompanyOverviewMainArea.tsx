@@ -3,11 +3,11 @@
 import React, { useState } from "react";
 import { useParams } from "next/navigation";
 import Breadcrumb from "@/common/Breadcrumb/breadcrumb";
-import { ICompany } from "../CompaniesMainArea";
-import CompanyInfo from "./CompanyInfo";
-import CompanySideContentSection from "./CompanySideContentSection";
+import { ICompany } from "../../super-admin/companies/CompaniesMainArea";
+import BasicInfo from "./BasicInfo";
+import CompanySideContentSection from "../../super-admin/companies/[id]/CompanySideContentSection";
 import CompanyAddDealsModal from "@/components/pagesUI/company/company-details/CompanyAddDealsModal";
-import CompanySendMailModal from "./CompanySendMailModal";
+import CompanySendMailModal from "../../super-admin/companies/[id]/CompanySendMailModal";
 
 const dummyCompaniesData: ICompany[] = [
       {
@@ -60,7 +60,7 @@ const dummyCompaniesData: ICompany[] = [
       },
     ];
 
-const CompanyDetailsMainArea = () => {
+const CompanyOverviewMainArea = () => {
   const params = useParams();
   const id = Number(params?.id)||1;
 
@@ -83,7 +83,7 @@ const CompanyDetailsMainArea = () => {
             <div className="grid grid-cols-12 gap-x-6 maxXs:gap-x-0">
               
               <div className="col-span-12 xl:col-span-3">
-                <CompanyInfo
+                <BasicInfo
                   handleToggle={handleToggle}
                   handleSendEmailToggle={handleSendEmailToggle}
                   companyData={companyToDisplay}
@@ -113,4 +113,4 @@ const CompanyDetailsMainArea = () => {
   );
 };
 
-export default CompanyDetailsMainArea;
+export default CompanyOverviewMainArea;

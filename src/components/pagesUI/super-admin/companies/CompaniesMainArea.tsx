@@ -5,13 +5,12 @@ import React, { useEffect, useState } from "react";
 import AddNewCompanyModal from "./AddNewCompany";
 import CompaniesTable from "./CompaniesTable";
 
-/* ✅ Updated & Scalable Company Interface */
 export interface ICompany {
-  [key: string]: any; // required for dynamic row access in table hooks
+  [key: string]: any;
 
   id: number;
-  name: string; // Name of the company
-  location: string; // Location of the company
+  name: string;
+  location: string; 
   phone?: string;
   mobile?: string;
   fax?: string;
@@ -26,11 +25,11 @@ export interface ICompany {
   zipCode?: string;
   state?: string;
   address?: string;
-  email: string; // Email address
-  owner: string; // Name of the owner
-  rating: number; // Rating of the company
-  tag: string; // Tag/category of the company
-  status: "Active" | "Inactive" | "Pending"; // Status of the company
+  email: string;
+  owner: string;
+  rating: number;
+  tag: string; 
+  status: "Active" | "Inactive" | "Pending";
   companyImg?: StaticImageData;
 }
 

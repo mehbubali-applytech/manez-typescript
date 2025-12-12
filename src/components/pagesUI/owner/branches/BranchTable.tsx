@@ -1,6 +1,7 @@
+// BranchTable.tsx
 "use client";
 
-import React, { useMemo, useState } from "react";
+import React, { useMemo } from "react";
 import {
   Box,
   Paper,
@@ -13,45 +14,35 @@ import {
   TableSortLabel,
   Pagination,
   Checkbox,
+  IconButton,
 } from "@mui/material";
 import { visuallyHidden } from "@mui/utils";
-import Image from "next/image";
-import Link from "next/link";
-import { useRouter } from "next/navigation";
 
 import TableControls from "@/components/elements/SharedInputs/TableControls";
 import DeleteModal from "@/components/common/DeleteModal";
 
 import useMaterialTableHook from "@/hooks/useMaterialTableHook";
 import { getTableStatusClass } from "@/hooks/use-condition-class";
-import { ICompany } from "./CompaniesMainArea";
-import UpdateCompanyDetailsModal from "./UpdateCompanyDetailsModal";
 
-const companyHeadCells = [
-  { id: "name", label: "Company Name" },
-  { id: "location", label: "Location" },
+import { IBranch } from "./BranchTypes";
+
+const branchHeadCells = [
+  { id: "branchName", label: "Branch Name" },
+  { id: "branchCode", label: "Code" },
+  { id: "city", label: "City" },
   { id: "phone", label: "Phone" },
-  { id: "email", label: "Email" },
-  { id: "owner", label: "Owner" },
-  { id: "rating", label: "Rating" },
-  { id: "tag", label: "Tag" },
+  { id: "managerName", label: "Manager" },
+  { id: "totalEmployees", label: "Employees" },
   { id: "status", label: "Status" },
 ];
 
 interface Props {
-  data: ICompany[];
-  onEdit?: (company: ICompany) => void;
+  data: IBranch[];
+  onEdit?: (row: IBranch) => void;
   onDelete?: (id: number) => void;
 }
 
-const CompaniesTable: React.FC<Props> = ({ data, onEdit, onDelete }) => {
-  const router = useRouter();
-
-  const [modalOpen, setModalOpen] = useState(false);
-  const [modalDeleteOpen, setModalDeleteOpen] = useState(false);
-  const [editData, setEditData] = useState<ICompany | null>(null);
-  const [deleteId, setDeleteId] = useState<number | null>(null);
-
+const BranchTable: React.FC<Props> = ({ data, onEdit, onDelete }) => {
   const memoData = useMemo(() => data, [data]);
 
   const {
@@ -70,25 +61,20 @@ const CompaniesTable: React.FC<Props> = ({ data, onEdit, onDelete }) => {
     handleChangePage,
     handleChangeRowsPerPage,
     handleSearchChange,
-  } = useMaterialTableHook<ICompany>(memoData, 10);
+  } = useMaterialTableHook<IBranch>(memoData, 10);
 
-  const openEditModal = (company: ICompany) => {
-    setEditData(company);
-    setModalOpen(true);
-  };
-
-  const confirmDelete = (index: number) => {
+  const confirmDeleteHandler = (index: number) => {
     const row = filteredRows[index];
     if (!row) return;
-    setDeleteId(row.id);
-    setModalDeleteOpen(true);
-  };
-
-  const handleDeleteConfirmed = (idx: number) => {
-    handleDelete(idx);
-    if (deleteId && onDelete) onDelete(deleteId);
-    setModalDeleteOpen(false);
-    setDeleteId(null);
+    // open parent delete UI by calling onDelete after confirmation via DeleteModal
+    // We rely on DeleteModal usage below which will call handleDelete + onDelete
+    // So setDeleteId/Modal state are kept inside DeleteModal invocation below
+    // For simplicity, we'll call onDelete directly here after doing internal handleDelete conversion.
+    const idx = filteredRows.findIndex((r) => r.id === row.id);
+    if (idx >= 0) {
+      handleDelete(idx);
+      onDelete?.(row.id);
+    }
   };
 
   return (
@@ -101,6 +87,7 @@ const CompaniesTable: React.FC<Props> = ({ data, onEdit, onDelete }) => {
             handleChangeRowsPerPage={handleChangeRowsPerPage}
             handleSearchChange={handleSearchChange}
           />
+
           <Box sx={{ width: "100%" }}>
             <Paper sx={{ width: "100%", mb: 2 }}>
               <TableContainer className="table mb-[20px] hover multiple_tables w-full">
@@ -124,7 +111,8 @@ const CompaniesTable: React.FC<Props> = ({ data, onEdit, onDelete }) => {
                           size="small"
                         />
                       </TableCell>
-                      {companyHeadCells.map((headCell) => (
+
+                      {branchHeadCells.map((headCell) => (
                         <TableCell key={headCell.id}>
                           <TableSortLabel
                             active={orderBy === headCell.id}
@@ -142,12 +130,15 @@ const CompaniesTable: React.FC<Props> = ({ data, onEdit, onDelete }) => {
                           </TableSortLabel>
                         </TableCell>
                       ))}
+
                       <TableCell>Action</TableCell>
                     </TableRow>
                   </TableHead>
+
                   <TableBody>
                     {paginatedRows.map((row, index) => {
                       const statusClass = getTableStatusClass(row.status);
+
                       return (
                         <TableRow
                           key={row.id}
@@ -163,70 +154,42 @@ const CompaniesTable: React.FC<Props> = ({ data, onEdit, onDelete }) => {
                             />
                           </TableCell>
 
-                          <TableCell>
-                            <span className="table-avatar flex items-center">
-                              {row.companyImg && (
-                                <Image
-                                  src={row.companyImg}
-                                  alt="Company"
-                                  className="img-36 me-[10px]"
-                                />
-                              )}
-                              <Link href={`/company/company-details/${row.id}`}>
-                                {row.name}
-                              </Link>
-                            </span>
-                          </TableCell>
-                          <TableCell>{row.location}</TableCell>
+                          <TableCell>{row.branchName}</TableCell>
+                          <TableCell>{row.branchCode}</TableCell>
+                          <TableCell>{row.city}</TableCell>
                           <TableCell>{row.phone}</TableCell>
-                          <TableCell>{row.email}</TableCell>
-                          <TableCell>{row.owner}</TableCell>
-                          <TableCell>
-                            {row.rating}
-                            <span className="company__rating ms-[2px]">
-                              <i className="fa-sharp fa-solid fa-star"></i>
-                            </span>
-                          </TableCell>
+                          <TableCell>{row.managerName}</TableCell>
+                          <TableCell>{row.totalEmployees ?? "-"}</TableCell>
 
-                          <TableCell>
-                            <span className="tag-badge">{row.tag}</span>
-                          </TableCell>
                           <TableCell>
                             <span className={`bd-badge ${statusClass}`}>
                               {row.status}
                             </span>
                           </TableCell>
+
                           <TableCell>
                             <div className="flex gap-[10px]">
-                              <button
-                                className="table__icon download"
+                              <IconButton
+                                size="small"
                                 onClick={(e) => {
                                   e.stopPropagation();
-                                  router.push(`/super-admin/companies/${row.id}`);
+                                  onEdit?.(row);
                                 }}
-                              >
-                                <i className="fa-regular fa-eye"></i>
-                              </button>
-
-                              <button
                                 className="table__icon edit"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  openEditModal(row);
-                                }}
                               >
-                                <i className="fa-light fa-pen"></i>
-                              </button>
+                                <i className="fa-light fa-pen" />
+                              </IconButton>
 
-                              <button
-                                className="table__icon delete"
+                              <IconButton
+                                size="small"
                                 onClick={(e) => {
                                   e.stopPropagation();
-                                  confirmDelete(index);
+                                  confirmDeleteHandler(index);
                                 }}
+                                className="table__icon delete"
                               >
-                                <i className="fa-regular fa-trash"></i>
-                              </button>
+                                <i className="fa-regular fa-trash" />
+                              </IconButton>
                             </div>
                           </TableCell>
                         </TableRow>
@@ -253,34 +216,8 @@ const CompaniesTable: React.FC<Props> = ({ data, onEdit, onDelete }) => {
           </Box>
         </div>
       </div>
-
-
-      {modalDeleteOpen && (
-        <DeleteModal
-          open={modalDeleteOpen}
-          setOpen={setModalDeleteOpen}
-          deleteId={deleteId ?? 0}
-          handleDeleteFunc={() => {
-            if (deleteId == null) return;
-            const idx = filteredRows.findIndex((r) => r.id === deleteId);
-            if (idx >= 0) handleDelete(idx);
-            if (onDelete) onDelete(deleteId);
-            setModalDeleteOpen(false);
-            setDeleteId(null);
-          }}
-        />
-      )}
-      {
-        modalOpen && editData && (
-          <UpdateCompanyDetailsModal
-            open={modalOpen}
-            setOpen={setModalOpen}
-            editData={editData}
-          />
-        )
-      }
     </>
   );
 };
 
-export default CompaniesTable;
+export default BranchTable;

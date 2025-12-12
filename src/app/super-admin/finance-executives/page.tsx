@@ -6,7 +6,7 @@ const FinanceExecutivesPage = () => {
   return (
     <>
       <MetaData pageTitle="Finance Executives">
-        <Wrapper isSuperAdmin={true}>
+        <Wrapper role="super-admin">
           <FinanceExecutivesMainArea />
         </Wrapper>
       </MetaData>
