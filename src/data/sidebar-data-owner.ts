@@ -40,11 +40,11 @@ const businessOwnerSidebarData: SidebarCategory[] = [
         label: "HR Management",
         icon: "fa-light fa-users",
         subItems: [
-          { label: "Employees", link: "/owner/hr/employees" },
-          { label: "Designations", link: "/owner/hr/designations" },
-          { label: "Attendance", link: "/owner/hr/attendance" },
-          { label: "Leaves", link: "/owner/hr/leaves" },
-          { label: "Holidays", link: "/owner/hr/holidays" },
+          { label: "Employees", link: "/owner/employees" },
+          { label: "Designations", link: "/owner/designations" },
+          { label: "Attendance", link: "/owner/attendance" },
+          { label: "Leaves", link: "/owner/leaves" },
+          { label: "Holidays", link: "/owner/holidays" },
         ],
       },
 
@@ -55,7 +55,7 @@ const businessOwnerSidebarData: SidebarCategory[] = [
         icon: "fa-light fa-money-bill",
         subItems: [
           { label: "Salary Structure", link: "/owner/payroll/salary-structure" },
-          { label: "Salary Components", link: "/owner/payroll/components" },
+          // { label: "Salary Components", link: "/owner/payroll/components" },
           { label: "Monthly Payroll", link: "/owner/payroll/monthly" },
           { label: "Payroll Reports", link: "/owner/payroll/reports" },
         ],

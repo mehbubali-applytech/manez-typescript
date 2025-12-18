@@ -1,15 +1,15 @@
 import MetaData from "@/hooks/useMetaData";
 import Wrapper from "@/components/layouts/DefaultWrapper";
-import CompaniesMainArea from "@/components/pagesUI/super-admin/companies/CompaniesMainArea";
 import React from "react";
-import CompanyDetailsMainArea from "@/components/pagesUI/super-admin/companies/[id]/CompanyDetailsMainArea";
+import BranchMainArea from "@/components/pagesUI/owner/branches/BranchMainArea";
+import EmployeeAttendanceMainArea from "@/components/pagesUI/owner/attendance/EmployeeAttendanceMainArea";
 
 const AllCompaniesPage = () => {
   return (
     <>
-      <MetaData pageTitle="Overview">
+      <MetaData pageTitle="Compoenents">
         <Wrapper role={"owner"}>
-          <CompanyDetailsMainArea />
+          <EmployeeAttendanceMainArea />
         </Wrapper>
       </MetaData>
     </>

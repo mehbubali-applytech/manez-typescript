@@ -144,6 +144,7 @@ const DepartmentTable: React.FC<Props> = ({ data, onEdit, onDelete }) => {
                             e.stopPropagation();
                             onEdit?.(row);
                           }}
+                           className="table__icon edit"
                         >
                           <i className="fa-light fa-pen" />
                         </IconButton>
@@ -154,6 +155,7 @@ const DepartmentTable: React.FC<Props> = ({ data, onEdit, onDelete }) => {
                             e.stopPropagation();
                             confirmDeleteHandler(index);
                           }}
+                            className="table__icon delete"
                         >
                           <i className="fa-regular fa-trash" />
                         </IconButton>
