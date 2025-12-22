@@ -24,6 +24,7 @@ import {
   ITransfer,
   IWarningRecord,
 } from "./table.interface";
+import { ISubscription } from "@/components/pagesUI/super-admin/subscriptions/subscription.interface";
 
 //Define an interface for the context api data
 export interface AppContextType {
@@ -249,4 +250,17 @@ export interface dealsDetailsStatePropsType {
   open: boolean;
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
   editData: IDeal;
+}
+
+
+export interface subscriptionStatePropsType {
+  open: boolean;
+  setOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  editData?: ISubscription | null;
+}
+
+export interface subscriptionDetailsStatePropsType {
+  open: boolean;
+  setOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  editData?: ISubscription | null;
 }

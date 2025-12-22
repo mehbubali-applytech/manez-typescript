@@ -1,37 +1,104 @@
-import { Checkbox, FormControlLabel, Switch } from "@mui/material";
+"use client";
 import React from "react";
+import { Card, CardContent, Typography, Chip, Button, Box } from "@mui/material";
+import CheckCircleIcon from "@mui/icons-material/CheckCircle";
+import CancelIcon from "@mui/icons-material/Cancel";
 
-interface CardProps {
-  iconClass: string; // Font Awesome icon class
-  title: string; // Title of the card
-  description: string; // Optional description
-  isSelected?: boolean; // Indicates if the change is positive or negative
+interface ModuleSingleCardProps {
+  iconClass: string;
+  title: string;
+  description: string;
+  status?: "active" | "inactive";
+  tier?: "basic" | "pro" | "enterprise";
+  price?: number;
 }
 
-const ModuleSingleCard: React.FC<CardProps> = ({
+const ModuleSingleCard: React.FC<ModuleSingleCardProps> = ({
   iconClass,
   title,
   description,
-  isSelected,
+  status = "active",
+  tier = "basic",
+  price = 0
 }) => {
+  
+  const getTierColor = () => {
+    switch (tier) {
+      case "basic": return "info";
+      case "pro": return "primary";
+      case "enterprise": return "success";
+      default: return "default";
+    }
+  };
+
+  const getStatusColor = () => {
+    return status === "active" ? "success" : "error";
+  };
+
   return (
-    <div className="card__wrapper flex justify-between p-5 mb-5 items-center">
-      <div className="flex items-center gap-[30px] maxSm:gap-5">
-        <div className="card__icon">
-          <span>
-            <i className={iconClass}></i>
-          </span>
-        </div>
-        <div className="card__title-wrap">
-          <h3 className="card__sub-title mb-[10px]">{title}</h3>
-          <div className="flex flex-wrap items-end gap-[10px]">
-            {/* <h3 className="card__title mb-0">{value}</h3> */}
-            <p className="text-muted mb-0">{description}</p>
+    <Card variant="outlined" className="h-full">
+      <CardContent className="h-full flex flex-col">
+        <div className="flex justify-between items-start mb-3">
+          <div className="flex items-center">
+            <Box
+              sx={{
+                backgroundColor: 'primary.light',
+                color: 'primary.main',
+                borderRadius: '50%',
+                padding: '10px',
+                marginRight: '12px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                width: '40px',
+                height: '40px'
+              }}
+            >
+              <i className={iconClass}></i>
+            </Box>
+            <div>
+              <Typography variant="h6" className="font-semibold">
+                {title}
+              </Typography>
+            </div>
           </div>
+          <Chip
+            label={tier}
+            color={getTierColor()}
+            size="small"
+          />
         </div>
-      </div>
-      <Switch defaultChecked />
-    </div>
+        
+        <Typography variant="body2" color="text.secondary" className="mb-4 flex-grow">
+          {description}
+        </Typography>
+        
+        <div className="flex justify-between items-center mb-3">
+          <div className="flex items-center">
+            {status === "active" ? (
+              <CheckCircleIcon color="success" fontSize="small" />
+            ) : (
+              <CancelIcon color="error" fontSize="small" />
+            )}
+            <Typography variant="body2" className="ml-1">
+              {status === "active" ? "Active" : "Inactive"}
+            </Typography>
+          </div>
+          <Typography variant="body1" className="font-semibold">
+            ${price}/month
+          </Typography>
+        </div>
+        
+        <Button
+          variant="outlined"
+          size="small"
+          fullWidth
+          color={status === "active" ? "secondary" : "primary"}
+        >
+          {status === "active" ? "Deactivate" : "Activate"}
+        </Button>
+      </CardContent>
+    </Card>
   );
 };
 

@@ -1,11 +1,11 @@
 "use client";
+import Link from "next/link";
 import React, { useState } from "react";
-import Breadcrumb from "@/common/Breadcrumb/breadcrumb";
-import ModulesTable from "./ModulesTable";
-import AddModuleModal from "./AddModuleModal"
-import ModuleTiers from "./ModuleTiers";
+import VendorTable from "./VendorTable";
+import AddVendorModal from "./AddVendorModal"
+import VendorSummary from "./VendorSummary";
 
-const ModulesMainArea = () => {
+const VendorMainArea = () => {
   const [modalOpen, setModalOpen] = useState(false);
   
   return (
@@ -15,8 +15,11 @@ const ModulesMainArea = () => {
           <div className="breadcrumb__wrapper mb-[25px]">
             <nav>
               <ol className="breadcrumb flex items-center mb-0">
-                <li className="breadcrumb-item">Home</li>
-                <li className="breadcrumb-item active">Module Management</li>
+                <li className="breadcrumb-item">
+                  <Link href="/">Home</Link>
+                </li>
+                <li className="breadcrumb-item">Finance</li>
+                <li className="breadcrumb-item active">Vendors</li>
               </ol>
             </nav>
             <div className="breadcrumb__btn">
@@ -25,28 +28,21 @@ const ModulesMainArea = () => {
                 onClick={() => setModalOpen(true)}
                 className="btn btn-primary"
               >
-                Add Module
+                Add Vendor
               </button>
             </div>
           </div>
         </div>
         
         <div className="grid grid-cols-12 gap-x-6 maxXs:gap-x-0">
-          {/* Module Tiers Section */}
-          <div className="col-span-12 lg:col-span-4">
-            <ModuleTiers />
-          </div>
-          
-          {/* Modules Table Section */}
-          <div className="col-span-12 lg:col-span-8">
-            <ModulesTable />
-          </div>
+          <VendorSummary />
+          <VendorTable />
         </div>
       </div>
       
-      {modalOpen && <AddModuleModal open={modalOpen} setOpen={setModalOpen} />}
+      {modalOpen && <AddVendorModal open={modalOpen} setOpen={setModalOpen} />}
     </>
   );
 };
 
-export default ModulesMainArea;
+export default VendorMainArea;

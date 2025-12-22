@@ -19,52 +19,48 @@ export const useAttendanceHook = (tag: any) => {
   }
 };
 // "Paid" | "Unpaid" | "Cancel" | "Refund";
-export const getTableStatusClass = (tag: any) => {
-  switch (tag) {
-    case "Pending":
+// hooks/getTableStatusClass.ts
+export const getTableStatusClass = (status?: string) => {
+  if (!status) return "";
+
+  switch (status.toLowerCase()) {
+    case "active":
+    case "approved":
+    case "paid":
+    case "complete":
+    case "won":
+      return "bg-success";
+
+    case "pending":
+    case "partial":
+    case "upcoming":
+    case "in progress":
       return "bg-warning";
-    case "Reject":
+
+    case "inactive":
+    case "rejected":
+    case "reject":
+    case "lost":
+    case "cancel":
+    case "closed":
+    case "expired":
+    case "returned":
       return "bg-danger";
-    case "Rejected":
-      return "bg-danger";
-    case "Contacted":
-      return "bg-info";
-    case "Approved":
-      return "bg-success";
-    case "Active":
-      return "bg-success";
-    case "Inactive":
-      return "bg-danger";
-    case "Paid":
-      return "bg-success";
-    case "Unpaid":
-      return "bg-secondary";
-    case "Partial":
-      return "bg-warning";
-    case "Won":
-      return "bg-success";
-    case "Open":
+
+    case "open":
       return "bg-primary";
-    case "Lost":
-      return "bg-danger";
-    case "Returned":
-      return "bg-warning";
-    case "Upcoming":
-      return "bg-warning";
-    case "Complete":
-      return "bg-success";
-    case "Cancel":
-      return "bg-danger";
-    case "In Progress":
-      return "bg-warning";
-    case "Closed":
-      return "bg-danger";
-    case "Refund":
-      return "bg-link";
+
+    case "contacted":
+      return "bg-info";
+
+    case "unpaid":
+      return "bg-secondary";
+
     default:
       return "";
   }
 };
+
 
 
 export const useTablePrirotyHook = (tag: any) => {
@@ -163,4 +159,23 @@ export const getAttendanceClass = (tag: any) => {
     default: return "";
   }
 };
+
+
+// hooks/use-condition-class.ts
+export const getSubscriptionStatusHook = (status?: string) => {
+  if (!status) return "info";
+
+  switch (status.toLowerCase()) {
+    case "active":
+      return "success";
+    case "pending":
+      return "warning";
+    case "expired":
+      return "danger";
+    default:
+      return "info";
+  }
+};
+
+
 

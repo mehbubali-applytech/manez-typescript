@@ -78,11 +78,7 @@ const businessOwnerSidebarData: SidebarCategory[] = [
         id: 7,
         label: "Subscriptions",
         icon: "fa-light fa-badge-check",
-        subItems: [
-          { label: "My Plan", link: "/owner/subscription" },
-          { label: "Upgrade Plan", link: "/owner/subscription/upgrade" },
-          { label: "Billing History", link: "/owner/subscription/billing" },
-        ],
+        link: "/owner/subscription",
       },
 
       // Reports
