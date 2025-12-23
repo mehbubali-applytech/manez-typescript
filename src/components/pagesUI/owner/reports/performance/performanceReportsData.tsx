@@ -15,183 +15,196 @@ import useMaterialTableHook from "@/hooks/useMaterialTableHook";
 import { Checkbox } from "@mui/material";
 import TableControls from "@/components/elements/SharedInputs/TableControls";
 import DeleteModal from "@/components/common/DeleteModal";
-import ReportDetailsModal from "./ReportDetailsModal";
+import PerformanceReportDetailsModal from "./PerformanceReportDetailsModal";
 import { getTableStatusClass } from "@/hooks/use-condition-class";
 import PictureAsPdfIcon from "@mui/icons-material/PictureAsPdf";
 import DescriptionIcon from "@mui/icons-material/Description";
 import DownloadIcon from "@mui/icons-material/Download";
-
-// Define Report interface
-interface IHrReport {
-  id: number;
-  reportName: string;
-  reportType: string;
-  generatedBy: string;
-  generationDate: string;
-  period: string;
-  status: string;
-  fileSize: string;
-  recordCount: number;
-  downloadCount: number;
-  [key: string]: any;
-}
+import ScoreIcon from "@mui/icons-material/Score";
+import GroupIcon from "@mui/icons-material/Group";
+import { IPerformanceReport } from "./performance.interface";
 
 // Mock data
-const hrReportsData: IHrReport[] = [
+const performanceReportsData: IPerformanceReport[] = [
   {
     id: 1,
-    reportName: "Monthly Attendance Summary",
-    reportType: "Attendance",
-    generatedBy: "John Doe",
-    generationDate: "2024-03-31",
-    period: "March 2024",
+    reportName: "Q1 Performance Review Summary",
+    reportType: "Quarterly Review",
+    generatedBy: "Sarah Johnson",
+    generationDate: "2024-04-05",
+    evaluationPeriod: "Q1 2024",
     status: "Complete",
-    fileSize: "2.5 MB",
-    recordCount: 250,
-    downloadCount: 15
+    fileSize: "3.2 MB",
+    employeeCount: 156,
+    department: "All",
+    averageScore: 4.2,
+    downloadCount: 24
   },
   {
     id: 2,
-    reportName: "Employee Turnover Analysis",
-    reportType: "Analytics",
-    generatedBy: "Jane Smith",
-    generationDate: "2024-03-28",
-    period: "Q1 2024",
+    reportName: "Annual Performance Assessment 2023",
+    reportType: "Annual Review",
+    generatedBy: "Michael Chen",
+    generationDate: "2024-01-15",
+    evaluationPeriod: "2023",
     status: "Complete",
-    fileSize: "1.8 MB",
-    recordCount: 120,
-    downloadCount: 8
-  },
-  {
-    id: 3,
-    reportName: "Leave Balance Report",
-    reportType: "Leave",
-    generatedBy: "Mike Johnson",
-    generationDate: "2024-03-25",
-    period: "March 2024",
-    status: "Pending",
-    fileSize: "1.2 MB",
-    recordCount: 85,
-    downloadCount: 3
-  },
-  {
-    id: 4,
-    reportName: "Payroll Summary",
-    reportType: "Payroll",
-    generatedBy: "Sarah Wilson",
-    generationDate: "2024-03-20",
-    period: "March 2024",
-    status: "Complete",
-    fileSize: "3.5 MB",
-    recordCount: 300,
-    downloadCount: 22
-  },
-  {
-    id: 5,
-    reportName: "Training Completion Report",
-    reportType: "Training",
-    generatedBy: "Robert Brown",
-    generationDate: "2024-03-18",
-    period: "Q1 2024",
-    status: "Complete",
-    fileSize: "2.1 MB",
-    recordCount: 180,
-    downloadCount: 12
-  },
-  {
-    id: 6,
-    reportName: "Performance Review Summary",
-    reportType: "Performance",
-    generatedBy: "Emily Davis",
-    generationDate: "2024-03-15",
-    period: "Q4 2023",
-    status: "Failed",
-    fileSize: "N/A",
-    recordCount: 0,
-    downloadCount: 0
-  },
-  {
-    id: 7,
-    reportName: "Recruitment Metrics",
-    reportType: "Recruitment",
-    generatedBy: "David Miller",
-    generationDate: "2024-03-10",
-    period: "Q1 2024",
-    status: "Complete",
-    fileSize: "1.5 MB",
-    recordCount: 95,
-    downloadCount: 7
-  },
-  {
-    id: 8,
-    reportName: "Employee Demographics",
-    reportType: "Analytics",
-    generatedBy: "Lisa Taylor",
-    generationDate: "2024-03-05",
-    period: "March 2024",
-    status: "In Progress",
-    fileSize: "2.8 MB",
-    recordCount: 210,
-    downloadCount: 5
-  },
-  {
-    id: 9,
-    reportName: "Compliance Audit Report",
-    reportType: "Compliance",
-    generatedBy: "James Anderson",
-    generationDate: "2024-02-28",
-    period: "February 2024",
-    status: "Complete",
-    fileSize: "4.2 MB",
-    recordCount: 400,
+    fileSize: "4.8 MB",
+    employeeCount: 245,
+    department: "All",
+    averageScore: 4.1,
     downloadCount: 18
   },
   {
-    id: 10,
-    reportName: "Benefits Enrollment Summary",
-    reportType: "Benefits",
-    generatedBy: "Amanda Thomas",
-    generationDate: "2024-02-25",
-    period: "February 2024",
+    id: 3,
+    reportName: "360 Feedback - Sales Department",
+    reportType: "360 Feedback",
+    generatedBy: "Robert Kim",
+    generationDate: "2024-03-28",
+    evaluationPeriod: "Q1 2024",
+    status: "In Progress",
+    fileSize: "2.1 MB",
+    employeeCount: 45,
+    department: "Sales",
+    averageScore: 4.3,
+    downloadCount: 8
+  },
+  {
+    id: 4,
+    reportName: "Leadership Competency Assessment",
+    reportType: "Competency Assessment",
+    generatedBy: "Jennifer Lee",
+    generationDate: "2024-03-20",
+    evaluationPeriod: "Q1 2024",
+    status: "Complete",
+    fileSize: "2.8 MB",
+    employeeCount: 32,
+    department: "Leadership",
+    averageScore: 4.4,
+    downloadCount: 12
+  },
+  {
+    id: 5,
+    reportName: "Q4 Goal Achievement Report",
+    reportType: "Goal Tracking",
+    generatedBy: "David Wilson",
+    generationDate: "2024-01-10",
+    evaluationPeriod: "Q4 2023",
     status: "Complete",
     fileSize: "1.9 MB",
-    recordCount: 150,
+    employeeCount: 189,
+    department: "All",
+    averageScore: 3.9,
+    downloadCount: 15
+  },
+  {
+    id: 6,
+    reportName: "Engineering Performance Scorecard",
+    reportType: "Performance Scorecard",
+    generatedBy: "Alex Patel",
+    generationDate: "2024-04-02",
+    evaluationPeriod: "Q1 2024",
+    status: "Pending",
+    fileSize: "2.5 MB",
+    employeeCount: 78,
+    department: "Engineering",
+    downloadCount: 5
+  },
+  {
+    id: 7,
+    reportName: "Talent Review - High Potentials",
+    reportType: "Talent Review",
+    generatedBy: "Maria Garcia",
+    generationDate: "2024-03-15",
+    evaluationPeriod: "Q1 2024",
+    status: "Complete",
+    fileSize: "1.7 MB",
+    employeeCount: 28,
+    department: "All",
+    averageScore: 4.7,
     downloadCount: 9
+  },
+  {
+    id: 8,
+    reportName: "Development Plan Compliance",
+    reportType: "Development Plan",
+    generatedBy: "Thomas Brown",
+    generationDate: "2024-04-01",
+    evaluationPeriod: "Q1 2024",
+    status: "Failed",
+    fileSize: "N/A",
+    employeeCount: 0,
+    department: "All",
+    downloadCount: 0
+  },
+  {
+    id: 9,
+    reportName: "Marketing Team Performance Analysis",
+    reportType: "Quarterly Review",
+    generatedBy: "Lisa Wong",
+    generationDate: "2024-03-30",
+    evaluationPeriod: "Q1 2024",
+    status: "Complete",
+    fileSize: "2.3 MB",
+    employeeCount: 42,
+    department: "Marketing",
+    averageScore: 4.0,
+    downloadCount: 11
+  },
+  {
+    id: 10,
+    reportName: "Executive Leadership Assessment",
+    reportType: "Leadership Assessment",
+    generatedBy: "CEO Office",
+    generationDate: "2024-03-25",
+    evaluationPeriod: "2023",
+    status: "Complete",
+    fileSize: "1.5 MB",
+    employeeCount: 12,
+    department: "Executive",
+    averageScore: 4.6,
+    downloadCount: 6
   }
 ];
 
 // Table head cells
-const hrReportHeadCells = [
+const performanceReportHeadCells = [
   { id: "reportName", label: "Report Name" },
   { id: "reportType", label: "Type" },
   { id: "generatedBy", label: "Generated By" },
   { id: "generationDate", label: "Date" },
-  { id: "period", label: "Period" },
+  { id: "evaluationPeriod", label: "Period" },
+  { id: "department", label: "Department" },
+  { id: "employeeCount", label: "Employees" },
+  { id: "averageScore", label: "Avg. Score" },
   { id: "status", label: "Status" },
-  { id: "fileSize", label: "File Size" },
-  { id: "recordCount", label: "Records" },
   { id: "downloadCount", label: "Downloads" },
 ];
 
-interface HrReportsTableProps {
+interface PerformanceReportsTableProps {
   reportType?: string;
+  period?: string;
   dateRange?: { start: string; end: string };
 }
 
-const HrReportsTable: React.FC<HrReportsTableProps> = ({ 
+const PerformanceReportsTable: React.FC<PerformanceReportsTableProps> = ({ 
   reportType = "all",
+  period = "all",
   dateRange 
 }) => {
-  const [modalOpen, setModalOpen] = useState(false);
   const [detailsModalOpen, setDetailsModalOpen] = useState(false);
-  const [editData, setEditData] = useState<IHrReport | null>(null);
+  const [selectedReport, setSelectedReport] = useState<IPerformanceReport | null>(null);
   const [modalDeleteOpen, setModalDeleteOpen] = useState(false);
   const [deleteId, setDeleteId] = useState<number>(0);
   
-  // Filter data based on report type and date range
-  const filteredData = hrReportsData.filter(report => {
+  // Filter data based on report type, period, and date range
+  const filteredData = performanceReportsData.filter(report => {
     // Filter by report type
     if (reportType !== "all" && report.reportType !== reportType) {
+      return false;
+    }
+    
+    // Filter by period
+    if (period !== "all" && report.evaluationPeriod !== period) {
       return false;
     }
     
@@ -222,42 +235,48 @@ const HrReportsTable: React.FC<HrReportsTableProps> = ({
     handleChangePage,
     handleChangeRowsPerPage,
     handleSearchChange,
-  } = useMaterialTableHook<IHrReport>(filteredData, 10);
+  } = useMaterialTableHook<IPerformanceReport>(filteredData, 10);
 
-  // Helper function for report type badge
   const getReportTypeClass = (type: string) => {
     switch (type.toLowerCase()) {
-      case "attendance":
-        return "bg-info";
-      case "payroll":
+      case "quarterly review":
         return "bg-success";
-      case "leave":
-        return "bg-warning";
-      case "performance":
-        return "bg-danger";
-      case "recruitment":
+      case "annual review":
         return "bg-primary";
-      case "training":
-        return "bg-secondary";
-      case "analytics":
-        return "bg-dark";
-      case "compliance":
+      case "360 feedback":
         return "bg-info";
-      case "benefits":
+      case "competency assessment":
+        return "bg-warning";
+      case "goal tracking":
+        return "bg-danger";
+      case "leadership assessment":
+        return "bg-secondary";
+      case "performance scorecard":
+        return "bg-dark";
+      case "talent review":
         return "bg-success";
+      case "development plan":
+        return "bg-primary";
       default:
         return "default-badge";
     }
   };
 
-  const handleDownloadReport = (report: IHrReport) => {
-    // Simulate download
-    console.log(`Downloading report: ${report.reportName}`);
+  const getScoreColor = (score?: number) => {
+    if (!score) return "text-gray-500";
+    if (score >= 4.5) return "text-success";
+    if (score >= 3.5) return "text-info";
+    if (score >= 2.5) return "text-warning";
+    return "text-error";
+  };
+
+  const handleDownloadReport = (report: IPerformanceReport) => {
+    console.log(`Downloading performance report: ${report.reportName}`);
     alert(`Downloading ${report.reportName}...`);
   };
 
-  const handleViewReport = (report: IHrReport) => {
-    setEditData(report);
+  const handleViewReport = (report: IPerformanceReport) => {
+    setSelectedReport(report);
     setDetailsModalOpen(true);
   };
 
@@ -289,7 +308,7 @@ const HrReportsTable: React.FC<HrReportsTableProps> = ({
                             size="small"
                           />
                         </TableCell>
-                        {hrReportHeadCells.map((headCell) => (
+                        {performanceReportHeadCells.map((headCell) => (
                           <TableCell
                             className="table__title"
                             key={headCell.id}
@@ -317,6 +336,7 @@ const HrReportsTable: React.FC<HrReportsTableProps> = ({
                       {paginatedRows.map((row, index) => {
                         const statusClass = getTableStatusClass(row.status);
                         const typeClass = getReportTypeClass(row.reportType);
+                        const scoreColor = getScoreColor(row.averageScore);
                         
                         return (
                           <TableRow
@@ -345,17 +365,26 @@ const HrReportsTable: React.FC<HrReportsTableProps> = ({
                             </TableCell>
                             <TableCell>{row.generatedBy}</TableCell>
                             <TableCell>{row.generationDate}</TableCell>
-                            <TableCell>{row.period}</TableCell>
+                            <TableCell>{row.evaluationPeriod}</TableCell>
+                            <TableCell>{row.department}</TableCell>
+                            <TableCell>
+                              <div className="flex items-center">
+                                <GroupIcon className="mr-1 text-gray-500" fontSize="small" />
+                                <span className="font-semibold">{row.employeeCount}</span>
+                              </div>
+                            </TableCell>
+                            <TableCell>
+                              <div className="flex items-center">
+                                <ScoreIcon className="mr-1 text-gray-500" fontSize="small" />
+                                <span className={`font-semibold ${scoreColor}`}>
+                                  {row.averageScore ? `${row.averageScore.toFixed(1)}/5.0` : '-'}
+                                </span>
+                              </div>
+                            </TableCell>
                             <TableCell>
                               <span className={`bd-badge ${statusClass}`}>
                                 {row.status}
                               </span>
-                            </TableCell>
-                            <TableCell>
-                              <span className="font-medium">{row.fileSize}</span>
-                            </TableCell>
-                            <TableCell>
-                              <span className="font-semibold">{row.recordCount}</span>
                             </TableCell>
                             <TableCell>
                               <span className="font-semibold">{row.downloadCount}</span>
@@ -382,7 +411,7 @@ const HrReportsTable: React.FC<HrReportsTableProps> = ({
                                   }}
                                   title="Download Report"
                                 >
-                                  <i className="fa-sharp fa-light fa-download"></i>
+                                  <DownloadIcon fontSize="small" />
                                 </button>
                                 <button
                                   className="removeBtn table__icon delete"
@@ -398,7 +427,7 @@ const HrReportsTable: React.FC<HrReportsTableProps> = ({
                                 {row.status === "Complete" && (
                                   <button
                                     type="button"
-                                    className="table__icon bg-cyan-500/50"
+                                    className="table__icon pdf"
                                     onClick={(e) => {
                                       e.stopPropagation();
                                       handleDownloadReport(row);
@@ -425,9 +454,9 @@ const HrReportsTable: React.FC<HrReportsTableProps> = ({
                   page * rowsPerPage,
                   filteredRows.length
                 )} of ${filteredRows.length} entries`}
-                {reportType !== "all" && (
+                {(reportType !== "all" || period !== "all") && (
                   <span className="ml-2 text-sm text-gray-600">
-                    (Filtered by: {reportType})
+                    (Filtered: {reportType !== "all" ? reportType : ""} {period !== "all" ? `• ${period}` : ""})
                   </span>
                 )}
               </Box>
@@ -444,11 +473,11 @@ const HrReportsTable: React.FC<HrReportsTableProps> = ({
         </div>
       </div>
 
-      {detailsModalOpen && editData && (
-        <ReportDetailsModal
+      {detailsModalOpen && selectedReport && (
+        <PerformanceReportDetailsModal
           open={detailsModalOpen}
           setOpen={setDetailsModalOpen}
-          reportData={editData}
+          reportData={selectedReport}
         />
       )}
 
@@ -464,4 +493,4 @@ const HrReportsTable: React.FC<HrReportsTableProps> = ({
   );
 };
 
-export default HrReportsTable;
+export default PerformanceReportsTable;

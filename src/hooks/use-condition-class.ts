@@ -35,20 +35,23 @@ export const getTableStatusClass = (status?: string) => {
     case "partial":
     case "upcoming":
     case "in progress":
-      return "bg-warning";
+      return "bg-yellow-600";
 
     case "inactive":
     case "rejected":
     case "reject":
     case "lost":
     case "cancel":
-    case "closed":
     case "expired":
     case "returned":
+    case "failed":
       return "bg-danger";
 
     case "open":
-      return "bg-primary";
+      return "bg-blue-800";
+
+    case "closed":
+      return "bg-red-800";
 
     case "contacted":
       return "bg-info";
@@ -66,11 +69,11 @@ export const getTableStatusClass = (status?: string) => {
 export const useTablePrirotyHook = (tag: any) => {
   switch (tag) {
     case "Low":
-      return "bg-danger";
+      return "bg-cyan-600";
     case "Medium":
-      return "bg-warning";
+      return "bg-amber-600";
     case "High":
-      return "bg-success";
+      return "bg-red-600/70";
     default:
       return "";
   }

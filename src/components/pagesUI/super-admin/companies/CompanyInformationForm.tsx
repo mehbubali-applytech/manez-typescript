@@ -175,7 +175,7 @@ const CompanyInformationForm: React.FC<CompanyInformationFormProps> = ({
             id="loanType"
             label="Industry"
             options={companyData}
-            control={control} // Validation rule
+            control={control}
             error={errors.industry}
           />
         </div>

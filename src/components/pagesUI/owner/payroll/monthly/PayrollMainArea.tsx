@@ -70,7 +70,7 @@ const openAddModal = () => {
         <nav>
           <ol className="breadcrumb flex items-center mb-0">
             <li className="breadcrumb-item"><Link href="/">Home</Link></li>
-            <li className="breadcrumb-item"><Link href="/super-admin">Admin</Link></li>
+            <li className="breadcrumb-item"><Link href="/owner">Owner</Link></li>
             <li className="breadcrumb-item active">Payroll</li>
           </ol>
         </nav>

@@ -296,6 +296,7 @@ export interface IMeeting {
 }
 // Define an interface for the ticket
 export interface ITicket {
+   [key: string]: any;
   ticketID: string;
   ticketTitle: string;
   priority: "Low" | "Medium" | "High";

@@ -17,6 +17,9 @@ import FilterListIcon from "@mui/icons-material/FilterList";
 import RefreshIcon from "@mui/icons-material/Refresh";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
+import SelectBox from "@/components/elements/SharedInputs/SelectBox";
+import { useForm } from "react-hook-form";
+
 
 interface ReportFiltersProps {
   selectedReportType: string;
@@ -32,7 +35,7 @@ const ReportFilters: React.FC<ReportFiltersProps> = ({
   setDateRange,
 }) => {
   const reportTypes = [
-    { value: "all", label: "All Reports" },
+    { value: "All", label: "All Reports" },
     { value: "Attendance", label: "Attendance" },
     { value: "Payroll", label: "Payroll" },
     { value: "Leave", label: "Leave" },
@@ -45,7 +48,7 @@ const ReportFilters: React.FC<ReportFiltersProps> = ({
   ];
 
   const handleResetFilters = () => {
-    setSelectedReportType("all");
+    setSelectedReportType("All");
     setDateRange({
       start: "2024-01-01",
       end: "2024-03-31"
@@ -81,74 +84,100 @@ const ReportFilters: React.FC<ReportFiltersProps> = ({
       end: end.toISOString().split('T')[0]
     });
   };
+  const handleStartDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setDateRange({ ...dateRange, start: e.target.value });
+  };
+
+  const handleEndDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setDateRange({ ...dateRange, end: e.target.value });
+  };
+
+  const { control } = useForm({
+    defaultValues: {
+      reportType: selectedReportType,
+    },
+  });
+
 
   return (
     <Card variant="outlined" className="mb-6">
       <CardContent>
-        <div className="flex items-center mb-4">
-          <FilterListIcon className="mr-2 text-primary" />
-          <Typography variant="h6" className="font-semibold">
-            Report Filters
-          </Typography>
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center">
+            <FilterListIcon className="mr-2 text-primary" />
+            <Typography variant="h6" className="font-semibold">
+              Report Filters
+            </Typography>
+          </div>
+                    <Button
+            variant="outlined"
+            color="secondary"
+            startIcon={<RefreshIcon />}
+            onClick={handleResetFilters}
+            size="small"
+          >
+            Reset All
+          </Button>
         </div>
-        
+
+
         <Grid container spacing={3}>
           <Grid item xs={12} md={4}>
             <FormControl fullWidth size="small">
-              <InputLabel>Report Type</InputLabel>
-              <Select
-                value={selectedReportType}
+              <SelectBox
+                id="reportType"
                 label="Report Type"
-                onChange={(e) => setSelectedReportType(e.target.value)}
-              >
-                {reportTypes.map((type) => (
-                  <MenuItem key={type.value} value={type.value}>
-                    {type.label}
-                  </MenuItem>
-                ))}
-              </Select>
+                options={reportTypes}
+                control={control}
+              />
+
             </FormControl>
           </Grid>
-          
-          <Grid item xs={12} md={3}>
-            <TextField
-              label="Start Date"
-              type="date"
-              value={dateRange.start}
-              onChange={(e) => setDateRange({ ...dateRange, start: e.target.value })}
-              fullWidth
-              size="small"
-              InputLabelProps={{ shrink: true }}
-            />
+
+          <Grid item xs={12} md={2}>
+            <div className="form__input-box">
+              <div className="form__input-title">
+                <label htmlFor="startDate">
+                  Start Date
+                </label>
+              </div>
+              <div className="form__input">
+                <input
+                  className="form-control"
+                  id="startDate"
+                  type="date"
+                  value={dateRange.start}
+                  onChange={handleStartDateChange}
+                />
+              </div>
+            </div>
           </Grid>
-          
-          <Grid item xs={12} md={3}>
-            <TextField
-              label="End Date"
-              type="date"
-              value={dateRange.end}
-              onChange={(e) => setDateRange({ ...dateRange, end: e.target.value })}
-              fullWidth
-              size="small"
-              InputLabelProps={{ shrink: true }}
-            />
+
+          <Grid item xs={12} md={2}>
+            <div className="form__input-box">
+              <div className="form__input-title">
+                <label htmlFor="endDate">
+                  End Date
+                </label>
+              </div>
+              <div className="form__input">
+                <input
+                  className="form-control"
+                  id="endDate"
+                  type="date"
+                  value={dateRange.end}
+                  onChange={handleEndDateChange}
+                />
+              </div>
+            </div>
           </Grid>
-          
+
           <Grid item xs={12} md={2}>
             <div className="flex items-center h-full">
-              <Button
-                variant="outlined"
-                color="secondary"
-                startIcon={<RefreshIcon />}
-                onClick={handleResetFilters}
-                fullWidth
-              >
-                Reset
-              </Button>
             </div>
           </Grid>
         </Grid>
-        
+
         <Box className="mt-4">
           <Typography variant="body2" color="text.secondary" className="mb-2">
             Quick Date Filters:
@@ -182,15 +211,15 @@ const ReportFilters: React.FC<ReportFiltersProps> = ({
             <Button
               variant="contained"
               size="small"
-              className="!text-white" 
+              className="!text-white"
               onClick={() => handleQuickDateRange("quarter")}
             >
               Last Quarter
             </Button>
           </div>
         </Box>
-        
-        {selectedReportType !== "all" && (
+
+        {selectedReportType !== "All" && (
           <Box className="mt-4 p-3 bg-blue-50 rounded-lg">
             <Typography variant="body2" className="text-blue-800">
               <strong>Filter Active:</strong> Showing {selectedReportType} reports from {dateRange.start} to {dateRange.end}
