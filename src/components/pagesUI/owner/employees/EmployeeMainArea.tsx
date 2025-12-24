@@ -6,6 +6,7 @@ import EmployeeTable from "./EmployeeTable";
 import { IEmployee } from "./EmployeeTypes";
 import AddEmployeeModal from "./AddEmployeeModal";
 import UpdateEmployeeModal from "./UpdateEmployeeModal";
+import EmployeeSummary from "./EmployeeSummary";
 
 const EmployeeMainArea: React.FC = () => {
   const [employees, setEmployees] = useState<IEmployee[]>([]);
@@ -103,6 +104,9 @@ const EmployeeMainArea: React.FC = () => {
         </div>
       </div>
 
+      <div className="grid grid-cols-12 gap-x-6 maxXs:gap-x-0">
+        <EmployeeSummary employees={employees} />
+      </div>
       <EmployeeTable
         key={employees.length}
         data={employees}

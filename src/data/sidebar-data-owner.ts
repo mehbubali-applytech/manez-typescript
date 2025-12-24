@@ -29,7 +29,7 @@ const businessOwnerSidebarData: SidebarCategory[] = [
           },
           {
             label: "Departments",
-            link: "/owner/company/departments",
+            link: "/owner/departments",
           },
         ],
       },
@@ -88,6 +88,7 @@ const businessOwnerSidebarData: SidebarCategory[] = [
         icon: "fa-light fa-chart-simple",
         subItems: [
           { label: "HR Reports", link: "/owner/reports/hr" },
+          { label: "Departments", link: "/owner/reports/departments" },
           { label: "Attendance", link: "/owner/reports/attendance" },
           { label: "Finance Reports", link: "/owner/reports/finance" },
           { label: "Performance", link: "/owner/reports/performance" },

@@ -127,7 +127,7 @@ const DepartmentTable: React.FC<Props> = ({ data, onEdit, onDelete }) => {
                       </TableCell>
 
                       <TableCell>{row.name}</TableCell>
-                      <TableCell>{row.departmentId}</TableCell>
+                      <TableCell>{row.id}</TableCell>
                       <TableCell>{row.head ?? "-"}</TableCell>
                       <TableCell>{row.phone ?? "-"}</TableCell>
 

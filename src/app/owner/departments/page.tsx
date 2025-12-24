@@ -6,7 +6,7 @@ import DepartmentMainArea from "@/components/pagesUI/owner/departments/Departmen
 const AllCompaniesPage = () => {
   return (
     <>
-      <MetaData pageTitle="All Companies">
+      <MetaData pageTitle="Departments">
         <Wrapper role={"owner"}>
           <DepartmentMainArea />
         </Wrapper>

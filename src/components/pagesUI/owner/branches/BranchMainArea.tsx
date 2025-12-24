@@ -7,12 +7,15 @@ import BranchTable from "./BranchTable";
 import { IBranch } from "./BranchTypes";
 import AddBranchModal from "./AddBranchModal";
 import UpdateBranchModal from "./UpdateBranchModal";
+import BranchSummary from "./BranchSummary";
+import { useRouter } from "next/navigation";
 
 const BranchMainArea: React.FC = () => {
   const [branches, setBranches] = useState<IBranch[]>([]);
   const [modalOpen, setModalOpen] = useState(false);
   const [editingBranch, setEditingBranch] = useState<IBranch | null>(null);
 
+  const router = useRouter();
   useEffect(() => {
     setBranches([
   {
@@ -215,6 +218,10 @@ const BranchMainArea: React.FC = () => {
     setModalOpen(true);
   };
 
+  const handleAddClick = () => {
+    router.push("/owner/branches/add-branch");
+  }
+
   const openEditModal = (branch: IBranch) => {
     setEditingBranch(branch);
     setModalOpen(true);
@@ -259,10 +266,13 @@ const BranchMainArea: React.FC = () => {
         </nav>
 
         <div className="breadcrumb__btn">
-          <button className="btn btn-primary" onClick={openAddModal}>
+          <button className="btn btn-primary" onClick={handleAddClick}>
             Add Branch
           </button>
         </div>
+      </div>
+      <div className="grid grid-cols-12 gap-x-6 maxXs:gap-x-0">
+        <BranchSummary branches={branches} />
       </div>
 
       <BranchTable
