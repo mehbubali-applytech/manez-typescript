@@ -325,7 +325,7 @@ const AddDeptMainArea: React.FC = () => {
                     <div>
                         <h4 className="font-medium text-blue-800">Department Creation Guidelines</h4>
                         <ul className="mt-2 text-blue-700 text-sm space-y-1">
-                            <li>• Use consistent naming conventions (e.g., "HR", "IT", "Finance")</li>
+                            <li>• Use consistent naming conventions (e.g., HR, IT, Finance)</li>
                             <li>• Department codes should be unique and follow your organization&apos;s pattern</li>
                             <li>• Parent department is optional - use for creating sub-departments</li>
                             <li>• Active departments will be immediately available in the system</li>
