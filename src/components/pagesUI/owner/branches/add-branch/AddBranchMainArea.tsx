@@ -313,7 +313,7 @@ const AddBranchMainArea: React.FC = () => {
           <div>
             <h4 className="font-medium text-blue-800">Tips for adding a new branch</h4>
             <ul className="mt-2 text-blue-700 text-sm space-y-1">
-              <li>• Ensure branch code is unique and follows your organization's naming convention</li>
+              <li>• {"Ensure branch code is unique and follows your organization's naming convention"}</li>
               <li>• Double-check contact information before submission</li>
               <li>• Active branches will be immediately available in the system</li>
               <li>• You can update branch details later if needed</li>

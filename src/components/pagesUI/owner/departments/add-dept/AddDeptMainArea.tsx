@@ -244,7 +244,7 @@ const AddDeptMainArea: React.FC = () => {
                                     isTextArea={true}
                                 />
                                 <p className="text-gray-500 text-sm mt-2">
-                                    Optional: Describe the department's main functions and responsibilities
+                                    {"Optional: Describe the department's main functions and responsibilities"}
                                 </p>
                             </div>
 
@@ -326,7 +326,7 @@ const AddDeptMainArea: React.FC = () => {
                         <h4 className="font-medium text-blue-800">Department Creation Guidelines</h4>
                         <ul className="mt-2 text-blue-700 text-sm space-y-1">
                             <li>• Use consistent naming conventions (e.g., "HR", "IT", "Finance")</li>
-                            <li>• Department codes should be unique and follow your organization's pattern</li>
+                            <li>• {"Department codes should be unique and follow your organization's pattern"}</li>
                             <li>• Parent department is optional - use for creating sub-departments</li>
                             <li>• Active departments will be immediately available in the system</li>
                             <li>• You can add team members to departments after creation</li>
