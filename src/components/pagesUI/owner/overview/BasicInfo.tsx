@@ -3,7 +3,7 @@ import React from "react";
 import SocialProfile from "../../super-admin/companies/[id]/SocialProfile";
 import Link from "next/link";
 import Image from "next/image";
-import { ICompany } from "../../super-admin/companies/CompaniesMainArea";
+import { ICompany } from "../../super-admin/companies/companies.interface";
 
 interface statePropsType {
     handleToggle: () => void;
