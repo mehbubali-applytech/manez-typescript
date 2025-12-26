@@ -502,6 +502,7 @@ const AddNewHrManager: React.FC = () => {
                           label={option}
                           {...getTagProps({ index })}
                           onDelete={() => handleQualificationDelete(option)}
+                          key={index}
                         />
                       ))
                     }
@@ -542,6 +543,7 @@ const AddNewHrManager: React.FC = () => {
                           label={option}
                           {...getTagProps({ index })}
                           onDelete={() => handleCertificationDelete(option)}
+                          key={index}
                         />
                       ))
                     }
@@ -579,9 +581,10 @@ const AddNewHrManager: React.FC = () => {
                     renderTags={(value, getTagProps) =>
                       value.map((option, index) => (
                         <Chip
-                          label={option}
-                          {...getTagProps({ index })}
-                          onDelete={() => handleSpecializationDelete(option)}
+                        label={option}
+                        {...getTagProps({ index })}
+                        onDelete={() => handleSpecializationDelete(option)}
+                        key={index}
                         />
                       ))
                     }

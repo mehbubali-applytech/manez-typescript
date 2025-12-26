@@ -801,6 +801,7 @@ const AddStaffMainArea: React.FC = () => {
                         <Chip
                           label={option}
                           {...getTagProps({ index })}
+                          key={index}
                           size="small"
                           className="m-1"
                         />
