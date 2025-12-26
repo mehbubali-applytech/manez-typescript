@@ -2,7 +2,7 @@
 import Link from "next/link";
 import React, { useEffect, useState } from "react";
 import StaffTable from "./StaffTable";
-import { IStaff } from "./StaffMainArea";
+import { IStaff } from "./staff.interface";
 
 interface Props {
   department: string;
@@ -13,13 +13,44 @@ const StaffByDepartmentMainArea: React.FC<Props> = ({ department }) => {
 
   useEffect(() => {
     // Dummy data for generic departments (like employees)
-    const dummyData: IStaff[] = [
-      { id: 1, staffName: "John Doe", staffCode: "EMP001", department: "Employees", companyName: "TechCorp" },
-      { id: 2, staffName: "Jane Smith", staffCode: "EMP002", department: "Employees", companyName: "InnovateTech" },
-      { id: 3, staffName: "Robert Brown", staffCode: "EMP003", department: "Employees", companyName: "Digital Solutions" },
-      { id: 4, staffName: "Emily Clark", staffCode: "EMP004", department: "Employees", companyName: "SalesForce" },
-      { id: 5, staffName: "David Lee", staffCode: "EMP005", department: "Employees", companyName: "Marketify" },
-    ];
+    const dummyData:  IStaff[] = [
+  {
+    id: 1,
+    employeeId: "EMP-001",
+    firstName: "John",
+    lastName: "Smith",
+    fullName: "John Smith",
+    email: "john.smith@technova.com",
+    phone: "+1 (555) 123-4567",
+    mobile: "+1 (555) 987-6543",
+    position: "Senior Software Engineer",
+    department: "Engineering",
+    company: "TechNova Solutions",
+    companyId: 1,
+    location: "San Francisco, CA",
+    joinDate: "2020-03-15",
+    status: "Active",
+    employmentType: "Full-time",
+    salary: 125000,
+    currency: "USD",
+    supervisor: "Sarah Johnson",
+    gender: "Male",
+    dateOfBirth: "1990-05-20",
+    address: "123 Tech Street, San Francisco, CA 94105",
+    city: "San Francisco",
+    country: "USA",
+    zipCode: "94105",
+    emergencyContact: "+1 (555) 111-2222",
+    skills: ["JavaScript", "React", "Node.js", "AWS", "TypeScript"],
+    education: "MS Computer Science, Stanford University",
+    experience: 8,
+    performanceRating: 4.8,
+    attendanceRate: 97.5,
+    projectsCompleted: 42,
+    lastLogin: "2024-03-28 09:15:23",
+    notes: "Top performer, leads the React team"
+  }
+];
     setStaff(dummyData);
   }, []);
 
@@ -53,7 +84,7 @@ const StaffByDepartmentMainArea: React.FC<Props> = ({ department }) => {
         </div>
       </div>
 
-      <StaffTable key={staff.length} data={staff} />
+      <StaffTable  />
     </div>
   );
 };

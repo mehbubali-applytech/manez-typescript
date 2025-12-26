@@ -1,62 +1,71 @@
 "use client";
 import Link from "next/link";
 import React, { useState } from "react";
-import AddNewStaffModal from "./AddNewStaff";
 import StaffTable from "./StaffTable";
-
-export interface IStaff {
-  [key: string]: any;
-  id: number;
-  staffName: string;
-  staffCode: string;
-  department: string;
-  companyName: string;
-}
-
-const dummyStaffData: IStaff[] = [
-  { id: 1, staffName: "John Doe", staffCode: "EMP001", department: "HR", companyName: "Google" },
-  { id: 2, staffName: "Jane Smith", staffCode: "EMP002", department: "IT", companyName: "Microsoft" },
-  { id: 3, staffName: "Robert Brown", staffCode: "EMP003", department: "Finance", companyName: "Amazon" },
-  { id: 4, staffName: "Emily Clark", staffCode: "EMP004", department: "Sales", companyName: "Meta" },
-  { id: 5, staffName: "David Lee", staffCode: "EMP005", department: "Marketing", companyName: "Google" },
-];
+import AddStaffModal from "./AddStaffModal";
+import AllStaffSummary from "./AllStaffSummary";
+import StaffFilters from "./StaffFilters";
 
 const StaffMainArea = () => {
   const [modalOpen, setModalOpen] = useState(false);
-  const [staff, setStaff] = useState<IStaff[]>(dummyStaffData);
+  const [selectedStatus, setSelectedStatus] = useState("all");
+  const [selectedDepartment, setSelectedDepartment] = useState("all");
+  const [selectedCompany, setSelectedCompany] = useState("all");
+  const [dateRange, setDateRange] = useState({
+    start: "2024-01-01",
+    end: "2024-03-31",
+  });
 
   return (
-    <div className="app__slide-wrapper">
-      <div className="breadcrumb__wrapper mb-[25px]">
-        <nav>
-          <ol className="breadcrumb flex items-center mb-0">
-            <li className="breadcrumb-item">
-              <Link href="/">Home</Link>
-            </li>
-            <li className="breadcrumb-item">
-              <Link href="/super-admin">Admin</Link>
-            </li>
-            <li className="breadcrumb-item active">All Staff</li>
-          </ol>
-        </nav>
-
-        <div className="breadcrumb__btn">
-          <button
-            type="button"
-            className="btn btn-primary"
-            onClick={() => setModalOpen(true)}
-          >
-            Add Staff
-          </button>
+    <>
+      <div className="app__slide-wrapper">
+        <div className="breadcrumb__area">
+          <div className="breadcrumb__wrapper mb-[25px]">
+            <nav>
+              <ol className="breadcrumb flex items-center mb-0">
+                <li className="breadcrumb-item"><Link href="/">Home</Link></li>
+                <li className="breadcrumb-item"><Link href="/super-admin">Super Admin</Link></li>
+                <li className="breadcrumb-item active">All Staff</li>
+              </ol>
+            </nav>
+            <div className="breadcrumb__btn">
+              <button
+                type="button"
+                onClick={() => setModalOpen(true)}
+                className="btn btn-primary"
+              >
+                <i className="fa-regular fa-user-plus mr-2"></i>
+                Add New Staff
+              </button>
+            </div>
+          </div>
         </div>
+
+        <div className="grid grid-cols-12 gap-x-6">
+          <AllStaffSummary />
+        </div>
+
+        <StaffFilters
+          selectedStatus={selectedStatus}
+          setSelectedStatus={setSelectedStatus}
+          selectedDepartment={selectedDepartment}
+          setSelectedDepartment={setSelectedDepartment}
+          selectedCompany={selectedCompany}
+          setSelectedCompany={setSelectedCompany}
+          dateRange={dateRange}
+          setDateRange={setDateRange}
+        />
+
+        <StaffTable
+          status={selectedStatus}
+          department={selectedDepartment}
+          company={selectedCompany}
+          dateRange={dateRange}
+        />
       </div>
 
-      <StaffTable key={staff.length} data={staff} />
-
-      {modalOpen && (
-        <AddNewStaffModal open={modalOpen} setOpen={setModalOpen} />
-      )}
-    </div>
+      {modalOpen && <AddStaffModal open={modalOpen} setOpen={setModalOpen} />}
+    </>
   );
 };
 

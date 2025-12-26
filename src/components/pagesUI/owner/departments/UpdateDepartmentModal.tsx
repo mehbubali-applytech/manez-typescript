@@ -94,7 +94,7 @@ const UpdateDepartmentModal: React.FC<Props> = ({
   };
 
   const onSubmit = (data: IDepartment) => {
-    if (!editData) return; // ✅ SAFETY GUARD
+    if (!editData) return; 
 
     onSave({
       ...editData,

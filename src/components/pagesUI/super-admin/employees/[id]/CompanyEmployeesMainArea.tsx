@@ -34,7 +34,7 @@ const CompanyEmployeesMainArea: React.FC<{ id: number }> = ({ id }) => {
               <Link href="/">Home</Link>
             </li>
             <li className="breadcrumb-item">
-              <Link href="/super-admin">Admin</Link>
+              <Link href="/super-admin">Super Admin</Link>
             </li>
             <li className="breadcrumb-item">
               <Link href="/super-admin/employees">Employees</Link>

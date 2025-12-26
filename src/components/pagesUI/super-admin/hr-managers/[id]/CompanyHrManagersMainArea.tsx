@@ -1,9 +1,9 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
-import AddNewHrManagerModal from "../AddNewHrManager";
+import AddNewHrManager from "../add-hr-manager/AddNewHrManager";
 import HrManagersTable from "../HrManagersTable";
-import { IHrManager } from "../HrManagersMainArea";
+import { IHrManager } from "../hr-managers.interface";
 
 const DUMMY_HR_MANAGERS: any[] = [
   { id: 1, hrName: "Rahul Sharma", hrCode: "HR001", department: "Recruitment", company: "Google", companyCode: "GOOG" },
@@ -57,12 +57,8 @@ const CompanyHrManagersMainArea: React.FC<{ id: number }> = ({ id }) => {
       </div>
 
       {/* HR Managers Table */}
-      <HrManagersTable key={hrManagers.length} data={hrManagers} />
+      <HrManagersTable  />
 
-      {/* Add Modal */}
-      {modalOpen && (
-        <AddNewHrManagerModal open={modalOpen} setOpen={setModalOpen} />
-      )}
     </div>
   );
 };

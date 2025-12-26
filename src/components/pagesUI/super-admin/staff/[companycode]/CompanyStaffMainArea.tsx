@@ -1,8 +1,8 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
-import AddNewStaffModal from "../AddNewStaff";
 import StaffTable from "../StaffTable";
+import { useRouter } from "next/navigation";
 
 export interface IStaff {
   [key: string]: any;
@@ -22,9 +22,16 @@ const DUMMY_STAFF: IStaff[] = [
   { id: 5, staffName: "Sarah Wilson", staffCode: "EMP005", department: "Marketing", companyName: "Apple", companyCode: "AAPL" },
 ];
 
+
+
 const CompanyStaffMainArea: React.FC<{ companyCode: string }> = ({ companyCode }) => {
   const [modalOpen, setModalOpen] = useState(false);
   const [staff, setStaff] = useState<IStaff[]>([]);
+
+  const router = useRouter();
+  const handleAddClick = ()=>{
+    router.push("/super-admin/staff/add-staff")
+  }
 
   useEffect(() => {
     const filteredStaff = DUMMY_STAFF.filter(
@@ -54,24 +61,20 @@ const CompanyStaffMainArea: React.FC<{ companyCode: string }> = ({ companyCode }
           </ol>
         </nav>
 
-        <div className="breadcrumb__btn">
-          <button
-            type="button"
-            className="btn btn-primary"
-            onClick={() => setModalOpen(true)}
-          >
-            Add Staff
-          </button>
-        </div>
+                 <div className="breadcrumb__btn">
+              <button
+                type="button"
+                onClick={handleAddClick}
+                className="btn btn-primary"
+              >
+                <i className="fa-regular fa-plus mr-2"></i>
+                Add New Staff
+              </button>
+            </div>
       </div>
 
       {/* Staff Table */}
-      <StaffTable key={staff.length} data={staff} />
-
-      {/* Add Staff Modal */}
-      {modalOpen && (
-        <AddNewStaffModal open={modalOpen} setOpen={setModalOpen} />
-      )}
+      <StaffTable/>
     </div>
   );
 };

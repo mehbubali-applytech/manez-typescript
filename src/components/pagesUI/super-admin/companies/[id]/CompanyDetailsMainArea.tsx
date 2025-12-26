@@ -3,11 +3,12 @@
 import React, { useState } from "react";
 import { useParams } from "next/navigation";
 import Breadcrumb from "@/common/Breadcrumb/breadcrumb";
-import { ICompany } from "../CompaniesMainArea";
+import { ICompany } from "../companies.interface";
 import CompanyInfo from "./CompanyInfo";
 import CompanySideContentSection from "./CompanySideContentSection";
 import CompanyAddDealsModal from "@/components/pagesUI/company/company-details/CompanyAddDealsModal";
 import CompanySendMailModal from "./CompanySendMailModal";
+import CompanyQuickAccess from "./CompanyQuickAccess";
 
 const dummyCompaniesData: ICompany[] = [
       {
@@ -81,7 +82,6 @@ const CompanyDetailsMainArea = () => {
         <div className="grid grid-cols-12">
           <div className="col-span-12">
             <div className="grid grid-cols-12 gap-x-6 maxXs:gap-x-0">
-              
               <div className="col-span-12 xl:col-span-3">
                 <CompanyInfo
                   handleToggle={handleToggle}
@@ -89,11 +89,14 @@ const CompanyDetailsMainArea = () => {
                   companyData={companyToDisplay}
                 />
               </div>
-
+<div className="flex flex-col gap-y-2 col-span-12 xl:col-span-9">
+                  <div className="col-span-12 xl:col-span-9">
+                <CompanyQuickAccess />
+              </div>
               <div className="col-span-12 xl:col-span-9">
                 <CompanySideContentSection />
               </div>
-
+</div>
             </div>
           </div>
         </div>
