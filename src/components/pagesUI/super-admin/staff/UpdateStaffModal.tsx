@@ -5,7 +5,7 @@ import { Dialog, DialogTitle, DialogContent } from "@mui/material";
 import { useForm } from "react-hook-form";
 import InputField from "@/components/elements/SharedInputs/InputField";
 import { toast } from "sonner";
-import { IStaff } from "./StaffMainArea";
+import { IStaff } from "./staff.interface";
 
 interface Props {
   open: boolean;
