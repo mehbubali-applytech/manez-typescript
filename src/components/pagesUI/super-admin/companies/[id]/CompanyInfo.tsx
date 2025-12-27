@@ -3,7 +3,7 @@ import React from "react";
 import SocialProfile from "./SocialProfile";
 import Link from "next/link";
 import Image from "next/image";
-import { ICompany } from "../CompaniesMainArea";
+import { ICompany } from "../companies.interface";
 import { co } from "@fullcalendar/core/internal-common";
 
 interface statePropsType {
