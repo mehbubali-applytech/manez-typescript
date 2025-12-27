@@ -13,11 +13,7 @@ interface Props {
   editData: IStaff | null;
 }
 
-const UpdateStaffModal: React.FC<Props> = ({
-  open,
-  setOpen,
-  editData,
-}) => {
+const UpdateStaffModal: React.FC<Props> = ({ open, setOpen, editData }) => {
   const {
     register,
     handleSubmit,
@@ -25,10 +21,20 @@ const UpdateStaffModal: React.FC<Props> = ({
     formState: { errors },
   } = useForm<IStaff>({
     defaultValues: {
-      staffName: "",
-      staffCode: "",
-      companyName: "",
+      firstName: "",
+      lastName: "",
+      employeeId: "",
+      email: "",
+      phone: "",
       department: "",
+      company: "",
+      position: "",
+      location: "",
+      joinDate: "",
+      status: "Active",
+      employmentType: "Full-time",
+      salary: 0,
+      currency: "INR",
     },
   });
 
@@ -37,15 +43,10 @@ const UpdateStaffModal: React.FC<Props> = ({
     setOpen(false);
   };
 
-  // ✅ Prefill data on edit
+  // ✅ Prefill form on edit
   useEffect(() => {
     if (editData) {
-      reset({
-        staffName: editData.staffName,
-        staffCode: editData.staffCode,
-        companyName: editData.companyName,
-        department: editData.department,
-      });
+      reset(editData);
     }
   }, [editData, reset]);
 
@@ -64,11 +65,7 @@ const UpdateStaffModal: React.FC<Props> = ({
       <DialogTitle>
         <div className="flex justify-between items-center">
           <h5 className="modal-title">Update Staff</h5>
-          <button
-            type="button"
-            className="bd-btn-close"
-            onClick={handleToggle}
-          >
+          <button type="button" className="bd-btn-close" onClick={handleToggle}>
             ✕
           </button>
         </div>
@@ -77,44 +74,62 @@ const UpdateStaffModal: React.FC<Props> = ({
       <DialogContent>
         <form onSubmit={handleSubmit(onSubmit)}>
           <div className="grid grid-cols-12 gap-4">
-            {/* Staff Name */}
-            <div className="col-span-12">
+            {/* First Name */}
+            <div className="col-span-6">
               <InputField
-                id="staffName"
-                label="Staff Name"
-                register={register("staffName", {
-                  required: "Staff name is required",
+                id="firstName"
+                label="First Name"
+                register={register("firstName", {
+                  required: "First name is required",
                 })}
-                error={errors.staffName}
+                error={errors.firstName}
               />
             </div>
 
-            {/* Staff Code (READ ONLY ✅) */}
-            <div className="col-span-12">
+            {/* Last Name */}
+            <div className="col-span-6">
               <InputField
-                id="staffCode"
-                label="Staff Code"
-                register={register("staffCode", {
-                  disabled: true,
+                id="lastName"
+                label="Last Name"
+                register={register("lastName", {
+                  required: "Last name is required",
                 })}
-                error={errors.staffCode}
+                error={errors.lastName}
               />
             </div>
 
-            {/* Company Name */}
+            {/* Employee ID (Read Only) */}
             <div className="col-span-12">
               <InputField
-                id="companyName"
-                label="Company Name"
-                register={register("companyName", {
-                  required: "Company name is required",
-                })}
-                error={errors.companyName}
+                id="employeeId"
+                label="Employee ID"
+                register={register("employeeId", { disabled: true })}
+                error={errors.employeeId}
+              />
+            </div>
+
+            {/* Email */}
+            <div className="col-span-12">
+              <InputField
+                id="email"
+                label="Email"
+                register={register("email", { required: "Email is required" })}
+                error={errors.email}
+              />
+            </div>
+
+            {/* Phone */}
+            <div className="col-span-12">
+              <InputField
+                id="phone"
+                label="Phone"
+                register={register("phone", { required: "Phone is required" })}
+                error={errors.phone}
               />
             </div>
 
             {/* Department */}
-            <div className="col-span-12">
+            <div className="col-span-6">
               <InputField
                 id="department"
                 label="Department"
@@ -122,6 +137,30 @@ const UpdateStaffModal: React.FC<Props> = ({
                   required: "Department is required",
                 })}
                 error={errors.department}
+              />
+            </div>
+
+            {/* Company */}
+            <div className="col-span-6">
+              <InputField
+                id="company"
+                label="Company"
+                register={register("company", {
+                  required: "Company is required",
+                })}
+                error={errors.company}
+              />
+            </div>
+
+            {/* Position */}
+            <div className="col-span-12">
+              <InputField
+                id="position"
+                label="Position"
+                register={register("position", {
+                  required: "Position is required",
+                })}
+                error={errors.position}
               />
             </div>
           </div>
