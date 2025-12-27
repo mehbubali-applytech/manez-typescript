@@ -11,16 +11,37 @@ const AddCompanyStaff = ({ open, setOpen }: statePropsType) => {
   const {
     register,
     handleSubmit,
+    reset,
     formState: { errors },
-  } = useForm<IStaff>();
+  } = useForm<IStaff>({
+    defaultValues: {
+      firstName: "",
+      lastName: "",
+      employeeId: "",
+      email: "",
+      phone: "",
+      department: "",
+      company: "",
+      position: "",
+      location: "",
+      joinDate: "",
+      status: "Active",
+      employmentType: "Full-time",
+      salary: 0,
+      currency: "INR",
+    },
+  });
 
-  const handleToggle = () => setOpen(!open);
+  const handleToggle = () => {
+    reset();
+    setOpen(false);
+  };
 
   const onSubmit = async (data: IStaff) => {
     try {
       console.log("Staff Payload:", data);
       toast.success("Staff added successfully! 🎉");
-      setTimeout(() => setOpen(false), 1500);
+      setTimeout(() => handleToggle(), 1200);
     } catch {
       toast.error("Failed to add staff. Please try again.");
     }
@@ -29,10 +50,10 @@ const AddCompanyStaff = ({ open, setOpen }: statePropsType) => {
   return (
     <Dialog open={open} onClose={handleToggle} fullWidth maxWidth="sm">
       <DialogTitle>
-        <div className="flex justify-between">
+        <div className="flex justify-between items-center">
           <h5>Add New Staff</h5>
           <button onClick={handleToggle} className="bd-btn-close">
-            <i className="fa-solid fa-xmark-large"></i>
+            ✕
           </button>
         </div>
       </DialogTitle>
@@ -40,47 +61,91 @@ const AddCompanyStaff = ({ open, setOpen }: statePropsType) => {
       <DialogContent>
         <form onSubmit={handleSubmit(onSubmit)}>
           <div className="card__wrapper grid grid-cols-12 gap-4">
-            <div className="col-span-12">
+
+            {/* First Name */}
+            <div className="col-span-6">
               <InputField
-                id="staffName"
-                label="Staff Name"
-                type="text"
-                register={register("staffName", { required: "Name is required" })}
-                error={errors.staffName}
+                id="firstName"
+                label="First Name"
+                register={register("firstName", {
+                  required: "First name is required",
+                })}
+                error={errors.firstName}
               />
             </div>
 
-            <div className="col-span-12">
+            {/* Last Name */}
+            <div className="col-span-6">
               <InputField
-                id="staffCode"
-                label="Staff Code"
-                type="text"
-                register={register("staffCode", { required: "Code is required" })}
-                error={errors.staffCode}
+                id="lastName"
+                label="Last Name"
+                register={register("lastName", {
+                  required: "Last name is required",
+                })}
+                error={errors.lastName}
               />
             </div>
 
-              <div className="col-span-12">
-                <InputField
-                  id="companyName"
-                  label="Company Name"
-                  type="text"
-                  register={register("companyName")}
-                  error={errors.companyName}
-                />
-              </div>
+            {/* Employee ID */}
+            <div className="col-span-12">
+              <InputField
+                id="employeeId"
+                label="Employee ID"
+                register={register("employeeId", {
+                  required: "Employee ID is required",
+                })}
+                error={errors.employeeId}
+              />
+            </div>
 
-              <div className="col-span-12">
-                <InputField
-                  id="department"
-                  label="Department"
-                  type="text"
-                  register={register("department", {
-                    required: "Department is required",
-                  })}
-                  error={errors.department}
-                />
-              </div>
+            {/* Email */}
+            <div className="col-span-12">
+              <InputField
+                id="email"
+                label="Email"
+                register={register("email", {
+                  required: "Email is required",
+                })}
+                error={errors.email}
+              />
+            </div>
+
+            {/* Phone */}
+            <div className="col-span-12">
+              <InputField
+                id="phone"
+                label="Phone"
+                register={register("phone", {
+                  required: "Phone is required",
+                })}
+                error={errors.phone}
+              />
+            </div>
+
+            {/* Department */}
+            <div className="col-span-6">
+              <InputField
+                id="department"
+                label="Department"
+                register={register("department", {
+                  required: "Department is required",
+                })}
+                error={errors.department}
+              />
+            </div>
+
+            {/* Company */}
+            <div className="col-span-6">
+              <InputField
+                id="company"
+                label="Company"
+                register={register("company", {
+                  required: "Company is required",
+                })}
+                error={errors.company}
+              />
+            </div>
+
           </div>
 
           <div className="submit__btn text-center mt-4">
