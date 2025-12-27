@@ -10,7 +10,7 @@ import BoxStepWithIcon, {
   StepItem,
 } from "@/components/elements/advanced-ui/steps/BoxStepWithIcon";
 
-import { ICompany } from "./CompaniesMainArea";
+import { ICompany } from "./companies.interface";
 import { countriesData } from "@/data/country-data";
 
 interface Props {
