@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import Breadcrumb from "@/common/Breadcrumb/breadcrumb";
-import { ICompany } from "./CompaniesMainArea";
+import { ICompany } from "./companies.interface";
 import Image from 'next/image';
 
 interface Props {
