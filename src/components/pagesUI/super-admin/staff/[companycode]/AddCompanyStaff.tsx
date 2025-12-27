@@ -5,7 +5,7 @@ import { useForm } from "react-hook-form";
 import InputField from "@/components/elements/SharedInputs/InputField";
 import { toast } from "sonner";
 import { statePropsType } from "@/interface/common.interface";
-import { IStaff } from "../StaffMainArea";
+import { IStaff } from "../staff.interface";
 
 const AddCompanyStaff = ({ open, setOpen }: statePropsType) => {
   const {
