@@ -417,7 +417,7 @@ const AddShift: React.FC = () => {
                           
                           {breakSlots.length === 0 ? (
                             <Alert severity="info" sx={{ mb: 2 }}>
-                              No break slots added. Click "Add Break" to add break times.
+                              No break slots added. Click {`"Add Break"`} to add break times.
                             </Alert>
                           ) : (
                             <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
@@ -669,7 +669,7 @@ const AddShift: React.FC = () => {
             <Box component="ul" sx={{ pl: 2, m: 0, color: 'info.700' }}>
               <li>
                 <Typography variant="body2">
-                  <strong>Clear Naming:</strong> Use descriptive names like "Morning Shift", "Night Shift A", "Weekend Shift"
+                  <strong>Clear Naming:</strong> Use descriptive names like {`"Morning Shift", "Night Shift A", "Weekend Shift"`}
                 </Typography>
               </li>
               <li>

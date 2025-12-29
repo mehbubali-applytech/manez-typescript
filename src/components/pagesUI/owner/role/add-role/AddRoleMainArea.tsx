@@ -844,12 +844,12 @@ const AddEditRole: React.FC<{ isEdit?: boolean; roleId?: string }> = ({
             <Box component="ul" sx={{ pl: 2, m: 0, color: 'info.700' }}>
               <li>
                 <Typography variant="body2">
-                  <strong>Role Naming:</strong> Use clear, descriptive names that reflect responsibilities (e.g., "HR Manager" not just "Manager").
+                  <strong>Role Naming:</strong> Use clear, descriptive names that reflect responsibilities {`(e.g., "HR Manager" not just "Manager").`}
                 </Typography>
               </li>
               <li>
                 <Typography variant="body2">
-                  <strong>Principle of Least Privilege:</strong> Grant only the permissions necessary for the role's responsibilities.
+                  <strong>Principle of Least Privilege:</strong> Grant only the permissions necessary for the {`role's`} responsibilities.
                 </Typography>
               </li>
               <li>

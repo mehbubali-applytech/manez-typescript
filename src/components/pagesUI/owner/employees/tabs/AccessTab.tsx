@@ -246,7 +246,7 @@ const AccessTab: React.FC<AccessTabProps> = ({ watchSystemUserEnabled }) => {
                       ) : (
                         <Alert severity="warning">
                           <Typography variant="body2">
-                            Location not set. Click "Get Location" to enable GPS attendance.
+                            Location not set. {`Click Get Location`} to enable GPS attendance.
                           </Typography>
                         </Alert>
                       )}
@@ -455,7 +455,7 @@ const AccessTab: React.FC<AccessTabProps> = ({ watchSystemUserEnabled }) => {
                 
                 <Alert severity="info" sx={{ mt: 2 }}>
                   <Typography variant="body2">
-                    Password will be auto-generated and sent to employee's email. 
+                    Password will be auto-generated and sent to {`employee's`} email. 
                     Employee will be prompted to change password on first login.
                   </Typography>
                 </Alert>
@@ -647,10 +647,10 @@ const AccessTab: React.FC<AccessTabProps> = ({ watchSystemUserEnabled }) => {
                 System Access Disabled
               </Typography>
               <Typography variant="body2" color="text.secondary" gutterBottom>
-                Enable "System User Account" to configure login credentials and permissions
+                Enable {`System User Account`} to configure login credentials and permissions
               </Typography>
               <Typography variant="caption" color="text.secondary">
-                This is suitable for contractors or employees who don't need system access
+                This is suitable for contractors or employees who {`don't`} need system access
               </Typography>
             </Box>
           )}
@@ -660,7 +660,7 @@ const AccessTab: React.FC<AccessTabProps> = ({ watchSystemUserEnabled }) => {
       {/* Final Notes */}
       <Alert severity="warning" sx={{ mt: 3 }}>
         <Typography variant="body2">
-          <strong>Important:</strong> System access settings can only be modified before the employee's first login. 
+          <strong>Important:</strong> System access settings can only be modified before the {`employee's`} first login. 
           After first login, changes must be made through the user management system.
         </Typography>
       </Alert>

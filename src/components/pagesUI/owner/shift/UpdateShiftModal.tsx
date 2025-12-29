@@ -353,7 +353,7 @@ const UpdateShiftModal: React.FC<UpdateShiftModalProps> = ({
                         
                         {breakSlots.length === 0 ? (
                           <Alert severity="info">
-                            No break slots added. Click "Add Break" to add break times.
+                            No break slots added. Click {`"Add Break"`} to add break times.
                           </Alert>
                         ) : (
                           <div className="space-y-3">

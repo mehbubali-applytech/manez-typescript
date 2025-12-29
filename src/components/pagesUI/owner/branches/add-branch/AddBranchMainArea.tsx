@@ -671,7 +671,7 @@ const AddBranchMainArea: React.FC<{ isEdit?: boolean; locationId?: string }> = (
               <Box component="ul" sx={{ pl: 2, m: 0, color: 'info.700' }}>
                 <li>
                   <Typography variant="body2">
-                    <strong>Location Name:</strong> Use a descriptive name that employees will recognize (e.g., "NYC Office", "Mumbai HQ").
+                    <strong>Location Name:</strong> Use a descriptive name that employees will recognize (e.g., NYC Office, Mumbai HQ).
                   </Typography>
                 </li>
                 <li>
