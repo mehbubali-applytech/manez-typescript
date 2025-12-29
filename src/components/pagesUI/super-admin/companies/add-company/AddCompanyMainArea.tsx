@@ -1,986 +1,1152 @@
 "use client";
 
-import Link from "next/link";
 import React, { useState, useEffect } from "react";
-import { Switch, FormControlLabel, Autocomplete, TextField } from "@mui/material";
+import Link from "next/link";
+import Image from "next/image";
 import { useForm, Controller } from "react-hook-form";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
+import {
+  Autocomplete,
+  TextField,
+  Radio,
+  RadioGroup,
+  FormControlLabel,
+  Checkbox,
+  FormGroup,
+  FormControl,
+  FormLabel,
+  Select,
+  MenuItem,
+} from "@mui/material";
 
-import { ICompany, ICompanyForm } from "../companies.interface";
-import InputField from "@/components/elements/SharedInputs/InputField";
-
-// Mock data for dropdowns (you can replace with API data)
-interface CountryOption {
-    code: string;
-    name: string;
+// Types
+interface ICompanyRegistration {
+  // Step 1: Company Details
+  companyName: string;
+  registrationNumber: string;
+  domain: string;
+  logo: File | null;
+  logoPreview: string;
+  employeeLimit: number | "";
+  notes: string;
+  
+  // Step 2: Owner Details
+  ownerName: string;
+  ownerEmail: string;
+  ownerPhone: string;
+  
+  // Step 3: Modules & Plan
+  modules: {
+    attendance: boolean;
+    leaveManagement: boolean;
+    payroll: boolean;
+    offerLetters: boolean;
+    compliance: boolean;
+  };
+  attendanceLevel: "basic" | "advanced";
+  payrollLevel: "basic" | "advanced";
+  subscriptionPlan: "free" | "pro" | "enterprise";
+  timezone: string;
+  currency: string;
+  
+  // Step 4: Confirm
+  acceptTerms: boolean;
+  sendActivationEmail: boolean;
+  finalComments: string;
 }
 
-interface StateOption {
-    code: string;
-    name: string;
+interface ModuleOption {
+  id: keyof ICompanyRegistration['modules'];
+  label: string;
+  description: string;
+  note?: string;
+  hasLevel?: boolean;
 }
 
-const countries: CountryOption[] = [
-    { code: "US", name: "United States" },
-    { code: "CA", name: "Canada" },
-    { code: "GB", name: "United Kingdom" },
-    { code: "AU", name: "Australia" },
-    { code: "DE", name: "Germany" },
-    { code: "FR", name: "France" },
-    { code: "JP", name: "Japan" },
-    { code: "IN", name: "India" },
-    { code: "CN", name: "China" },
-    { code: "BR", name: "Brazil" },
+interface PlanOption {
+  id: ICompanyRegistration['subscriptionPlan'];
+  label: string;
+  description: string;
+  limits: string[];
+}
+
+interface TimezoneOption {
+  value: string;
+  label: string;
+  offset: string;
+}
+
+interface CurrencyOption {
+  code: string;
+  name: string;
+  symbol: string;
+}
+
+// Mock data
+const timezones: TimezoneOption[] = [
+  { value: "America/New_York", label: "Eastern Time (ET)", offset: "UTC-5" },
+  { value: "America/Chicago", label: "Central Time (CT)", offset: "UTC-6" },
+  { value: "America/Denver", label: "Mountain Time (MT)", offset: "UTC-7" },
+  { value: "America/Los_Angeles", label: "Pacific Time (PT)", offset: "UTC-8" },
+  { value: "Europe/London", label: "GMT/BST", offset: "UTC+0" },
+  { value: "Europe/Paris", label: "Central European Time", offset: "UTC+1" },
+  { value: "Asia/Dubai", label: "Gulf Standard Time", offset: "UTC+4" },
+  { value: "Asia/Kolkata", label: "India Standard Time", offset: "UTC+5:30" },
+  { value: "Asia/Singapore", label: "Singapore Time", offset: "UTC+8" },
+  { value: "Australia/Sydney", label: "Australian Eastern Time", offset: "UTC+10" },
 ];
 
-// States data (you can load this based on selected country)
-const usStates: StateOption[] = [
-    { code: "AL", name: "Alabama" },
-    { code: "AK", name: "Alaska" },
-    { code: "AZ", name: "Arizona" },
-    { code: "AR", name: "Arkansas" },
-    { code: "CA", name: "California" },
-    { code: "CO", name: "Colorado" },
-    { code: "CT", name: "Connecticut" },
-    { code: "DE", name: "Delaware" },
-    { code: "FL", name: "Florida" },
-    { code: "GA", name: "Georgia" },
-    { code: "HI", name: "Hawaii" },
-    { code: "ID", name: "Idaho" },
-    { code: "IL", name: "Illinois" },
-    { code: "IN", name: "Indiana" },
-    { code: "IA", name: "Iowa" },
-    { code: "KS", name: "Kansas" },
-    { code: "KY", name: "Kentucky" },
-    { code: "LA", name: "Louisiana" },
-    { code: "ME", name: "Maine" },
-    { code: "MD", name: "Maryland" },
-    { code: "MA", name: "Massachusetts" },
-    { code: "MI", name: "Michigan" },
-    { code: "MN", name: "Minnesota" },
-    { code: "MS", name: "Mississippi" },
-    { code: "MO", name: "Missouri" },
-    { code: "MT", name: "Montana" },
-    { code: "NE", name: "Nebraska" },
-    { code: "NV", name: "Nevada" },
-    { code: "NH", name: "New Hampshire" },
-    { code: "NJ", name: "New Jersey" },
-    { code: "NM", name: "New Mexico" },
-    { code: "NY", name: "New York" },
-    { code: "NC", name: "North Carolina" },
-    { code: "ND", name: "North Dakota" },
-    { code: "OH", name: "Ohio" },
-    { code: "OK", name: "Oklahoma" },
-    { code: "OR", name: "Oregon" },
-    { code: "PA", name: "Pennsylvania" },
-    { code: "RI", name: "Rhode Island" },
-    { code: "SC", name: "South Carolina" },
-    { code: "SD", name: "South Dakota" },
-    { code: "TN", name: "Tennessee" },
-    { code: "TX", name: "Texas" },
-    { code: "UT", name: "Utah" },
-    { code: "VT", name: "Vermont" },
-    { code: "VA", name: "Virginia" },
-    { code: "WA", name: "Washington" },
-    { code: "WV", name: "West Virginia" },
-    { code: "WI", name: "Wisconsin" },
-    { code: "WY", name: "Wyoming" },
+const currencies: CurrencyOption[] = [
+  { code: "USD", name: "US Dollar", symbol: "$" },
+  { code: "EUR", name: "Euro", symbol: "€" },
+  { code: "GBP", name: "British Pound", symbol: "£" },
+  { code: "INR", name: "Indian Rupee", symbol: "₹" },
+  { code: "AUD", name: "Australian Dollar", symbol: "A$" },
+  { code: "CAD", name: "Canadian Dollar", symbol: "C$" },
+  { code: "SGD", name: "Singapore Dollar", symbol: "S$" },
+  { code: "AED", name: "UAE Dirham", symbol: "د.إ" },
 ];
 
-// Cities data (you can load this based on selected state)
-const cities = [
-    "New York", "Los Angeles", "Chicago", "Houston", "Phoenix",
-    "Philadelphia", "San Antonio", "San Diego", "Dallas", "San Jose",
-    "Austin", "Jacksonville", "Fort Worth", "Columbus", "Charlotte",
-    "San Francisco", "Indianapolis", "Seattle", "Denver", "Washington"
+const modules: ModuleOption[] = [
+  { 
+    id: "attendance", 
+    label: "Attendance", 
+    description: "Track employee attendance and working hours",
+    hasLevel: true 
+  },
+  { 
+    id: "leaveManagement", 
+    label: "Leave Management", 
+    description: "Manage employee leave requests and balances" 
+  },
+  { 
+    id: "payroll", 
+    label: "Payroll", 
+    description: "Process salaries, deductions, and tax calculations",
+    hasLevel: true,
+    note: "Payroll requires bank configuration later" 
+  },
+  { 
+    id: "offerLetters", 
+    label: "Offer Letters", 
+    description: "Create and send employment offer letters" 
+  },
+  { 
+    id: "compliance", 
+    label: "Compliance", 
+    description: "Ensure regulatory compliance and reporting" 
+  },
 ];
 
-// Postal codes (mock data)
-const postalCodes = [
-    "10001", "90001", "60601", "77001", "85001",
-    "19101", "78201", "92101", "75201", "95101",
-    "73301", "32201", "76101", "43201", "28201",
-    "94101", "46201", "98101", "80201", "20001"
+const plans: PlanOption[] = [
+  {
+    id: "free",
+    label: "Free",
+    description: "Basic features for small teams",
+    limits: ["Up to 10 employees", "Basic support", "1GB storage"],
+  },
+  {
+    id: "pro",
+    label: "Pro",
+    description: "Advanced features for growing businesses",
+    limits: ["Up to 100 employees", "Priority support", "10GB storage", "Custom reports"],
+  },
+  {
+    id: "enterprise",
+    label: "Enterprise",
+    description: "Full suite for large organizations",
+    limits: ["Unlimited employees", "24/7 support", "100GB storage", "API access", "Custom integrations"],
+  },
 ];
 
-const AddCompanyMainArea: React.FC = () => {
-    const router = useRouter();
-    const [status, setStatus] = useState<"Active" | "Inactive" | "Pending">("Active");
-    const [activeIndex, setActiveIndex] = useState<number>(0);
-    const [selectedCountry, setSelectedCountry] = useState<CountryOption | null>(null);
-    const [selectedState, setSelectedState] = useState<StateOption | null>(null);
-    const [cityOptions, setCityOptions] = useState<string[]>(cities);
-    const [postalCodeOptions, setPostalCodeOptions] = useState<string[]>(postalCodes);
-    const [formData, setFormData] = useState<Partial<ICompanyForm>>({});
+const RegisterCompanyWizard: React.FC = () => {
+  const router = useRouter();
+  const [activeStep, setActiveStep] = useState(0);
+  const [emailVerified, setEmailVerified] = useState(false);
+  const [isVerifyingEmail, setIsVerifyingEmail] = useState(false);
+  
+  const {
+    register,
+    handleSubmit,
+    control,
+    watch,
+    setValue,
+    trigger,
+    formState: { errors, isValid },
+    getValues,
+  } = useForm<ICompanyRegistration>({
+    defaultValues: {
+      companyName: "",
+      registrationNumber: "",
+      domain: "",
+      logo: null,
+      logoPreview: "",
+      employeeLimit: "",
+      notes: "",
+      ownerName: "",
+      ownerEmail: "",
+      ownerPhone: "",
+      modules: {
+        attendance: true,
+        leaveManagement: true,
+        payroll: false,
+        offerLetters: false,
+        compliance: false,
+      },
+      attendanceLevel: "basic",
+      payrollLevel: "basic",
+      subscriptionPlan: "pro",
+      timezone: "Asia/Kolkata",
+      currency: "USD",
+      acceptTerms: false,
+      sendActivationEmail: true,
+      finalComments: "",
+    },
+    mode: "onChange",
+  });
 
-    const {
-        register,
-        handleSubmit,
-        control,
-        watch,
-        setValue,
-        trigger,
-        getValues,
-        formState: { errors },
-    } = useForm<ICompanyForm>({
-        defaultValues: {
-            rating: 0,
-            employees: 0,
-            departments: 0,
-            projects: 0,
-            revenue: 0,
-        }
+  const steps = [
+    { label: "Company Details", description: "Enter basic company information" },
+    { label: "Owner Details", description: "Provide owner/admin information" },
+    { label: "Modules & Plan", description: "Select modules and subscription plan" },
+    { label: "Confirm & Submit", description: "Review and complete registration" },
+  ];
+
+  const companyName = watch("companyName");
+  const modulesSelected = watch("modules");
+  const selectedModules = Object.values(modulesSelected).filter(Boolean).length;
+  const payrollSelected = watch("modules.payroll");
+
+  // Auto-suggest domain
+  useEffect(() => {
+    if (companyName && !watch("domain")) {
+      const suggestedDomain = companyName
+        .toLowerCase()
+        .replace(/[^a-z0-9]/g, "-")
+        .replace(/-+/g, "-")
+        .replace(/^-|-$/g, "");
+      setValue("domain", `${suggestedDomain}.myhrms.com`);
+    }
+  }, [companyName, setValue, watch]);
+
+  // Handle file upload
+  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      if (file.size > 5 * 1024 * 1024) {
+        toast.error("File size must be less than 5MB");
+        return;
+      }
+      
+      if (!file.type.match(/image\/(png|jpeg|jpg|svg\+xml)/)) {
+        toast.error("Only PNG, JPG, and SVG files are allowed");
+        return;
+      }
+      
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setValue("logo", file);
+        setValue("logoPreview", reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  // Verify email uniqueness
+  const verifyEmail = async () => {
+    const email = watch("ownerEmail");
+    if (!email || errors.ownerEmail) {
+      toast.error("Please enter a valid email address first");
+      return;
+    }
+    
+    setIsVerifyingEmail(true);
+    // Mock API call
+    setTimeout(() => {
+      setIsVerifyingEmail(false);
+      const isAvailable = Math.random() > 0.3; // 70% chance available
+      if (isAvailable) {
+        setEmailVerified(true);
+        toast.success("Email is available!");
+      } else {
+        toast.error("Email already in use");
+      }
+    }, 1000);
+  };
+
+  const handleNextStep = async () => {
+    const currentStepFields = getStepFields(activeStep);
+    const isValid = await trigger(currentStepFields as any);
+    
+    if (isValid) {
+      if (activeStep === 1 && !emailVerified) {
+        toast.warning("Please verify the email address before proceeding");
+        return;
+      }
+      if (activeStep === 2 && selectedModules === 0) {
+        toast.warning("Please select at least one module");
+        return;
+      }
+      setActiveStep(activeStep + 1);
+    } else {
+      toast.error("Please fill in all required fields correctly");
+    }
+  };
+
+  const handlePreviousStep = () => {
+    setActiveStep(activeStep - 1);
+  };
+
+  const getStepFields = (step: number): (keyof ICompanyRegistration)[] => {
+    switch (step) {
+      case 0:
+        return ["companyName"];
+      case 1:
+        return ["ownerName", "ownerEmail"];
+      case 2:
+        return ["subscriptionPlan", "timezone", "currency"];
+      default:
+        return [];
+    }
+  };
+
+  const onSubmit = async (data: ICompanyRegistration) => {
+    if (!data.acceptTerms) {
+      toast.error("Please accept the Terms & Conditions");
+      return;
+    }
+    
+    // Create FormData for file upload
+    const formData = new FormData();
+    Object.entries(data).forEach(([key, value]) => {
+      if (key === "logo" && value instanceof File) {
+        formData.append(key, value);
+      } else if (key === "modules") {
+        formData.append(key, JSON.stringify(value));
+      } else {
+        formData.append(key, String(value));
+      }
     });
+    
+    // Mock API call
+    toast.loading("Creating company...");
+    setTimeout(() => {
+      toast.dismiss();
+      toast.success("Company created successfully!");
+      
+      if (data.sendActivationEmail) {
+        toast.success("Activation email sent to owner");
+      }
+      
+      // Navigate to success page
+      setTimeout(() => {
+        router.push("/super-admin/companies");
+      }, 1500);
+    }, 2000);
+  };
 
-    // Watch country and state to filter cities and postal codes
-    const watchCountry = watch("country");
-    const watchState = watch("state");
+  const renderStepContent = (step: number) => {
+    switch (step) {
+      case 0:
+        return (
+          <div className="space-y-6">
+            {/* Company Name */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Company Name <span className="text-red-500">*</span>
+              </label>
+              <input
+                type="text"
+                maxLength={150}
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-colors"
+                {...register("companyName", {
+                  required: "Company name is required",
+                  maxLength: {
+                    value: 150,
+                    message: "Maximum 150 characters allowed",
+                  },
+                })}
+              />
+              {errors.companyName && (
+                <p className="text-red-500 text-sm mt-1">{errors.companyName.message}</p>
+              )}
+              <div className="flex justify-between mt-1">
+                <span className="text-sm text-gray-500">
+                  Max 150 characters
+                </span>
+                <span className="text-sm text-gray-500">
+                  {companyName?.length || 0}/150
+                </span>
+              </div>
+            </div>
 
-    useEffect(() => {
-        if (watchCountry) {
-            // Find the country object from the string value
-            const countryObj = countries.find(c => c.name === watchCountry) || null;
-            setSelectedCountry(countryObj);
-        }
-    }, [watchCountry]);
+            {/* Registration Number */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Incorporation / Registration Number
+              </label>
+              <input
+                type="text"
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-colors"
+                {...register("registrationNumber")}
+              />
+            </div>
 
-    useEffect(() => {
-        if (watchState) {
-            // Find the state object from the string value
-            const stateObj = usStates.find(s => s.name === watchState) || null;
-            setSelectedState(stateObj);
-            // Filter cities based on state (mock logic)
-            const filteredCities = cities.filter(city =>
-                city.toLowerCase().includes(watchState.toLowerCase().substring(0, 3))
-            );
-            setCityOptions(filteredCities.length > 0 ? filteredCities : cities);
-        }
-    }, [watchState]);
+            {/* Domain */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Domain / Sub-Domain
+              </label>
+              <input
+                type="text"
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-colors"
+                {...register("domain", {
+                  pattern: {
+                    value: /^[a-zA-Z0-9][a-zA-Z0-9-]*\.myhrms\.com$/,
+                    message: "Must be in format: yourcompany.myhrms.com",
+                  },
+                })}
+              />
+              {errors.domain && (
+                <p className="text-red-500 text-sm mt-1">{errors.domain.message}</p>
+              )}
+              <p className="text-sm text-gray-500 mt-1">
+                e.g. acme.myhrms.com
+              </p>
+            </div>
 
-    const steps = [
-        {
-            label: "Basic Information",
-            fields: ['name', 'owner', 'industry', 'location', 'source', 'currencyType', 'language', 'tag', 'description']
-        },
-        {
-            label: "Contact Details",
-            fields: ['email', 'phone', 'mobile', 'fax', 'websites']
-        },
-        {
-            label: "Location Information",
-            fields: ['country', 'state', 'city', 'zipCode', 'address']
-        },
-        {
-            label: "Business Details",
-            fields: ['established', 'licenseNumber', 'taxId', 'rating', 'employees', 'departments', 'projects', 'revenue']
-        },
-        {
-            label: "Review & Status",
-            fields: [] // Review step has no form fields
-        },
-    ];
-
-    const handleNextStep = async () => {
-        // Validate current step fields
-        const currentStepFields = steps[activeIndex].fields;
-        const isValid = await trigger(currentStepFields as any);
-
-        if (isValid) {
-            // Save current step data
-            const currentValues = getValues();
-            setFormData(prev => ({ ...prev, ...currentValues }));
-
-            // Move to next step
-            if (activeIndex < steps.length - 1) {
-                setActiveIndex(activeIndex + 1);
-            }
-        } else {
-            toast.error("Please fill in all required fields correctly");
-        }
-    };
-
-    const handlePreviousStep = () => {
-        if (activeIndex > 0) {
-            // Save current step data before moving back
-            const currentValues = getValues();
-            setFormData(prev => ({ ...prev, ...currentValues }));
-            setActiveIndex(activeIndex - 1);
-        }
-    };
-
-    // Load form data when step changes
-    useEffect(() => {
-        // Set form values from saved formData
-        Object.entries(formData).forEach(([key, value]) => {
-            if (value !== undefined && value !== null) {
-                // Cast key to string first, then to keyof ICompanyForm
-                const formKey = key as Extract<keyof ICompanyForm, string>;
-                setValue(formKey, value as any);
-            }
-        });
-
-        // Also update selectedCountry and selectedState when loading formData
-        if (formData.country) {
-            const countryObj = countries.find(c => c.name === formData.country) || null;
-            setSelectedCountry(countryObj);
-        }
-        if (formData.state) {
-            const stateObj = usStates.find(s => s.name === formData.state) || null;
-            setSelectedState(stateObj);
-        }
-    }, [activeIndex, formData, setValue]);
-
-    const onSubmit = (data: ICompanyForm) => {
-        const payload: ICompany = {
-            ...formData, // Use the saved form data from all steps
-            ...data, // Include any data from the current step
-            id: Date.now(),
-            status: status,
-            rating: data.rating || formData.rating || 0,
-            tag: data.tag || formData.tag || "General",
-            location: data.city || formData.city || data.country || formData.country || "Not specified",
-            createdAt: new Date().toISOString(),
-            updatedAt: new Date().toISOString(),
-        };
-
-        console.log("Company Payload:", payload);
-
-        toast.success("Company added successfully!");
-        setTimeout(() => {
-            router.push("/owner/companies");
-        }, 500);
-    };
-
-    const renderStepContent = (index: number) => {
-        switch (index) {
-            case 0:
-                return (
-                    <div className="grid grid-cols-12 gap-6">
-                        {/* Company Name */}
-                        <div className="col-span-12 lg:col-span-6">
-                            <InputField
-                                id="name"
-                                label="Company Name"
-                                required
-                                register={register("name", {
-                                    required: "Company name is required",
-                                })}
-                                error={errors.name}
-                            />
-                        </div>
-
-                        {/* Owner */}
-                        <div className="col-span-12 lg:col-span-6">
-                            <InputField
-                                id="owner"
-                                label="Owner/CEO Name"
-                                required
-                                register={register("owner", {
-                                    required: "Owner name is required",
-                                })}
-                                error={errors.owner}
-                            />
-                        </div>
-
-                        {/* Industry */}
-                        <div className="col-span-12 lg:col-span-6">
-                            <InputField
-                                id="industry"
-                                label="Industry"
-                                required
-                                register={register("industry", {
-                                    required: "Industry is required",
-                                })}
-                                error={errors.industry}
-                            />
-                        </div>
-
-                        {/* Location - Add this field */}
-                        <div className="col-span-12 lg:col-span-6">
-                            <InputField
-                                id="location"
-                                label="Location (General)"
-                                register={register("location")}
-                            />
-                        </div>
-
-                        {/* Source */}
-                        <div className="col-span-12 lg:col-span-6">
-                            <InputField
-                                id="source"
-                                label="Source"
-                                register={register("source")}
-                            />
-                        </div>
-
-                        {/* Currency Type */}
-                        <div className="col-span-12 lg:col-span-6">
-                            <InputField
-                                id="currencyType"
-                                label="Currency Type"
-                                register={register("currencyType")}
-                            />
-                        </div>
-
-                        {/* Language */}
-                        <div className="col-span-12 lg:col-span-6">
-                            <InputField
-                                id="language"
-                                label="Primary Language"
-                                register={register("language")}
-                            />
-                        </div>
-
-                        {/* Tag */}
-                        <div className="col-span-12 lg:col-span-6">
-                            <InputField
-                                id="tag"
-                                label="Company Tag"
-                                register={register("tag")}
-                            />
-                        </div>
-
-                        {/* Description */}
-                        <div className="col-span-12">
-                            <div className="mb-4">
-                                <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-1">
-                                    Description
-                                </label>
-                                <textarea
-                                    id="description"
-                                    rows={4}
-                                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-colors"
-                                    {...register("description")}
-                                />
-                            </div>
-                        </div>
+            {/* Logo Upload */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Company Logo
+              </label>
+              <div className="flex items-center space-x-4">
+                <div className="w-20 h-20 border-2 border-dashed border-gray-300 rounded-lg flex items-center justify-center overflow-hidden">
+                  {watch("logoPreview") ? (
+                    <div className="relative w-full h-full">
+                      <Image
+                        src={watch("logoPreview")}
+                        alt="Logo preview"
+                        fill
+                        className="object-contain p-2"
+                      />
                     </div>
-                );
-
-            case 1:
-                return (
-                    <div className="grid grid-cols-12 gap-6">
-                        {/* Email */}
-                        <div className="col-span-12 lg:col-span-6">
-                            <InputField
-                                id="email"
-                                label="Email Address"
-                                required
-                                type="email"
-                                register={register("email", {
-                                    required: "Email is required",
-                                    pattern: {
-                                        value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
-                                        message: "Invalid email address",
-                                    },
-                                })}
-                                error={errors.email}
-                            />
-                        </div>
-
-                        {/* Phone */}
-                        <div className="col-span-12 lg:col-span-6">
-                            <InputField
-                                id="phone"
-                                label="Phone Number"
-                                type="tel"
-                                register={register("phone", {
-                                    required: "Phone number is required",
-                                    pattern: {
-                                        value: /^[0-9]{6,15}$/,
-                                        message: "Phone number must contain only digits",
-                                    },
-                                    onChange: (e) => {
-                                        e.target.value = e.target.value.replace(/\D/g, "");
-                                    },
-                                })}
-                                error={errors.phone}
-                            />
-
-                        </div>
-
-                        {/* Mobile */}
-                        <div className="col-span-12 lg:col-span-6">
-                            <InputField
-                                id="mobile"
-                                label="Mobile Number"
-                                type="tel"
-                                register={register("mobile", {
-                                    required: "Mobile number is required",
-                                    pattern: {
-                                        value: /^[0-9]{10,15}$/,
-                                        message: "Mobile number must contain only digits (10–15)",
-                                    },
-                                    onChange: (e) => {
-                                        e.target.value = e.target.value.replace(/\D/g, "");
-                                    },
-                                })}
-                                error={errors.mobile}
-                            />
-
-                        </div>
-
-                        {/* Fax */}
-                        <div className="col-span-12 lg:col-span-6">
-                            <InputField
-                                id="fax"
-                                label="Fax Number"
-                                type="tel"
-                                register={register("fax")}
-                            />
-                        </div>
-
-                        {/* Websites */}
-                        <div className="col-span-12">
-                            <InputField
-                                id="websites"
-                                label="Website(s)"
-                                register={register("websites")}
-                            />
-                        </div>
+                  ) : (
+                    <div className="text-gray-400">
+                      <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                      </svg>
                     </div>
-                );
+                  )}
+                </div>
+                <div>
+                  <label className="cursor-pointer">
+                    <input
+                      type="file"
+                      accept=".png,.jpg,.jpeg,.svg"
+                      className="hidden"
+                      onChange={handleFileUpload}
+                    />
+                    <div className="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition-colors">
+                      Upload Logo
+                    </div>
+                  </label>
+                  <p className="text-sm text-gray-500 mt-1">
+                    PNG, JPG, SVG up to 5MB
+                  </p>
+                </div>
+              </div>
+            </div>
 
-            case 2:
-                return (
-                    <div className="grid grid-cols-12 gap-6">
-                        {/* Country - Searchable Dropdown */}
-                        <div className="col-span-12 md:col-span-4">
-                            <label className="block text-sm font-medium text-gray-700 mb-2">
-                                Country <span className="text-red-500">*</span>
+            {/* Employee Limit */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Initial Employee Limit
+              </label>
+              <input
+                type="number"
+                min="0"
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-colors"
+                {...register("employeeLimit", {
+                  min: { value: 0, message: "Must be positive number" },
+                  valueAsNumber: true,
+                })}
+              />
+              {errors.employeeLimit && (
+                <p className="text-red-500 text-sm mt-1">{errors.employeeLimit.message}</p>
+              )}
+              <p className="text-sm text-gray-500 mt-1">
+                Leave blank for unlimited (based on plan)
+              </p>
+            </div>
+
+            {/* Additional Notes */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Additional Notes
+              </label>
+              <textarea
+                rows={3}
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-colors"
+                {...register("notes")}
+              />
+              <p className="text-sm text-gray-500 mt-1">
+                For internal remarks or setup notes
+              </p>
+            </div>
+          </div>
+        );
+
+      case 1:
+        return (
+          <div className="space-y-6">
+            <div className="flex items-start space-x-4 p-4 bg-blue-50 rounded-lg">
+              <div className="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0">
+                <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                </svg>
+              </div>
+              <div>
+                <p className="text-sm text-blue-700">
+                  This person will be assigned as Company Admin after activation.
+                </p>
+              </div>
+            </div>
+
+            {/* Owner Name */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Owner Full Name <span className="text-red-500">*</span>
+              </label>
+              <input
+                type="text"
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-colors"
+                {...register("ownerName", {
+                  required: "Owner name is required",
+                })}
+              />
+              {errors.ownerName && (
+                <p className="text-red-500 text-sm mt-1">{errors.ownerName.message}</p>
+              )}
+            </div>
+
+            {/* Owner Email */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Owner Email Address <span className="text-red-500">*</span>
+              </label>
+              <div className="flex space-x-2">
+                <input
+                  type="email"
+                  className="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-colors"
+                  {...register("ownerEmail", {
+                    required: "Email is required",
+                    pattern: {
+                      value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
+                      message: "Invalid email address",
+                    },
+                    onChange: () => setEmailVerified(false),
+                  })}
+                />
+                <button
+                  type="button"
+                  onClick={verifyEmail}
+                  disabled={isVerifyingEmail || !!errors.ownerEmail || !watch("ownerEmail")}
+                  className="px-4 py-3 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {isVerifyingEmail ? "Verifying..." : emailVerified ? "✓ Verified" : "Verify"}
+                </button>
+              </div>
+              {errors.ownerEmail && (
+                <p className="text-red-500 text-sm mt-1">{errors.ownerEmail.message}</p>
+              )}
+              {emailVerified && (
+                <p className="text-green-600 text-sm mt-1">✓ Email is available</p>
+              )}
+            </div>
+
+            {/* Owner Phone */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Owner Phone Number
+              </label>
+              <input
+                type="tel"
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-colors"
+                {...register("ownerPhone")}
+                placeholder="+91 99999 99999"
+              />
+            </div>
+          </div>
+        );
+
+      case 2:
+        return (
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            {/* Left: Modules */}
+            <div>
+              <h3 className="text-lg font-semibold text-gray-800 mb-4">Select Modules</h3>
+              <div className="space-y-4">
+                {modules.map((module) => (
+                  <div key={module.id} className="border border-gray-200 rounded-lg p-4">
+                    <div className="flex items-start space-x-3">
+                      <Controller
+                        name={`modules.${module.id}`}
+                        control={control}
+                        render={({ field }) => (
+                          <Checkbox
+                            checked={field.value}
+                            onChange={field.onChange}
+                            className="mt-1"
+                          />
+                        )}
+                      />
+                      <div className="flex-1">
+                        <label className="block font-medium text-gray-700">
+                          {module.label}
+                        </label>
+                        <p className="text-sm text-gray-600 mt-1">
+                          {module.description}
+                        </p>
+                        {module.note && (
+                          <div className="mt-2 p-2 bg-yellow-50 border border-yellow-200 rounded text-sm text-yellow-700">
+                            🛈 {module.note}
+                          </div>
+                        )}
+                        {module.hasLevel && watch(`modules.${module.id}`) && (
+                          <div className="mt-3">
+                            <label className="block text-sm font-medium text-gray-700 mb-1">
+                              Level
                             </label>
                             <Controller
-                                name="country"
-                                control={control}
-                                rules={{ required: "Country is required" }}
-                                render={({ field, fieldState }) => (
-                                    <Autocomplete
-                                        value={selectedCountry}
-                                        options={countries}
-                                        getOptionLabel={(option) => option.name}
-                                        isOptionEqualToValue={(option, value) => option.code === value.code}
-                                        onChange={(_, newValue) => {
-                                            setSelectedCountry(newValue);
-                                            field.onChange(newValue ? newValue.name : '');
-                                        }}
-                                        renderInput={(params) => (
-                                            <TextField
-                                                {...params}
-                                                variant="outlined"
-                                                size="small"
-                                                placeholder="Search or select country"
-                                                error={!!fieldState.error}
-                                                helperText={fieldState.error?.message}
-                                                className="w-full"
-                                            />
-                                        )}
-                                        className="w-full"
-                                    />
-                                )}
+                              name={module.id === "attendance" ? "attendanceLevel" : "payrollLevel"}
+                              control={control}
+                              render={({ field }) => (
+                                <select
+                                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-colors text-sm"
+                                  {...field}
+                                >
+                                  <option value="basic">Basic</option>
+                                  <option value="advanced">Advanced</option>
+                                </select>
+                              )}
                             />
-                        </div>
-
-                        {/* State/Province - Searchable Dropdown */}
-                        <div className="col-span-12 md:col-span-4">
-                            <label className="block text-sm font-medium text-gray-700 mb-2">
-                                State/Province <span className="text-red-500">*</span>
-                            </label>
-                            <Controller
-                                name="state"
-                                control={control}
-                                rules={{ required: "State is required" }}
-                                render={({ field, fieldState }) => (
-                                    <Autocomplete
-                                        value={selectedState}
-                                        options={usStates}
-                                        getOptionLabel={(option) => option.name}
-                                        isOptionEqualToValue={(option, value) => option.code === value.code}
-                                        onChange={(_, newValue) => {
-                                            setSelectedState(newValue);
-                                            field.onChange(newValue ? newValue.name : '');
-                                        }}
-                                        renderInput={(params) => (
-                                            <TextField
-                                                {...params}
-                                                variant="outlined"
-                                                size="small"
-                                                placeholder="Search or select state"
-                                                error={!!fieldState.error}
-                                                helperText={fieldState.error?.message}
-                                                className="w-full"
-                                            />
-                                        )}
-                                        className="w-full"
-                                    />
-                                )}
-                            />
-                        </div>
-
-                        {/* City - Searchable Dropdown */}
-                        <div className="col-span-12 md:col-span-4">
-                            <label className="block text-sm font-medium text-gray-700 mb-2">
-                                City <span className="text-red-500">*</span>
-                            </label>
-                            <Controller
-                                name="city"
-                                control={control}
-                                rules={{ required: "City is required" }}
-                                render={({ field, fieldState }) => (
-                                    <Autocomplete
-                                        freeSolo
-                                        options={cityOptions}
-                                        value={field.value || ''}
-                                        onChange={(_, newValue) => {
-                                            field.onChange(newValue || '');
-                                        }}
-                                        onInputChange={(_, newInputValue) => {
-                                            // Filter cities based on input
-                                            const filtered = cities.filter(city =>
-                                                city.toLowerCase().includes(newInputValue.toLowerCase())
-                                            );
-                                            setCityOptions(filtered.length > 0 ? filtered : cities);
-                                        }}
-                                        renderInput={(params) => (
-                                            <TextField
-                                                {...params}
-                                                variant="outlined"
-                                                size="small"
-                                                placeholder="Search or type city"
-                                                error={!!fieldState.error}
-                                                helperText={fieldState.error?.message}
-                                                className="w-full"
-                                            />
-                                        )}
-                                        className="w-full"
-                                    />
-                                )}
-                            />
-                        </div>
-
-                        {/* Zip/Postal Code - Searchable Dropdown */}
-                        <div className="col-span-12 md:col-span-6">
-                            <label className="block text-sm font-medium text-gray-700 mb-2">
-                                Zip/Postal Code <span className="text-red-500">*</span>
-                            </label>
-                            <Controller
-                                name="zipCode"
-                                control={control}
-                                rules={{
-                                    required: "Zip code is required",
-                                    pattern: {
-                                        value: /^[A-Z0-9\s-]+$/i,
-                                        message: "Invalid zip/postal code format"
-                                    }
-                                }}
-                                render={({ field, fieldState }) => (
-                                    <Autocomplete
-                                        freeSolo
-                                        options={postalCodeOptions}
-                                        value={field.value || ''}
-                                        onChange={(_, newValue) => {
-                                            field.onChange(newValue || '');
-                                        }}
-                                        onInputChange={(_, newInputValue) => {
-                                            // Filter postal codes based on input
-                                            const filtered = postalCodes.filter(code =>
-                                                code.includes(newInputValue)
-                                            );
-                                            setPostalCodeOptions(filtered.length > 0 ? filtered : postalCodes);
-                                        }}
-                                        renderInput={(params) => (
-                                            <TextField
-                                                {...params}
-                                                variant="outlined"
-                                                size="small"
-                                                placeholder="Search or type zip code"
-                                                error={!!fieldState.error}
-                                                helperText={fieldState.error?.message}
-                                                className="w-full"
-                                            />
-                                        )}
-                                        className="w-full"
-                                    />
-                                )}
-                            />
-                        </div>
-
-                        {/* Address */}
-                        <div className="col-span-12">
-                            <div className="mb-4">
-                                <label htmlFor="address" className="block text-sm font-medium text-gray-700 mb-1">
-                                    Full Address <span className="text-red-500">*</span>
-                                </label>
-                                <textarea
-                                    id="address"
-                                    rows={3}
-                                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-colors"
-                                    {...register("address", {
-                                        required: "Address is required",
-                                    })}
-                                />
-                                {errors.address && (
-                                    <p className="text-red-500 text-sm mt-1 ml-1">{errors.address.message}</p>
-                                )}
-                            </div>
-                        </div>
+                          </div>
+                        )}
+                      </div>
                     </div>
-                );
+                  </div>
+                ))}
+              </div>
+              <div className="mt-4 text-sm text-gray-600">
+                Selected: {selectedModules} module{selectedModules !== 1 ? "s" : ""}
+                {selectedModules === 0 && (
+                  <span className="text-red-500 ml-2">(At least one required)</span>
+                )}
+              </div>
+            </div>
 
-            case 3:
-                return (
-                    <div className="grid grid-cols-12 gap-6">
-                        {/* Established Date */}
-                        <div className="col-span-12 lg:col-span-6">
-                            <InputField
-                                id="established"
-                                label="Established Date"
-                                type="date"
-                                register={register("established")}
+            {/* Right: Plan & Defaults */}
+            <div className="space-y-6">
+              {/* Subscription Plan */}
+              <div>
+                <h3 className="text-lg font-semibold text-gray-800 mb-4">Subscription Plan</h3>
+                <Controller
+                  name="subscriptionPlan"
+                  control={control}
+                  render={({ field }) => (
+                    <div className="space-y-3">
+                      {plans.map((plan) => (
+                        <div
+                          key={plan.id}
+                          className={`border rounded-lg p-4 cursor-pointer transition-all ${
+                            field.value === plan.id
+                              ? "border-primary bg-primary/5"
+                              : "border-gray-200 hover:border-gray-300"
+                          }`}
+                          onClick={() => field.onChange(plan.id)}
+                        >
+                          <div className="flex items-start space-x-3">
+                            <Radio
+                              checked={field.value === plan.id}
+                              onChange={() => field.onChange(plan.id)}
                             />
-                        </div>
-
-                        {/* License Number */}
-                        <div className="col-span-12 lg:col-span-6">
-                            <InputField
-                                id="licenseNumber"
-                                label="Business License Number"
-                                register={register("licenseNumber")}
-                            />
-                        </div>
-
-                        {/* Tax ID */}
-                        <div className="col-span-12 lg:col-span-6">
-                            <InputField
-                                id="taxId"
-                                label="Tax ID / VAT Number"
-                                register={register("taxId")}
-                            />
-                        </div>
-
-                        {/* Rating */}
-                        <div className="col-span-12 lg:col-span-6">
-                            <InputField
-                                id="rating"
-                                label="Rating (0–5)"
-                                type="number"
-                                register={register("rating", {
-                                    valueAsNumber: true,
-                                    min: { value: 0, message: "Minimum rating is 0" },
-                                    max: { value: 5, message: "Maximum rating is 5" },
-                                })}
-                                error={errors.rating}
-                            />
-
-                        </div>
-
-                        {/* Employees */}
-                        <div className="col-span-12 md:col-span-3">
-                            <InputField
-                                id="employees"
-                                label="Total Employees"
-                                type="number"
-                                register={register("employees", {
-                                    valueAsNumber: true,
-                                    min: { value: 0, message: "Must be a positive number" },
-                                    validate: (v) =>
-                                        Number.isInteger(v) || "Only whole numbers allowed",
-                                })}
-                                error={errors.employees}
-                            />
-
-                        </div>
-
-                        {/* Departments */}
-                        <div className="col-span-12 md:col-span-3">
-                            <InputField
-                                id="departments"
-                                label="Departments"
-                                type="number"
-                                register={register("departments")}
-                            />
-                        </div>
-
-                        {/* Projects */}
-                        <div className="col-span-12 md:col-span-3">
-                            <InputField
-                                id="projects"
-                                label="Active Projects"
-                                type="number"
-                                register={register("projects")}
-                            />
-                        </div>
-
-                        {/* Revenue */}
-                        <div className="col-span-12 md:col-span-3">
-                            <InputField
-                                id="revenue"
-                                label="Annual Revenue ($)"
-                                type="number"
-                                register={register("revenue", {
-                                    valueAsNumber: true,
-                                    min: { value: 0, message: "Revenue cannot be negative" },
-                                })}
-                                error={errors.revenue}
-                            />
-
-                        </div>
-                    </div>
-                );
-
-            case 4:
-                return (
-                    <div className="space-y-6">
-                        {/* Status Toggle */}
-                        <div className="bg-gray-50 rounded-lg p-6 border border-gray-200">
-                            <div className="flex items-center justify-between">
+                            <div className="flex-1">
+                              <div className="flex justify-between items-start">
                                 <div>
-                                    <h4 className="font-medium text-gray-800">Company Status</h4>
-                                    <p className="text-gray-600 text-sm mt-1">
-                                        {status === "Active"
-                                            ? "This company will be active and visible"
-                                            : status === "Pending"
-                                                ? "This company will be pending review"
-                                                : "This company will be inactive and hidden"}
-                                    </p>
+                                  <h4 className="font-medium text-gray-800">{plan.label}</h4>
+                                  <p className="text-sm text-gray-600">{plan.description}</p>
                                 </div>
-                                <div className="flex items-center space-x-4">
-                                    <select
-                                        value={status}
-                                        onChange={(e) => setStatus(e.target.value as "Active" | "Inactive" | "Pending")}
-                                        className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none bg-white"
-                                    >
-                                        <option value="Active">Active</option>
-                                        <option value="Pending">Pending</option>
-                                        <option value="Inactive">Inactive</option>
-                                    </select>
-                                </div>
+                                <span className="text-lg font-semibold text-primary">
+                                  {plan.id === "free" ? "$0" : plan.id === "pro" ? "$29" : "Custom"}
+                                </span>
+                              </div>
+                              <ul className="mt-3 space-y-1">
+                                {plan.limits.map((limit, index) => (
+                                  <li key={index} className="text-sm text-gray-600 flex items-center">
+                                    <svg className="w-4 h-4 mr-2 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                                    </svg>
+                                    {limit}
+                                  </li>
+                                ))}
+                              </ul>
                             </div>
-
-                            <div className={`mt-4 px-4 py-3 rounded-md ${status === "Active"
-                                ? "bg-green-50 border border-green-200"
-                                : status === "Pending"
-                                    ? "bg-yellow-50 border border-yellow-200"
-                                    : "bg-gray-100 border border-gray-200"
-                                }`}>
-                                <div className="flex items-center">
-                                    <div className={`w-3 h-3 rounded-full mr-3 ${status === "Active"
-                                        ? "bg-green-500"
-                                        : status === "Pending"
-                                            ? "bg-yellow-500"
-                                            : "bg-gray-400"
-                                        }`}></div>
-                                    <span className={`text-sm ${status === "Active"
-                                        ? "text-green-700"
-                                        : status === "Pending"
-                                            ? "text-yellow-700"
-                                            : "text-gray-600"
-                                        }`}>
-                                        {status === "Active"
-                                            ? '✓ Company is active and will be visible in all listings.'
-                                            : status === "Pending"
-                                                ? '⚠ Company is pending review and requires approval.'
-                                                : '✗ Company is inactive and will not be visible in listings.'}
-                                    </span>
-                                </div>
-                            </div>
+                          </div>
                         </div>
-
-                        {/* Summary Card */}
-                        <div className="bg-blue-50 rounded-lg p-6 border border-blue-200">
-                            <h4 className="font-medium text-blue-800 mb-4">Ready to Create Company</h4>
-                            <p className="text-blue-700 text-sm mb-3">
-                                Review all information before submitting. You can edit any step by going back.
-                            </p>
-                            <ul className="text-blue-700 text-sm space-y-2">
-                                <li className="flex items-center">
-                                    <svg className="w-4 h-4 mr-2 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
-                                        <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                                    </svg>
-                                    All required fields are completed
-                                </li>
-                                <li className="flex items-center">
-                                    <svg className="w-4 h-4 mr-2 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
-                                        <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                                    </svg>
-                                    Contact information is verified
-                                </li>
-                                <li className="flex items-center">
-                                    <svg className="w-4 h-4 mr-2 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
-                                        <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                                    </svg>
-                                    Status is set appropriately
-                                </li>
-                            </ul>
-                        </div>
+                      ))}
                     </div>
-                );
+                  )}
+                />
+              </div>
 
-            default:
-                return null;
-        }
-    };
+              {/* Default Timezone */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Default Timezone <span className="text-red-500">*</span>
+                </label>
+                <Controller
+                  name="timezone"
+                  control={control}
+                  render={({ field }) => (
+                    <Autocomplete
+                      value={timezones.find(tz => tz.value === field.value) || timezones[0]}
+                      options={timezones}
+                      getOptionLabel={(option) => `${option.label} (${option.offset})`}
+                      onChange={(_, newValue) => field.onChange(newValue?.value || "")}
+                      renderInput={(params) => (
+                        <TextField
+                          {...params}
+                          size="small"
+                          placeholder="Select timezone"
+                        />
+                      )}
+                    />
+                  )}
+                />
+              </div>
 
-    return (
-        <div className="app__slide-wrapper">
-            {/* Breadcrumb */}
-            <div className="breadcrumb__wrapper mb-[25px]">
-                <nav>
-                    <ol className="breadcrumb flex items-center mb-0">
-                        <li className="breadcrumb-item">
-                            <Link href="/">Home</Link>
-                        </li>
-                        <li className="breadcrumb-item">
-                            <Link href="/owner">Owner</Link>
-                        </li>
-                        <li className="breadcrumb-item active">Add Company</li>
-                    </ol>
-                </nav>
+              {/* Default Currency */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Default Currency <span className="text-red-500">*</span>
+                </label>
+                <Controller
+                  name="currency"
+                  control={control}
+                  render={({ field }) => (
+                    <Autocomplete
+                      value={currencies.find(c => c.code === field.value) || currencies[0]}
+                      options={currencies}
+                      getOptionLabel={(option) => `${option.code} - ${option.name} (${option.symbol})`}
+                      onChange={(_, newValue) => field.onChange(newValue?.code || "")}
+                      renderInput={(params) => (
+                        <TextField
+                          {...params}
+                          size="small"
+                          placeholder="Select currency"
+                        />
+                      )}
+                    />
+                  )}
+                />
+              </div>
             </div>
+          </div>
+        );
 
-            {/* Header */}
-            <div className="mb-8">
-                <h1 className="text-2xl font-bold text-gray-800">Add New Company</h1>
-                <p className="text-gray-600 mt-2">Fill in the company details step by step</p>
-            </div>
-
-            {/* Form Card */}
-            <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-                {/* Stepper */}
-                <div className="p-10">
-                    <div className="flex items-center justify-between mb-4">
-                        <h2 className="text-lg font-semibold text-gray-700">
-                            Step {activeIndex + 1} of {steps.length}: {steps[activeIndex].label}
-                        </h2>
-                        <div className="flex items-center text-sm text-gray-500">
-                            <span className="bg-primary/10 text-primary px-3 py-1 rounded-full">
-                                {Math.round(((activeIndex + 1) / steps.length) * 100)}% Complete
-                            </span>
-                        </div>
-                    </div>
-
-                    <div className="flex items-center">
-                        {steps.map((step, index) => (
-                            <React.Fragment key={index}>
-                                <div className="flex flex-col items-center">
-                                    <div
-                                        className={`w-10 h-10 rounded-full flex items-center justify-center text-sm font-medium ${index <= activeIndex
-                                            ? "bg-primary text-white"
-                                            : "bg-gray-200 text-gray-500"
-                                            }`}
-                                    >
-                                        {index + 1}
-                                    </div>
-                                    <span
-                                        className={`text-xs mt-2 font-medium ${index <= activeIndex ? "text-primary" : "text-gray-500"
-                                            }`}
-                                    >
-                                        {step.label}
-                                    </span>
-                                </div>
-                                {index < steps.length - 1 && (
-                                    <div
-                                        className={`flex-1 h-1 mx-4 ${index < activeIndex ? "bg-primary" : "bg-gray-200"
-                                            }`}
-                                    />
-                                )}
-                            </React.Fragment>
-                        ))}
-                    </div>
+      case 3:
+        const formData = getValues();
+        return (
+          <div className="space-y-6">
+            {/* Review Summary */}
+            <div className="space-y-4">
+              <div className="flex justify-between items-center">
+                <h3 className="text-lg font-semibold text-gray-800">Review Summary</h3>
+                <button
+                  type="button"
+                  onClick={() => setActiveStep(0)}
+                  className="text-primary hover:text-primary/80 text-sm font-medium"
+                >
+                  Edit
+                </button>
+              </div>
+              
+              {/* Company Info */}
+              <div className="border border-gray-200 rounded-lg p-4">
+                <h4 className="font-medium text-gray-700 mb-2">Company Information</h4>
+                <div className="grid grid-cols-2 gap-4 text-sm">
+                  <div>
+                    <span className="text-gray-500">Name:</span>
+                    <span className="ml-2 font-medium">{formData.companyName}</span>
+                  </div>
+                  <div>
+                    <span className="text-gray-500">Domain:</span>
+                    <span className="ml-2 font-medium">{formData.domain || "Not set"}</span>
+                  </div>
+                  <div>
+                    <span className="text-gray-500">Registration:</span>
+                    <span className="ml-2 font-medium">{formData.registrationNumber || "Not set"}</span>
+                  </div>
+                  <div>
+                    <span className="text-gray-500">Employee Limit:</span>
+                    <span className="ml-2 font-medium">
+                      {formData.employeeLimit || "Unlimited (based on plan)"}
+                    </span>
+                  </div>
                 </div>
-                <div className="px-8 py-6 border-b border-gray-200 bg-gradient-to-r from-gray-50 to-white">
-                    <div className="flex items-center">
-                        <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center mr-4">
-                            <svg className="w-6 h-6 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-                            </svg>
-                        </div>
-                        <div>
-                            <h2 className="text-xl font-semibold text-gray-800">{steps[activeIndex].label}</h2>
-                            <p className="text-gray-600 text-sm">
-                                {activeIndex === 0 && "Enter basic company information"}
-                                {activeIndex === 1 && "Provide contact details"}
-                                {activeIndex === 2 && "Add location information"}
-                                {activeIndex === 3 && "Enter business statistics and details"}
-                                {activeIndex === 4 && "Review and set company status"}
-                            </p>
-                        </div>
-                    </div>
+              </div>
+
+              {/* Owner Info */}
+              <div className="border border-gray-200 rounded-lg p-4">
+                <div className="flex justify-between items-start">
+                  <h4 className="font-medium text-gray-700 mb-2">Owner Details</h4>
+                  <button
+                    type="button"
+                    onClick={() => setActiveStep(1)}
+                    className="text-primary hover:text-primary/80 text-sm font-medium"
+                  >
+                    Edit
+                  </button>
                 </div>
+                <div className="grid grid-cols-2 gap-4 text-sm">
+                  <div>
+                    <span className="text-gray-500">Name:</span>
+                    <span className="ml-2 font-medium">{formData.ownerName}</span>
+                  </div>
+                  <div>
+                    <span className="text-gray-500">Email:</span>
+                    <span className="ml-2 font-medium">{formData.ownerEmail}</span>
+                    {emailVerified && (
+                      <span className="ml-2 text-green-600">✓ Verified</span>
+                    )}
+                  </div>
+                  <div>
+                    <span className="text-gray-500">Phone:</span>
+                    <span className="ml-2 font-medium">{formData.ownerPhone || "Not set"}</span>
+                  </div>
+                </div>
+              </div>
 
-                {/* Form */}
-                <form onSubmit={handleSubmit(onSubmit)}>
-                    <div className="p-8">
-                        {renderStepContent(activeIndex)}
-
-                        {/* Navigation Buttons */}
-                        <div className="flex justify-between items-center mt-10 pt-8 border-t border-gray-200">
-                            <button
-                                type="button"
-                                onClick={() => router.push("/super-admin/companies")}
-                                className="px-6 py-3 border border-gray-300 text-gray-700 font-medium rounded-lg hover:bg-gray-50 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
+              {/* Modules & Plan */}
+              <div className="border border-gray-200 rounded-lg p-4">
+                <div className="flex justify-between items-start">
+                  <h4 className="font-medium text-gray-700 mb-2">Modules & Plan</h4>
+                  <button
+                    type="button"
+                    onClick={() => setActiveStep(2)}
+                    className="text-primary hover:text-primary/80 text-sm font-medium"
+                  >
+                    Edit
+                  </button>
+                </div>
+                <div className="space-y-3 text-sm">
+                  <div>
+                    <span className="text-gray-500">Selected Modules:</span>
+                    <div className="mt-1 flex flex-wrap gap-2">
+                      {Object.entries(formData.modules)
+                        .filter(([_, selected]) => selected)
+                        .map(([key]) => {
+                          const module = modules.find(m => m.id === key);
+                          return (
+                            <span
+                              key={key}
+                              className="px-2 py-1 bg-primary/10 text-primary rounded text-xs"
                             >
-                                Cancel
-                            </button>
-
-                            <div className="flex items-center space-x-4">
-                                {activeIndex > 0 && (
-                                    <button
-                                        type="button"
-                                        className="px-6 py-3 border border-gray-300 text-gray-700 font-medium rounded-lg hover:bg-gray-50 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
-                                        onClick={handlePreviousStep}
-                                    >
-                                        Previous
-                                    </button>
-                                )}
-
-                                {activeIndex < steps.length - 1 ? (
-                                    <button
-                                        type="button"
-                                        className="px-6 py-3 bg-primary text-white font-medium rounded-lg hover:bg-primary/90 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
-                                        onClick={handleNextStep}
-                                    >
-                                        Next Step
-                                    </button>
-                                ) : (
-                                    <button
-                                        type="submit"
-                                        className="px-8 py-3 bg-primary text-white font-medium rounded-lg hover:bg-primary/90 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
-                                    >
-                                        <div className="flex items-center">
-                                            <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-                                            </svg>
-                                            Create Company
-                                        </div>
-                                    </button>
-                                )}
-                            </div>
-                        </div>
+                              {module?.label}
+                            </span>
+                          );
+                        })}
                     </div>
-                </form>
-            </div>
-
-            {/* Quick Tips */}
-            <div className="mt-8 p-6 bg-blue-50 rounded-xl border border-blue-200">
-                <div className="flex items-start">
-                    <svg className="w-5 h-5 text-blue-600 mt-0.5 mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
+                  </div>
+                  <div>
+                    <span className="text-gray-500">Subscription Plan:</span>
+                    <span className="ml-2 font-medium">
+                      {plans.find(p => p.id === formData.subscriptionPlan)?.label}
+                    </span>
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
                     <div>
-                        <h4 className="font-medium text-blue-800">Tips for adding a new company</h4>
-                        <ul className="mt-2 text-blue-700 text-sm space-y-1">
-                            <li>• Use the searchable dropdowns for location fields for accurate data</li>
-                            <li>• Start typing in dropdowns to filter options quickly</li>
-                            <li>• Ensure email and phone numbers are correct for communication</li>
-                            <li>• Set appropriate status based on company relationship</li>
-                            <li>• All fields marked with * are required</li>
-                        </ul>
+                      <span className="text-gray-500">Timezone:</span>
+                      <span className="ml-2 font-medium">
+                        {timezones.find(tz => tz.value === formData.timezone)?.label}
+                      </span>
                     </div>
+                    <div>
+                      <span className="text-gray-500">Currency:</span>
+                      <span className="ml-2 font-medium">
+                        {currencies.find(c => c.code === formData.currency)?.name}
+                      </span>
+                    </div>
+                  </div>
                 </div>
+              </div>
             </div>
+
+            {/* Terms & Conditions */}
+            <div className="border border-gray-200 rounded-lg p-4">
+              <div className="flex items-start space-x-3">
+                <Controller
+                  name="acceptTerms"
+                  control={control}
+                  render={({ field }) => (
+                    <Checkbox
+                      checked={field.value}
+                      onChange={field.onChange}
+                      className="mt-1"
+                    />
+                  )}
+                />
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">
+                    Accept Terms & Conditions <span className="text-red-500">*</span>
+                  </label>
+                  <p className="text-sm text-gray-600 mt-1">
+                    I agree to the{" "}
+                    <button
+                      type="button"
+                      className="text-primary hover:text-primary/80 font-medium"
+                      onClick={() => toast.info("Terms & Conditions modal would open here")}
+                    >
+                      Terms of Service
+                    </button>{" "}
+                    and{" "}
+                    <button
+                      type="button"
+                      className="text-primary hover:text-primary/80 font-medium"
+                      onClick={() => toast.info("Privacy Policy modal would open here")}
+                    >
+                      Privacy Policy
+                    </button>
+                  </p>
+                </div>
+              </div>
+              {errors.acceptTerms && (
+                <p className="text-red-500 text-sm mt-2">You must accept the Terms & Conditions</p>
+              )}
+            </div>
+
+            {/* Activation Email Toggle */}
+            <div className="border border-gray-200 rounded-lg p-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h4 className="font-medium text-gray-700">Send Activation Email Now</h4>
+                  <p className="text-sm text-gray-600 mt-1">
+                    {watch("sendActivationEmail")
+                      ? "Invitation email will be sent immediately to the owner"
+                      : "Company will remain in 'Pending Activation' status"}
+                  </p>
+                </div>
+                <Controller
+                  name="sendActivationEmail"
+                  control={control}
+                  render={({ field }) => (
+                    <div className="relative inline-block w-12 h-6">
+                      <input
+                        type="checkbox"
+                        checked={field.value}
+                        onChange={field.onChange}
+                        className="sr-only"
+                        id="activation-toggle"
+                      />
+                      <label
+                        htmlFor="activation-toggle"
+                        className={`block w-12 h-6 rounded-full cursor-pointer transition-colors ${
+                          field.value ? "bg-primary" : "bg-gray-300"
+                        }`}
+                      >
+                        <span
+                          className={`absolute top-1 left-1 w-4 h-4 rounded-full bg-white transition-transform ${
+                            field.value ? "transform translate-x-6" : ""
+                          }`}
+                        />
+                      </label>
+                    </div>
+                  )}
+                />
+              </div>
+            </div>
+
+            {/* Final Comments */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Final Comments / Notes
+              </label>
+              <textarea
+                rows={3}
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-colors"
+                placeholder="e.g., 'Custom branding requested', 'Special pricing applied', etc."
+                {...register("finalComments")}
+              />
+            </div>
+          </div>
+        );
+
+      default:
+        return null;
+    }
+  };
+
+  return (
+    <div className="app__slide-wrapper">
+      {/* Breadcrumb */}
+      <div className="breadcrumb__wrapper mb-6">
+        <nav>
+          <ol className="breadcrumb flex items-center mb-0">
+            <li className="breadcrumb-item">
+              <Link href="/">Home</Link>
+            </li>
+            <li className="breadcrumb-item">
+              <Link href="/super-admin">Super Admin</Link>
+            </li>
+            <li className="breadcrumb-item active">Register Company</li>
+          </ol>
+        </nav>
+      </div>
+
+      {/* Header */}
+      <div className="mb-8">
+        <h1 className="text-2xl font-bold text-gray-800">Register New Company</h1>
+        <p className="text-gray-600 mt-2">Onboard a new company step by step</p>
+      </div>
+
+      {/* Wizard Card */}
+      <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+        {/* Stepper Header */}
+        <div className="px-8 pt-8">
+          <div className="flex items-center justify-between mb-6">
+            <div>
+              <h2 className="text-lg font-semibold text-gray-700">
+                Step {activeStep + 1} of {steps.length}: {steps[activeStep].label}
+              </h2>
+              <p className="text-gray-500 text-sm mt-1">{steps[activeStep].description}</p>
+            </div>
+            <div className="flex items-center text-sm text-gray-500">
+              <span className="bg-primary/10 text-primary px-3 py-1 rounded-full">
+                {Math.round(((activeStep + 1) / steps.length) * 100)}% Complete
+              </span>
+            </div>
+          </div>
+
+          {/* Progress Steps */}
+          <div className="flex items-center mb-8">
+            {steps.map((step, index) => (
+              <React.Fragment key={index}>
+                <div className="flex flex-col items-center">
+                  <div
+                    className={`w-10 h-10 rounded-full flex items-center justify-center text-sm font-medium ${
+                      index <= activeStep
+                        ? "bg-primary text-white"
+                        : "bg-gray-200 text-gray-500"
+                    }`}
+                  >
+                    {index + 1}
+                  </div>
+                  <span
+                    className={`text-xs mt-2 font-medium ${
+                      index <= activeStep ? "text-primary" : "text-gray-500"
+                    }`}
+                  >
+                    {step.label}
+                  </span>
+                </div>
+                {index < steps.length - 1 && (
+                  <div
+                    className={`flex-1 h-1 mx-4 ${
+                      index < activeStep ? "bg-primary" : "bg-gray-200"
+                    }`}
+                  />
+                )}
+              </React.Fragment>
+            ))}
+          </div>
         </div>
-    );
+
+        {/* Form Content */}
+        <form onSubmit={handleSubmit(onSubmit)}>
+          <div className="px-8 py-6">
+            {renderStepContent(activeStep)}
+          </div>
+
+          {/* Navigation Buttons */}
+          <div className="px-8 py-6 border-t border-gray-200 bg-gray-50">
+            <div className="flex justify-between items-center">
+              <div>
+                {activeStep === 3 && (
+                  <button
+                    type="button"
+                    className="px-6 py-3 border border-gray-300 text-gray-700 font-medium rounded-lg hover:bg-gray-50 transition-colors"
+                  >
+                    Save as Draft
+                  </button>
+                )}
+              </div>
+              <div className="flex items-center space-x-4">
+                {activeStep > 0 ? (
+                  <button
+                    type="button"
+                    className="px-6 py-3 border border-gray-300 text-gray-700 font-medium rounded-lg hover:bg-gray-50 transition-colors"
+                    onClick={handlePreviousStep}
+                  >
+                    Previous
+                  </button>
+                ) : (
+                  <button
+                    type="button"
+                    className="px-6 py-3 border border-gray-300 text-gray-700 font-medium rounded-lg hover:bg-gray-50 transition-colors"
+                    onClick={() => router.push("/super-admin/companies")}
+                  >
+                    Cancel
+                  </button>
+                )}
+
+                {activeStep < steps.length - 1 ? (
+                  <button
+                    type="button"
+                    className="px-6 py-3 bg-primary text-white font-medium rounded-lg hover:bg-primary/90 transition-colors"
+                    onClick={handleNextStep}
+                  >
+                    Next Step
+                  </button>
+                ) : (
+                  <button
+                    type="submit"
+                    className="px-8 py-3 bg-primary text-white font-medium rounded-lg hover:bg-primary/90 transition-colors flex items-center"
+                    disabled={!watch("acceptTerms")}
+                  >
+                    <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                    </svg>
+                    Create Company & Invite Owner
+                  </button>
+                )}
+              </div>
+            </div>
+          </div>
+        </form>
+      </div>
+
+      {/* Tips */}
+      <div className="mt-8 p-6 bg-blue-50 rounded-xl border border-blue-200">
+        <div className="flex items-start">
+          <svg className="w-5 h-5 text-blue-600 mt-0.5 mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          <div>
+            <h4 className="font-medium text-blue-800">Onboarding Tips</h4>
+            <ul className="mt-2 text-blue-700 text-sm space-y-1">
+              <li>• Company domain must end with <code>.myhrms.com</code></li>
+              <li>• Verify owner email to ensure uniqueness before proceeding</li>
+              <li>• At least one module must be selected for company setup</li>
+              <li>• Timezone and currency settings affect payroll and attendance calculations</li>
+              <li>• Activation emails include temporary credentials for owner login</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
 };
 
-export default AddCompanyMainArea;
+export default RegisterCompanyWizard;

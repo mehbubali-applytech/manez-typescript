@@ -31,6 +31,10 @@ const businessOwnerSidebarData: SidebarCategory[] = [
             label: "Departments",
             link: "/owner/departments",
           },
+          {
+            label: "Role",
+            link: "/owner/role",
+          },
         ],
       },
 

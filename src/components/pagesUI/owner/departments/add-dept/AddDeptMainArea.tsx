@@ -2,8 +2,13 @@
 
 import Link from "next/link";
 import React, { useState } from "react";
-import { FormControlLabel, Switch } from "@mui/material";
-import { useForm } from "react-hook-form";
+import { 
+  FormControlLabel, 
+  Switch,
+  Autocomplete,
+  TextField
+} from "@mui/material";
+import { useForm, Controller } from "react-hook-form";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 
@@ -17,6 +22,7 @@ const AddDeptMainArea: React.FC = () => {
     const {
         register,
         handleSubmit,
+        control,
         formState: { errors },
     } = useForm<IDepartment>();
 
@@ -59,16 +65,21 @@ const AddDeptMainArea: React.FC = () => {
         },
     ];
 
-    // Flatten departments + sub-departments for datalist
-    const datalistOptions = [
+    // Flatten departments + sub-departments for autocomplete
+    const autocompleteOptions = [
         ...departmentList.map((dep) => ({
             id: dep.id,
             label: `${dep.name} (${dep.departmentCode})`,
+            isMain: true,
+            originalName: dep.name,
         })),
         ...departmentList.flatMap(dep =>
             dep.subDepartments.map(sub => ({
                 id: sub.id,
-                label: `${dep.name} → ${sub.name} (${sub.departmentCode})`
+                label: `${dep.name} → ${sub.name} (${sub.departmentCode})`,
+                isMain: false,
+                parentName: dep.name,
+                originalName: sub.name,
             }))
         )
     ];
@@ -180,28 +191,39 @@ const AddDeptMainArea: React.FC = () => {
                                 />
                             </div>
 
-                            {/* Parent Department */}
+                            {/* Parent Department - Autocomplete */}
                             <div className="col-span-12 lg:col-span-6">
                                 <label className="block text-sm font-medium text-gray-700 mb-2">
                                     Parent Department
                                     <span className="text-gray-500 text-sm ml-1">(Optional)</span>
                                 </label>
-                                <div className="relative">
-                                    <input
-                                        className="w-full px-4 py-1.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none transition-colors"
-                                        list="departmentOptions"
-                                        placeholder="Type to search or select from list"
-                                        {...register("parentDepartmentId")}
-                                    />
-
-                                </div>
-                                <datalist id="departmentOptions">
-                                    {datalistOptions.map((opt) => (
-                                        <option key={opt.id} value={opt.label}>
-                                            {opt.label}
-                                        </option>
-                                    ))}
-                                </datalist>
+                                <Controller
+                                    name="parentDepartmentId"
+                                    control={control}
+                                    render={({ field }) => (
+                                        <Autocomplete
+                                            value={autocompleteOptions.find(option => option.id === field.value) || null}
+                                            onChange={(event, newValue) => {
+                                                field.onChange(newValue ? newValue.id : null);
+                                            }}
+                                            options={autocompleteOptions}
+                                            groupBy={(option) => option.isMain ? "Main Departments" : "Sub-Departments"}
+                                            getOptionLabel={(option) => option.label}
+                                            renderInput={(params) => (
+                                                <TextField
+                                                    {...params}
+                                                    placeholder="Search or select from list"
+                                                    size="small"
+                                                />
+                                            )}
+                                            isOptionEqualToValue={(option, value) => option.id === value.id}
+                                            fullWidth
+                                            clearOnBlur
+                                            clearOnEscape
+                                            blurOnSelect
+                                        />
+                                    )}
+                                />
                                 <p className="text-gray-500 text-sm mt-2">
                                     Leave empty if this is a main department
                                 </p>
