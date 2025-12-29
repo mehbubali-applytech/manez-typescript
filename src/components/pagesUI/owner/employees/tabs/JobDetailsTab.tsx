@@ -84,24 +84,34 @@ const EMPLOYEES = [
 ];
 
 const JobDetailsTab: React.FC<JobDetailsTabProps> = ({ watchWorkType }) => {
-  const { control, watch, setValue, formState: { errors } } = useFormContext();
-  const [reportingManagerSearch, setReportingManagerSearch] = useState("");
+  const {
+    control,
+    watch,
+    setValue,
+    register,
+    formState: { errors }
+  } = useFormContext();
+
   const [probationEnabled, setProbationEnabled] = useState(false);
 
   const dateOfJoining = watch('dateOfJoining');
+  const employmentStatus = watch('employmentStatus');
+
 
   // Auto-set contract dates based on joining date for contract employees
-  useEffect(() => {
-    if (watchWorkType === 'Contract' && dateOfJoining) {
-      const joiningDate = new Date(dateOfJoining);
-      setValue('contractStartDate', dateOfJoining);
-      
-      // Set contract end date to 1 year from joining by default
-      const endDate = new Date(joiningDate);
-      endDate.setFullYear(endDate.getFullYear() + 1);
-      setValue('contractEndDate', endDate.toISOString().split('T')[0]);
-    }
-  }, [watchWorkType, dateOfJoining, setValue]);
+useEffect(() => {
+  if (watchWorkType === 'Contract' && dateOfJoining) {
+    setValue('contractStartDate', dateOfJoining, { shouldDirty: false });
+
+    setValue('contractEndDate', (prev:any) => {
+      if (prev) return prev; // don't override user value
+      const end = new Date(dateOfJoining);
+      end.setFullYear(end.getFullYear() + 1);
+      return end.toISOString().split('T')[0];
+    });
+  }
+}, [watchWorkType, dateOfJoining]);
+
 
   const handleProbationToggle = (enabled: boolean) => {
     setProbationEnabled(enabled);
@@ -111,30 +121,30 @@ const JobDetailsTab: React.FC<JobDetailsTabProps> = ({ watchWorkType }) => {
   };
 
 
-const getEmploymentStatusColor = (status: string): AlertColor => {
-  switch (status) {
-    case "Active":
-      return "success";
-    case "On Probation":
-      return "warning";
-    case "Resigned":
-      return "info";
-    case "Terminated":
-      return "error";
-    case "Draft":
-      return "info"; // ✅ instead of default
-    default:
-      return "info"; // ✅ safe fallback
-  }
-};
+  const getEmploymentStatusColor = (status: string): AlertColor => {
+    switch (status) {
+      case "Active":
+        return "success";
+      case "On Probation":
+        return "warning";
+      case "Resigned":
+        return "info";
+      case "Terminated":
+        return "error";
+      case "Draft":
+        return "info"; // ✅ instead of default
+      default:
+        return "info"; // ✅ safe fallback
+    }
+  };
 
 
   return (
     <Box>
-      <Typography variant="h6" gutterBottom sx={{ 
-        display: 'flex', 
+      <Typography variant="h6" gutterBottom sx={{
+        display: 'flex',
         alignItems: 'center',
-        mb: 3 
+        mb: 3
       }}>
         <Work sx={{ mr: 1 }} />
         Job Details & Employment
@@ -144,14 +154,14 @@ const getEmploymentStatusColor = (status: string): AlertColor => {
         {/* Left Column */}
         <Grid item xs={12} md={6}>
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
-            {/* Employee Code */}
             <InputField
               label="Employee Code"
               id="employeeCode"
               type="text"
               required={false}
-              register={useFormContext().register("employeeCode")}
+              register={register("employeeCode")}
             />
+
 
             {/* Date of Joining */}
             <InputField
@@ -159,10 +169,11 @@ const getEmploymentStatusColor = (status: string): AlertColor => {
               id="dateOfJoining"
               type="date"
               required={true}
-              register={useFormContext().register("dateOfJoining", { 
-                required: "Date of joining is required" 
+              register={register("dateOfJoining", {
+                required: "Date of joining is required"
               })}
             />
+
 
             {/* Probation Period */}
             <Box>
@@ -180,16 +191,17 @@ const getEmploymentStatusColor = (status: string): AlertColor => {
                   sx={{ cursor: 'pointer' }}
                 />
               </Box>
-              
+
               {probationEnabled && (
                 <InputField
                   label="Probation End Date"
                   id="probationEndDate"
                   type="date"
                   required={false}
-                  register={useFormContext().register("probationEndDate")}
+                  register={register("probationEndDate")}
                 />
               )}
+
             </Box>
 
             {/* Role Selection */}
@@ -268,13 +280,16 @@ const getEmploymentStatusColor = (status: string): AlertColor => {
                     value={EMPLOYEES.find(emp => emp.id === field.value) || null}
                     onChange={(_, value) => field.onChange(value?.id || '')}
                     renderInput={(params) => (
-                      <TextField
-                        {...params}
-                        size="small"
-                        placeholder="Search by name or employee code"
-                        value={reportingManagerSearch}
-                        onChange={(e) => setReportingManagerSearch(e.target.value)}
+                      <Autocomplete
+                        options={EMPLOYEES}
+                        getOptionLabel={(option) => `${option.name} - ${option.role}`}
+                        value={EMPLOYEES.find(emp => emp.id === field.value) || null}
+                        onChange={(_, value) => field.onChange(value?.id ?? null)}
+                        renderInput={(params) => (
+                          <TextField {...params} size="small" placeholder="Search manager" />
+                        )}
                       />
+
                     )}
                   />
                 )}
@@ -396,19 +411,20 @@ const getEmploymentStatusColor = (status: string): AlertColor => {
                       id="contractStartDate"
                       type="date"
                       required={true}
-                      register={useFormContext().register("contractStartDate", { 
-                        required: "Contract start date is required" 
+                      register={register("contractStartDate", {
+                        required: "Contract start date is required"
                       })}
                     />
                   </Grid>
+
                   <Grid item xs={12} md={6}>
                     <InputField
                       label="Contract End Date"
                       id="contractEndDate"
                       type="date"
                       required={true}
-                      register={useFormContext().register("contractEndDate", { 
-                        required: "Contract end date is required" 
+                      register={register("contractEndDate", {
+                        required: "Contract end date is required"
                       })}
                     />
                   </Grid>
@@ -448,9 +464,8 @@ const getEmploymentStatusColor = (status: string): AlertColor => {
                   </FormControl>
                 )}
               />
-              {watch('employmentStatus') && (
-                <Alert 
-                  severity={getEmploymentStatusColor(watch('employmentStatus'))} 
+              {employmentStatus && (
+                <Alert severity={getEmploymentStatusColor(employmentStatus)}
                   sx={{ mt: 1 }}
                   icon={false}
                 >
@@ -503,7 +518,7 @@ const getEmploymentStatusColor = (status: string): AlertColor => {
 };
 
 const getStatusDescription = (status: string): string => {
-  switch(status) {
+  switch (status) {
     case 'Active': return 'Employee is actively working and receiving benefits';
     case 'On Probation': return 'Employee is under probation period';
     case 'Resigned': return 'Employee has submitted resignation';

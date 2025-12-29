@@ -1,7 +1,7 @@
 // DocumentsTab.tsx
 "use client";
 
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback, useMemo } from "react";
 import {
   Box,
   Grid,
@@ -56,8 +56,19 @@ const DocumentsTab: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [filterType, setFilterType] = useState<string>("All");
   
-  const documents = watch('documents') || [];
-  const newDocuments = watch('newDocuments') || [];
+ const watchedDocuments = watch('documents');
+const watchedNewDocuments = watch('newDocuments');
+
+const documents = useMemo(
+  () => watchedDocuments || [],
+  [watchedDocuments]
+);
+
+const newDocuments = useMemo(
+  () => watchedNewDocuments || [],
+  [watchedNewDocuments]
+);
+
 
   const onDrop = useCallback((acceptedFiles: File[]) => {
     const files = acceptedFiles.map(file => ({
