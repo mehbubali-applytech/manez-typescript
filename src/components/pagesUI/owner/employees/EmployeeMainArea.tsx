@@ -27,11 +27,11 @@ const EmployeeMainArea: React.FC = () => {
   const [statusFilter, setStatusFilter] = useState<string>("All");
   
  useEffect(() => {
-  setEmployees(createMockEmployees(1));
+  setEmployees(createMockEmployees(4));
 }, []);
 
   const handleAddEmployee = () => {
-    window.location.href = "/admin/employees/add";
+    window.location.href = "/owner/employees/add-employee";
   };
 
   const handleBulkImport = () => {
@@ -72,7 +72,7 @@ const EmployeeMainArea: React.FC = () => {
               <Link href="/">Home</Link>
             </li>
             <li className="breadcrumb-item">
-              <Link href="/admin">Admin</Link>
+              <Link href="/owner">Owner</Link>
             </li>
             <li className="breadcrumb-item active">Employee Management</li>
           </ol>
@@ -211,7 +211,7 @@ const EmployeeMainArea: React.FC = () => {
       <EmployeeTable
         data={filteredEmployees}
         onEdit={(employee) => {
-          window.location.href = `/admin/employees/edit/${employee.employeeId}`;
+          window.location.href = `/owner/employees/update-employee/${employee.employeeId}`;
         }}
         onDelete={(id) => {
           setEmployees(prev => prev.filter(emp => emp.employeeId !== id));

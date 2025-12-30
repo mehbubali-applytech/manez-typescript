@@ -131,7 +131,7 @@ const ShiftMainArea: React.FC = () => {
               onClick={handleAddClick}
               className="btn btn-primary"
             >
-              Add New Role
+              Add New Shift
             </button>
           </div>
         </div>

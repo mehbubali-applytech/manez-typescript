@@ -4,7 +4,7 @@ import CompanyEmployeesMainArea from "@/components/pagesUI/super-admin/employees
 
 interface Props {
   params: {
-    id: number;
+    id: string;
   };
 }
 
@@ -13,7 +13,7 @@ const CompanyEmployeesPage = ({ params }: Props) => {
     <>
       <MetaData pageTitle={`Employees • ${params.id}`}>
         <Wrapper role="super-admin">
-          <CompanyEmployeesMainArea id={params.id} />
+          <CompanyEmployeesMainArea employeeId={params.id} />
         </Wrapper>
       </MetaData>
     </>

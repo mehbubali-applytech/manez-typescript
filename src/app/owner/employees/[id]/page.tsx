@@ -2,14 +2,14 @@ import MetaData from "@/hooks/useMetaData";
 import Wrapper from "@/components/layouts/DefaultWrapper";
 import React from "react";
 import EmployeeMainArea from "@/components/pagesUI/owner/employees/EmployeeMainArea";
-import AddEditEmployee from "@/components/pagesUI/owner/employees/UpdateEmployeeModal";
+import EmployeeProfileMainArea from "@/components/pagesUI/owner/employees/[id]/EmployeeProfileMainArea";
 
 const AllCompaniesPage = () => {
   return (
     <>
-      <MetaData pageTitle="Add Employees">
+      <MetaData pageTitle="Employees">
         <Wrapper role={"owner"}>
-          <AddEditEmployee mode="add"/>
+          <EmployeeProfileMainArea employeeId="1" />
         </Wrapper>
       </MetaData>
     </>

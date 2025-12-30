@@ -25,7 +25,8 @@ import {
   TableHead,
   TableRow,
   Switch,
-  FormControlLabel
+  FormControlLabel,
+  Autocomplete
 } from "@mui/material";
 import {
   AttachMoney,
@@ -60,7 +61,7 @@ const SalaryTab: React.FC = () => {
     name: "deductions"
   });
 
-    const getMultiplierForFrequency = (frequency: string) => {
+  const getMultiplierForFrequency = (frequency: string) => {
     switch(frequency) {
       case 'Monthly': return 12;
       case 'Weekly': return 52;
@@ -75,6 +76,37 @@ const SalaryTab: React.FC = () => {
   const watchAllowances = watch('allowances') || [];
   const watchDeductions = watch('deductions') || [];
   const watchPayFrequency = watch('payFrequency');
+
+  // Salary grade options
+  const SALARY_GRADES = [
+    { id: 'A1', name: 'A1' },
+    { id: 'A2', name: 'A2' },
+    { id: 'B1', name: 'B1' },
+    { id: 'B2', name: 'B2' },
+    { id: 'C1', name: 'C1' },
+    { id: 'C2', name: 'C2' },
+    { id: 'D1', name: 'D1' },
+    { id: 'D2', name: 'D2' }
+  ];
+
+  // Pay frequency options
+  const PAY_FREQUENCY_OPTIONS = [
+    { id: 'Monthly', name: 'Monthly' },
+    { id: 'Weekly', name: 'Weekly' },
+    { id: 'Bi-weekly', name: 'Bi-weekly' }
+  ];
+
+  // Allowance type options
+  const ALLOWANCE_TYPE_OPTIONS = [
+    { id: 'Fixed', name: 'Fixed' },
+    { id: 'Variable', name: 'Variable' }
+  ];
+
+  // Deduction type options
+  const DEDUCTION_TYPE_OPTIONS = [
+    { id: 'Fixed', name: 'Fixed' },
+    { id: 'Percentage', name: 'Percentage' }
+  ];
 
   // Calculate totals
   const totalAllowances = watchAllowances.reduce((sum: number, item: any) => sum + (item.amount || 0), 0);
@@ -118,8 +150,6 @@ const SalaryTab: React.FC = () => {
     return accountNumber;
   };
 
-
-
   return (
     <Box>
       <Typography variant="h6" gutterBottom sx={{ 
@@ -156,16 +186,27 @@ const SalaryTab: React.FC = () => {
                 name="salaryGrade"
                 control={control}
                 render={({ field }) => (
-                  <FormControl fullWidth size="small">
-                    <Select {...field}>
-                      <MenuItem value="">Select Grade</MenuItem>
-                      {['A1', 'A2', 'B1', 'B2', 'C1', 'C2', 'D1', 'D2'].map(grade => (
-                        <MenuItem key={grade} value={grade}>
-                          <Chip label={grade} size="small" variant="outlined" />
-                        </MenuItem>
-                      ))}
-                    </Select>
-                  </FormControl>
+                  <Autocomplete
+                    options={SALARY_GRADES}
+                    getOptionLabel={(option) => option.name}
+                    value={SALARY_GRADES.find(grade => grade.id === field.value) || null}
+                    onChange={(_, value) => field.onChange(value?.id || '')}
+                    renderInput={(params) => (
+                      <TextField
+                        {...params}
+                        size="small"
+                        placeholder="Select grade"
+                      />
+                    )}
+                    renderOption={(props, option) => (
+                      <MenuItem {...props} key={option.id}>
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                          <Chip label={option.name} size="small" variant="outlined" />
+                          <Typography variant="body2">{option.name}</Typography>
+                        </Box>
+                      </MenuItem>
+                    )}
+                  />
                 )}
               />
             </Box>
@@ -202,20 +243,26 @@ const SalaryTab: React.FC = () => {
                 control={control}
                 rules={{ required: "Pay frequency is required" }}
                 render={({ field, fieldState }) => (
-                  <FormControl fullWidth size="small" error={fieldState.invalid}>
-                    <Select {...field}>
-                      {['Monthly', 'Weekly', 'Bi-weekly'].map(freq => (
-                        <MenuItem key={freq} value={freq}>
-                          {freq}
-                        </MenuItem>
-                      ))}
-                    </Select>
-                    {fieldState.error && (
-                      <Typography variant="caption" color="error">
-                        {fieldState.error.message}
-                      </Typography>
+                  <Autocomplete
+                    options={PAY_FREQUENCY_OPTIONS}
+                    getOptionLabel={(option) => option.name}
+                    value={PAY_FREQUENCY_OPTIONS.find(freq => freq.id === field.value) || null}
+                    onChange={(_, value) => field.onChange(value?.id || '')}
+                    renderInput={(params) => (
+                      <TextField
+                        {...params}
+                        size="small"
+                        placeholder="Select pay frequency"
+                        error={fieldState.invalid}
+                        helperText={fieldState.error?.message}
+                      />
                     )}
-                  </FormControl>
+                    renderOption={(props, option) => (
+                      <MenuItem {...props} key={option.id}>
+                        {option.name}
+                      </MenuItem>
+                    )}
+                  />
                 )}
               />
             </Box>
@@ -289,10 +336,24 @@ const SalaryTab: React.FC = () => {
                               name={`allowances.${index}.type`}
                               control={control}
                               render={({ field }) => (
-                                <Select {...field} size="small" fullWidth>
-                                  <MenuItem value="Fixed">Fixed</MenuItem>
-                                  <MenuItem value="Variable">Variable</MenuItem>
-                                </Select>
+                                <Autocomplete
+                                  options={ALLOWANCE_TYPE_OPTIONS}
+                                  getOptionLabel={(option) => option.name}
+                                  value={ALLOWANCE_TYPE_OPTIONS.find(type => type.id === field.value) || null}
+                                  onChange={(_, value) => field.onChange(value?.id || 'Fixed')}
+                                  renderInput={(params) => (
+                                    <TextField
+                                      {...params}
+                                      size="small"
+                                      fullWidth
+                                    />
+                                  )}
+                                  renderOption={(props, option) => (
+                                    <MenuItem {...props} key={option.id}>
+                                      {option.name}
+                                    </MenuItem>
+                                  )}
+                                />
                               )}
                             />
                           </TableCell>
@@ -394,10 +455,24 @@ const SalaryTab: React.FC = () => {
                               name={`deductions.${index}.type`}
                               control={control}
                               render={({ field }) => (
-                                <Select {...field} size="small" fullWidth>
-                                  <MenuItem value="Fixed">Fixed</MenuItem>
-                                  <MenuItem value="Percentage">Percentage</MenuItem>
-                                </Select>
+                                <Autocomplete
+                                  options={DEDUCTION_TYPE_OPTIONS}
+                                  getOptionLabel={(option) => option.name}
+                                  value={DEDUCTION_TYPE_OPTIONS.find(type => type.id === field.value) || null}
+                                  onChange={(_, value) => field.onChange(value?.id || 'Fixed')}
+                                  renderInput={(params) => (
+                                    <TextField
+                                      {...params}
+                                      size="small"
+                                      fullWidth
+                                    />
+                                  )}
+                                  renderOption={(props, option) => (
+                                    <MenuItem {...props} key={option.id}>
+                                      {option.name}
+                                    </MenuItem>
+                                  )}
+                                />
                               )}
                             />
                           </TableCell>
@@ -509,7 +584,6 @@ const SalaryTab: React.FC = () => {
                         message: "Invalid IFSC code format"
                       }
                     })}
-                 
                   />
 
                   <InputField

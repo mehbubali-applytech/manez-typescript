@@ -51,7 +51,7 @@ import DocumentsTab from "./tabs/DocumentsTab";
 import AccessTab from "./tabs/AccessTab";
 
 import { IEmployeeForm, IEmployee, EMPLOYMENT_STATUS_OPTIONS } from "./EmployeeTypes";
-import { Link } from "lucide-react";
+import Link from "next/link";
 
 interface AddEditEmployeeProps {
   employee?: IEmployee;
@@ -192,8 +192,8 @@ const AddEditEmployee: React.FC<AddEditEmployeeProps> = ({ employee, mode = 'add
         status: 'Active',
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
-        createdBy: 'Admin', // Replace with actual user
-        updatedBy: 'Admin'
+        createdBy: 'Owner', // Replace with actual user
+        updatedBy: 'Owner'
       };
 
       // API call would go here
@@ -208,7 +208,7 @@ const AddEditEmployee: React.FC<AddEditEmployeeProps> = ({ employee, mode = 'add
 
       // Navigate to employee list
       setTimeout(() => {
-        router.push('/admin/employees');
+        router.push('/owner/employees');
       }, 1000);
 
     } catch (error) {
@@ -238,7 +238,7 @@ await handleFinalSubmit(finalData);
     if (isDirty) {
       setShowExitConfirm(true);
     } else {
-      router.push('/admin/employees');
+      router.push('/owner/employees');
     }
   };
 
@@ -294,20 +294,17 @@ await handleFinalSubmit(finalData);
 
   return (
     <FormProvider {...methods}>
-      <div className="app__slide-wrapper">
-        {/* Header */}
-        <div className="breadcrumb__wrapper mb-[25px]">
-          <nav>
-            <ol className="breadcrumb flex items-center mb-0">
-              <li className="breadcrumb-item">
-                <Link href="/">Home</Link>
-              </li>
-              <li className="breadcrumb-item">
-                <Link href="/owner">Owner</Link>
-              </li>
-              <li className="breadcrumb-item">
-                <Link href="/owner/employees">Employees</Link>
-              </li>
+          <div className="app__slide-wrapper">
+      {/* Breadcrumb */}
+      <div className="breadcrumb__wrapper mb-[25px]">
+        <nav>
+          <ol className="breadcrumb flex items-center mb-0">
+            <li className="breadcrumb-item">
+              <Link href="/">Home</Link>
+            </li>
+            <li className="breadcrumb-item">
+              <Link href="/owner">Owner</Link>
+            </li> 
               <li className="breadcrumb-item active">
                 {mode === 'add' ? 'Add New Employee' : 'Edit Employee'}
               </li>
@@ -453,6 +450,7 @@ await handleFinalSubmit(finalData);
                   startIcon={<Save />}
                   onClick={methods.handleSubmit(handleFinalSubmit)}
                   disabled={isSubmitting}
+              className="!text-white"
                 >
                   {isSubmitting ? (
                     <>
@@ -552,7 +550,7 @@ await handleFinalSubmit(finalData);
             onClick={async () => {
               await handleSaveDraft();
               setShowExitConfirm(false);
-              router.push('/admin/employees');
+              router.push('/owner/employees');
             }}
             color="primary"
           >
@@ -561,7 +559,7 @@ await handleFinalSubmit(finalData);
           <Button
             onClick={() => {
               setShowExitConfirm(false);
-              router.push('/admin/employees');
+            router.push('/owner/employees');
             }}
             color="error"
           >

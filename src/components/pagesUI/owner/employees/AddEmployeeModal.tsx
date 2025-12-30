@@ -66,7 +66,6 @@ const AddEmployeeModal: React.FC<AddEmployeeModalProps> = ({
                 id="first_name"
                 label="First Name"
                 register={register("first_name", { required: "Required" })}
-                error={errors.first_name}
               />
             </div>
 
@@ -75,7 +74,6 @@ const AddEmployeeModal: React.FC<AddEmployeeModalProps> = ({
                 id="last_name"
                 label="Last Name"
                 register={register("last_name", { required: "Required" })}
-                error={errors.last_name}
               />
             </div>
 
@@ -84,7 +82,6 @@ const AddEmployeeModal: React.FC<AddEmployeeModalProps> = ({
                 id="phone"
                 label="Phone"
                 register={register("phone", { required: "Required" })}
-                error={errors.phone}
               />
             </div>
 
@@ -111,7 +108,6 @@ const AddEmployeeModal: React.FC<AddEmployeeModalProps> = ({
                 id="employeeID"
                 label="Employee ID"
                 register={register("employeeID", { required: "Required" })}
-                error={errors.employeeID}
               />
             </div>
 

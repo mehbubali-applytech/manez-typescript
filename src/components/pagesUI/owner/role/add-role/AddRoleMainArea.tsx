@@ -292,7 +292,7 @@ const AddEditRole: React.FC<{ isEdit?: boolean; roleId?: string }> = ({
       );
       
       setTimeout(() => {
-        router.push("/admin/roles");
+        router.push("/owner/roles");
       }, 1000);
       
     } catch (error) {
@@ -313,7 +313,7 @@ const AddEditRole: React.FC<{ isEdit?: boolean; roleId?: string }> = ({
       setDeleteDialogOpen(false);
       
       setTimeout(() => {
-        router.push("/admin/roles");
+        router.push("/owner/roles");
       }, 500);
       
     } catch (error) {
@@ -327,7 +327,7 @@ const AddEditRole: React.FC<{ isEdit?: boolean; roleId?: string }> = ({
         router.push("/admin/roles");
       }
     } else {
-      router.push("/admin/roles");
+      router.push("/owner/roles");
     }
   };
 

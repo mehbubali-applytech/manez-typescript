@@ -23,7 +23,8 @@ import {
   Divider,
   IconButton,
   Tooltip,
-  CircularProgress
+  CircularProgress,
+  Autocomplete
 } from "@mui/material";
 import {
   AccessTime,
@@ -37,7 +38,8 @@ import {
   Send,
   Refresh,
   Visibility,
-  VisibilityOff
+  VisibilityOff,
+  Delete
 } from "@mui/icons-material";
 import { useFormContext, Controller } from "react-hook-form";
 import InputField from "@/components/elements/SharedInputs/InputField";
@@ -109,7 +111,7 @@ const AccessTab: React.FC<AccessTabProps> = ({ watchSystemUserEnabled }) => {
     const firstName = watch('firstName')?.toLowerCase() || '';
     const lastName = watch('lastName')?.toLowerCase() || '';
     const email = watch('email')?.split('@')[0] || '';
-    
+
     if (firstName && lastName) {
       setValue('username', `${firstName}.${lastName}`);
     } else if (email) {
@@ -120,19 +122,19 @@ const AccessTab: React.FC<AccessTabProps> = ({ watchSystemUserEnabled }) => {
   const sendOnboardingEmail = () => {
     const email = watch('email');
     const username = watch('username');
-    
+
     if (!email || !username) {
       alert("Please fill in email and username first");
       return;
     }
-    
+
     // Simulate sending email
     console.log(`Sending onboarding email to ${email} with username: ${username}`);
     alert(`Onboarding email would be sent to ${email}`);
   };
 
   const getAttendanceTypeDescription = (type: string) => {
-    switch(type) {
+    switch (type) {
       case 'App': return 'Employee marks attendance via mobile app';
       case 'Biometric': return 'Employee uses biometric device for attendance';
       case 'GPS': return 'Employee attendance based on GPS location';
@@ -142,10 +144,10 @@ const AccessTab: React.FC<AccessTabProps> = ({ watchSystemUserEnabled }) => {
 
   return (
     <Box>
-      <Typography variant="h6" gutterBottom sx={{ 
-        display: 'flex', 
+      <Typography variant="h6" gutterBottom sx={{
+        display: 'flex',
         alignItems: 'center',
-        mb: 3 
+        mb: 3
       }}>
         <Security sx={{ mr: 1 }} />
         Attendance & System Access
@@ -157,39 +159,45 @@ const AccessTab: React.FC<AccessTabProps> = ({ watchSystemUserEnabled }) => {
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
             {/* Attendance Type */}
             <Paper variant="outlined" sx={{ p: 3 }}>
-              <Typography variant="subtitle2" gutterBottom sx={{ 
-                display: 'flex', 
+              <Typography variant="subtitle2" gutterBottom sx={{
+                display: 'flex',
                 alignItems: 'center',
-                fontWeight: 600 
+                fontWeight: 600
               }}>
                 <AccessTime sx={{ mr: 1 }} />
                 Attendance Settings *
               </Typography>
-              
+
               <Controller
                 name="attendanceType"
                 control={control}
                 rules={{ required: "Attendance type is required" }}
                 render={({ field, fieldState }) => (
-                  <FormControl fullWidth error={fieldState.invalid}>
-                    <Select {...field} size="small">
-                      {ATTENDANCE_TYPE_OPTIONS.map(option => (
-                        <MenuItem key={option.value} value={option.value}>
-                          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                            {option.label}
-                          </Box>
-                        </MenuItem>
-                      ))}
-                    </Select>
-                    {fieldState.error && (
-                      <Typography variant="caption" color="error">
-                        {fieldState.error.message}
-                      </Typography>
+                  <Autocomplete
+                    options={ATTENDANCE_TYPE_OPTIONS}
+                    getOptionLabel={(option) => option.label}
+                    value={ATTENDANCE_TYPE_OPTIONS.find(option => option.value === field.value) || null}
+                    onChange={(_, value) => field.onChange(value?.value || '')}
+                    renderInput={(params) => (
+                      <TextField
+                        {...params}
+                        size="small"
+                        placeholder="Select attendance type"
+                        error={fieldState.invalid}
+                        helperText={fieldState.error?.message}
+                      />
                     )}
-                  </FormControl>
+                    renderOption={(props, option) => (
+                      <MenuItem {...props} key={option.value}>
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                          {option.label}
+                        </Box>
+                      </MenuItem>
+                    )}
+                  />
                 )}
               />
-              
+
               {watchAttendanceType && (
                 <Alert severity="info" sx={{ mt: 2 }}>
                   <Typography variant="body2">
@@ -205,7 +213,7 @@ const AccessTab: React.FC<AccessTabProps> = ({ watchSystemUserEnabled }) => {
                     <Map sx={{ mr: 1 }} />
                     Geo-fence Settings
                   </Typography>
-                  
+
                   <Card variant="outlined" sx={{ mb: 2 }}>
                     <CardContent>
                       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
@@ -221,7 +229,7 @@ const AccessTab: React.FC<AccessTabProps> = ({ watchSystemUserEnabled }) => {
                           {geoLocation ? 'Update Location' : 'Get Location'}
                         </Button>
                       </Box>
-                      
+
                       {geoLocation ? (
                         <Grid container spacing={2}>
                           <Grid item xs={6}>
@@ -246,7 +254,7 @@ const AccessTab: React.FC<AccessTabProps> = ({ watchSystemUserEnabled }) => {
                       ) : (
                         <Alert severity="warning">
                           <Typography variant="body2">
-                            Location not set. {`Click Get Location`} to enable GPS attendance.
+                            Location not set. Click Get Location to enable GPS attendance.
                           </Typography>
                         </Alert>
                       )}
@@ -290,8 +298,8 @@ const AccessTab: React.FC<AccessTabProps> = ({ watchSystemUserEnabled }) => {
                         {geoLocation ? 'Location set for GPS attendance' : 'No location set'}
                       </Typography>
                       <Typography variant="caption" color="text.secondary">
-                        {geoLocation 
-                          ? `Lat: ${geoLocation.lat.toFixed(4)}, Lng: ${geoLocation.lng.toFixed(4)}` 
+                        {geoLocation
+                          ? `Lat: ${geoLocation.lat.toFixed(4)}, Lng: ${geoLocation.lng.toFixed(4)}`
                           : 'Enable location services to continue'}
                       </Typography>
                     </CardContent>
@@ -302,15 +310,15 @@ const AccessTab: React.FC<AccessTabProps> = ({ watchSystemUserEnabled }) => {
 
             {/* Temporary Access */}
             <Paper variant="outlined" sx={{ p: 3 }}>
-              <Typography variant="subtitle2" gutterBottom sx={{ 
-                display: 'flex', 
+              <Typography variant="subtitle2" gutterBottom sx={{
+                display: 'flex',
                 alignItems: 'center',
-                fontWeight: 600 
+                fontWeight: 600
               }}>
                 <Schedule sx={{ mr: 1 }} />
                 Temporary Access
               </Typography>
-              
+
               <InputField
                 label="Access Valid Until"
                 id="temporaryAccessUntil"
@@ -318,7 +326,7 @@ const AccessTab: React.FC<AccessTabProps> = ({ watchSystemUserEnabled }) => {
                 required={false}
                 register={useFormContext().register("temporaryAccessUntil")}
               />
-              
+
               {watchTemporaryAccess && (
                 <Alert severity="warning" sx={{ mt: 2 }}>
                   <Typography variant="body2">
@@ -337,8 +345,8 @@ const AccessTab: React.FC<AccessTabProps> = ({ watchSystemUserEnabled }) => {
                     System User Account
                   </Typography>
                   <Typography variant="caption" color="text.secondary">
-                    {watchSystemUserEnabled 
-                      ? "Employee will have login access to the system" 
+                    {watchSystemUserEnabled
+                      ? "Employee will have login access to the system"
                       : "No system access will be created"}
                   </Typography>
                 </Box>
@@ -385,11 +393,11 @@ const AccessTab: React.FC<AccessTabProps> = ({ watchSystemUserEnabled }) => {
                     Generate
                   </Button>
                 </Box>
-                
+
                 <Controller
                   name="username"
                   control={control}
-                  rules={{ 
+                  rules={{
                     required: "Username is required",
                     minLength: { value: 3, message: "Minimum 3 characters" }
                   }}
@@ -403,7 +411,7 @@ const AccessTab: React.FC<AccessTabProps> = ({ watchSystemUserEnabled }) => {
                     />
                   )}
                 />
-                
+
                 <Typography variant="caption" color="text.secondary" sx={{ mt: 1, display: 'block' }}>
                   Username must be unique across the system
                 </Typography>
@@ -425,7 +433,7 @@ const AccessTab: React.FC<AccessTabProps> = ({ watchSystemUserEnabled }) => {
                     {generatingPassword ? 'Generating...' : 'Generate'}
                   </Button>
                 </Box>
-                
+
                 <Box sx={{ position: 'relative' }}>
                   <Controller
                     name="password"
@@ -452,10 +460,10 @@ const AccessTab: React.FC<AccessTabProps> = ({ watchSystemUserEnabled }) => {
                     )}
                   />
                 </Box>
-                
+
                 <Alert severity="info" sx={{ mt: 2 }}>
                   <Typography variant="body2">
-                    Password will be auto-generated and sent to {`employee's`} email. 
+                    Password will be auto-generated and sent to employee&apos;s email.
                     Employee will be prompted to change password on first login.
                   </Typography>
                 </Alert>
@@ -466,59 +474,59 @@ const AccessTab: React.FC<AccessTabProps> = ({ watchSystemUserEnabled }) => {
                 <Typography variant="subtitle2" gutterBottom sx={{ fontWeight: 600, mb: 2 }}>
                   Roles & Permissions *
                 </Typography>
-                
+
                 <Controller
                   name="roleIds"
                   control={control}
-                  rules={{ 
+                  rules={{
                     required: "At least one role is required",
                     validate: value => value && value.length > 0
                   }}
                   render={({ field, fieldState }) => (
-                    <FormControl fullWidth error={fieldState.invalid} size="small">
-                      <InputLabel>Select Roles</InputLabel>
-                      <Select
-                        {...field}
-                        multiple
-                        value={field.value || []}
-                        onChange={field.onChange}
-                        renderValue={(selected) => (
-                          <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
-                            {(selected as number[]).map((value) => {
-                              const role = ROLES.find(r => r.id === value);
-                              return (
-                                <Chip 
-                                  key={value} 
-                                  label={role?.name} 
-                                  size="small" 
-                                  color="primary"
-                                  variant="outlined"
-                                />
-                              );
-                            })}
-                          </Box>
-                        )}
-                      >
-                        {ROLES.map((role) => (
-                          <MenuItem key={role.id} value={role.id}>
-                            <Box>
-                              <Typography variant="body2">{role.name}</Typography>
-                              <Typography variant="caption" color="text.secondary">
-                                {role.description}
-                              </Typography>
-                            </Box>
-                          </MenuItem>
-                        ))}
-                      </Select>
-                      {fieldState.error && (
-                        <Typography variant="caption" color="error">
-                          {fieldState.error.message}
-                        </Typography>
+                    <Autocomplete
+                      multiple
+                      options={ROLES}
+                      getOptionLabel={(option) => option.name}
+                      value={ROLES.filter(role => (field.value || []).includes(role.id))}
+                      onChange={(_, value) => {
+                        const ids = value.map(role => role.id);
+                        field.onChange(ids);
+                      }}
+                      renderInput={(params) => (
+                        <TextField
+                          {...params}
+                          size="small"
+                          placeholder="Select roles"
+                          error={fieldState.invalid}
+                          helperText={fieldState.error?.message}
+                        />
                       )}
-                    </FormControl>
+                      renderOption={(props, option) => (
+                        <MenuItem {...props} key={option.id}>
+                          <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+                            <Typography variant="body2">{option.name}</Typography>
+                            <Typography variant="caption" color="text.secondary">
+                              {option.description}
+                            </Typography>
+                          </Box>
+                        </MenuItem>
+                      )}
+                      renderTags={(value, getTagProps) =>
+                        value.map((option, index) => (
+                          <Chip
+                            {...getTagProps({ index })}
+                            key={option.id}
+                            label={option.name}
+                            size="small"
+                            color="primary"
+                            variant="outlined"
+                          />
+                        ))
+                      }
+                    />
                   )}
                 />
-                
+
                 <Typography variant="caption" color="text.secondary" sx={{ mt: 1, display: 'block' }}>
                   Select the roles that determine system access permissions
                 </Typography>
@@ -555,20 +563,21 @@ const AccessTab: React.FC<AccessTabProps> = ({ watchSystemUserEnabled }) => {
                 <Typography variant="subtitle2" gutterBottom sx={{ fontWeight: 600, mb: 2 }}>
                   Onboarding Communication
                 </Typography>
-                
+
                 <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
                   <Alert severity="info">
                     <Typography variant="body2">
                       Send welcome email with login credentials and system access instructions.
                     </Typography>
                   </Alert>
-                  
+
                   <Box sx={{ display: 'flex', gap: 1 }}>
                     <Button
                       variant="contained"
                       startIcon={<Send />}
                       onClick={sendOnboardingEmail}
                       fullWidth
+                      className="!text-white"
                     >
                       Send Onboarding Email
                     </Button>
@@ -582,7 +591,7 @@ const AccessTab: React.FC<AccessTabProps> = ({ watchSystemUserEnabled }) => {
                       Preview
                     </Button>
                   </Box>
-                  
+
                   <Typography variant="caption" color="text.secondary">
                     Email will be sent to: {watch('email') || 'No email set'}
                   </Typography>
@@ -594,37 +603,37 @@ const AccessTab: React.FC<AccessTabProps> = ({ watchSystemUserEnabled }) => {
                 <Typography variant="subtitle2" gutterBottom sx={{ fontWeight: 600 }}>
                   Access Summary
                 </Typography>
-                
+
                 <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
                   <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
                     <Typography variant="body2">System Access:</Typography>
                     <Chip label="Enabled" size="small" color="success" />
                   </Box>
-                  
+
                   <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
                     <Typography variant="body2">Username:</Typography>
                     <Typography variant="body2" fontWeight={600}>
                       {watchUsername || 'Not set'}
                     </Typography>
                   </Box>
-                  
+
                   <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
                     <Typography variant="body2">Roles Assigned:</Typography>
                     <Typography variant="body2" fontWeight={600}>
                       {(watch('roleIds') || []).length} role(s)
                     </Typography>
                   </Box>
-                  
+
                   <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
                     <Typography variant="body2">Temporary Access:</Typography>
                     <Typography variant="body2">
-                      {watchTemporaryAccess ? 
-                        `Until ${new Date(watchTemporaryAccess).toLocaleDateString()}` : 
+                      {watchTemporaryAccess ?
+                        `Until ${new Date(watchTemporaryAccess).toLocaleDateString()}` :
                         'Permanent'
                       }
                     </Typography>
                   </Box>
-                  
+
                   <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
                     <Typography variant="body2">Attendance Type:</Typography>
                     <Chip label={watchAttendanceType} size="small" variant="outlined" />
@@ -633,10 +642,10 @@ const AccessTab: React.FC<AccessTabProps> = ({ watchSystemUserEnabled }) => {
               </Paper>
             </Box>
           ) : (
-            <Box sx={{ 
-              display: 'flex', 
-              flexDirection: 'column', 
-              alignItems: 'center', 
+            <Box sx={{
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
               justifyContent: 'center',
               height: '100%',
               textAlign: 'center',
@@ -647,10 +656,10 @@ const AccessTab: React.FC<AccessTabProps> = ({ watchSystemUserEnabled }) => {
                 System Access Disabled
               </Typography>
               <Typography variant="body2" color="text.secondary" gutterBottom>
-                Enable {`System User Account`} to configure login credentials and permissions
+                Enable System User Account to configure login credentials and permissions
               </Typography>
               <Typography variant="caption" color="text.secondary">
-                This is suitable for contractors or employees who {`don't`} need system access
+                This is suitable for contractors or employees who don&apos;t need system access.
               </Typography>
             </Box>
           )}
@@ -660,7 +669,7 @@ const AccessTab: React.FC<AccessTabProps> = ({ watchSystemUserEnabled }) => {
       {/* Final Notes */}
       <Alert severity="warning" sx={{ mt: 3 }}>
         <Typography variant="body2">
-          <strong>Important:</strong> System access settings can only be modified before the {`employee's`} first login. 
+          <strong>Important:</strong> System access settings can only be modified before the employee&apos;s first login.
           After first login, changes must be made through the user management system.
         </Typography>
       </Alert>

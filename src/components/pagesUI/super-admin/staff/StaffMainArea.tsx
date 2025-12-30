@@ -61,6 +61,7 @@ const StaffMainArea = () => {
           department={selectedDepartment}
           company={selectedCompany}
           dateRange={dateRange}
+
         />
       </div>
 

@@ -30,12 +30,12 @@ interface ICompanyRegistration {
   logoPreview: string;
   employeeLimit: number | "";
   notes: string;
-  
+
   // Step 2: Owner Details
   ownerName: string;
   ownerEmail: string;
   ownerPhone: string;
-  
+
   // Step 3: Modules & Plan
   modules: {
     attendance: boolean;
@@ -49,7 +49,7 @@ interface ICompanyRegistration {
   subscriptionPlan: "free" | "pro" | "enterprise";
   timezone: string;
   currency: string;
-  
+
   // Step 4: Confirm
   acceptTerms: boolean;
   sendActivationEmail: boolean;
@@ -109,33 +109,33 @@ const currencies: CurrencyOption[] = [
 ];
 
 const modules: ModuleOption[] = [
-  { 
-    id: "attendance", 
-    label: "Attendance", 
+  {
+    id: "attendance",
+    label: "Attendance",
     description: "Track employee attendance and working hours",
-    hasLevel: true 
+    hasLevel: true
   },
-  { 
-    id: "leaveManagement", 
-    label: "Leave Management", 
-    description: "Manage employee leave requests and balances" 
+  {
+    id: "leaveManagement",
+    label: "Leave Management",
+    description: "Manage employee leave requests and balances"
   },
-  { 
-    id: "payroll", 
-    label: "Payroll", 
+  {
+    id: "payroll",
+    label: "Payroll",
     description: "Process salaries, deductions, and tax calculations",
     hasLevel: true,
-    note: "Payroll requires bank configuration later" 
+    note: "Payroll requires bank configuration later"
   },
-  { 
-    id: "offerLetters", 
-    label: "Offer Letters", 
-    description: "Create and send employment offer letters" 
+  {
+    id: "offerLetters",
+    label: "Offer Letters",
+    description: "Create and send employment offer letters"
   },
-  { 
-    id: "compliance", 
-    label: "Compliance", 
-    description: "Ensure regulatory compliance and reporting" 
+  {
+    id: "compliance",
+    label: "Compliance",
+    description: "Ensure regulatory compliance and reporting"
   },
 ];
 
@@ -165,7 +165,7 @@ const RegisterCompanyWizard: React.FC = () => {
   const [activeStep, setActiveStep] = useState(0);
   const [emailVerified, setEmailVerified] = useState(false);
   const [isVerifyingEmail, setIsVerifyingEmail] = useState(false);
-  
+
   const {
     register,
     handleSubmit,
@@ -238,12 +238,12 @@ const RegisterCompanyWizard: React.FC = () => {
         toast.error("File size must be less than 5MB");
         return;
       }
-      
+
       if (!file.type.match(/image\/(png|jpeg|jpg|svg\+xml)/)) {
         toast.error("Only PNG, JPG, and SVG files are allowed");
         return;
       }
-      
+
       const reader = new FileReader();
       reader.onloadend = () => {
         setValue("logo", file);
@@ -260,7 +260,7 @@ const RegisterCompanyWizard: React.FC = () => {
       toast.error("Please enter a valid email address first");
       return;
     }
-    
+
     setIsVerifyingEmail(true);
     // Mock API call
     setTimeout(() => {
@@ -278,7 +278,7 @@ const RegisterCompanyWizard: React.FC = () => {
   const handleNextStep = async () => {
     const currentStepFields = getStepFields(activeStep);
     const isValid = await trigger(currentStepFields as any);
-    
+
     if (isValid) {
       if (activeStep === 1 && !emailVerified) {
         toast.warning("Please verify the email address before proceeding");
@@ -316,7 +316,7 @@ const RegisterCompanyWizard: React.FC = () => {
       toast.error("Please accept the Terms & Conditions");
       return;
     }
-    
+
     // Create FormData for file upload
     const formData = new FormData();
     Object.entries(data).forEach(([key, value]) => {
@@ -328,17 +328,17 @@ const RegisterCompanyWizard: React.FC = () => {
         formData.append(key, String(value));
       }
     });
-    
+
     // Mock API call
     toast.loading("Creating company...");
     setTimeout(() => {
       toast.dismiss();
       toast.success("Company created successfully!");
-      
+
       if (data.sendActivationEmail) {
         toast.success("Activation email sent to owner");
       }
-      
+
       // Navigate to success page
       setTimeout(() => {
         router.push("/super-admin/companies");
@@ -588,11 +588,11 @@ const RegisterCompanyWizard: React.FC = () => {
             <div>
               <h3 className="text-lg font-semibold text-gray-800 mb-4">Select Modules</h3>
               <div className="space-y-4">
-                {modules.map((module) => (
-                  <div key={module.id} className="border border-gray-200 rounded-lg p-4">
+                {modules.map((moduleItem) => (
+                  <div key={moduleItem.id} className="border border-gray-200 rounded-lg p-4">
                     <div className="flex items-start space-x-3">
                       <Controller
-                        name={`modules.${module.id}`}
+                        name={`modules.${moduleItem.id}`}
                         control={control}
                         render={({ field }) => (
                           <Checkbox
@@ -604,28 +604,34 @@ const RegisterCompanyWizard: React.FC = () => {
                       />
                       <div className="flex-1">
                         <label className="block font-medium text-gray-700">
-                          {module.label}
+                          {moduleItem.label}
                         </label>
                         <p className="text-sm text-gray-600 mt-1">
-                          {module.description}
+                          {moduleItem.description}
                         </p>
-                        {module.note && (
+
+                        {moduleItem.note && (
                           <div className="mt-2 p-2 bg-yellow-50 border border-yellow-200 rounded text-sm text-yellow-700">
-                            🛈 {module.note}
+                            🛈 {moduleItem.note}
                           </div>
                         )}
-                        {module.hasLevel && watch(`modules.${module.id}`) && (
+
+                        {moduleItem.hasLevel && watch(`modules.${moduleItem.id}`) && (
                           <div className="mt-3">
                             <label className="block text-sm font-medium text-gray-700 mb-1">
                               Level
                             </label>
                             <Controller
-                              name={module.id === "attendance" ? "attendanceLevel" : "payrollLevel"}
+                              name={
+                                moduleItem.id === "attendance"
+                                  ? "attendanceLevel"
+                                  : "payrollLevel"
+                              }
                               control={control}
                               render={({ field }) => (
                                 <select
-                                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-colors text-sm"
                                   {...field}
+                                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
                                 >
                                   <option value="basic">Basic</option>
                                   <option value="advanced">Advanced</option>
@@ -638,6 +644,7 @@ const RegisterCompanyWizard: React.FC = () => {
                     </div>
                   </div>
                 ))}
+
               </div>
               <div className="mt-4 text-sm text-gray-600">
                 Selected: {selectedModules} module{selectedModules !== 1 ? "s" : ""}
@@ -660,11 +667,10 @@ const RegisterCompanyWizard: React.FC = () => {
                       {plans.map((plan) => (
                         <div
                           key={plan.id}
-                          className={`border rounded-lg p-4 cursor-pointer transition-all ${
-                            field.value === plan.id
+                          className={`border rounded-lg p-4 cursor-pointer transition-all ${field.value === plan.id
                               ? "border-primary bg-primary/5"
                               : "border-gray-200 hover:border-gray-300"
-                          }`}
+                            }`}
                           onClick={() => field.onChange(plan.id)}
                         >
                           <div className="flex items-start space-x-3">
@@ -772,7 +778,7 @@ const RegisterCompanyWizard: React.FC = () => {
                   Edit
                 </button>
               </div>
-              
+
               {/* Company Info */}
               <div className="border border-gray-200 rounded-lg p-4">
                 <h4 className="font-medium text-gray-700 mb-2">Company Information</h4>
@@ -845,19 +851,20 @@ const RegisterCompanyWizard: React.FC = () => {
                   <div>
                     <span className="text-gray-500">Selected Modules:</span>
                     <div className="mt-1 flex flex-wrap gap-2">
-                      {Object.entries(formData.modules)
-                        .filter(([_, selected]) => selected)
-                        .map(([key]) => {
-                          const module = modules.find(m => m.id === key);
-                          return (
-                            <span
-                              key={key}
-                              className="px-2 py-1 bg-primary/10 text-primary rounded text-xs"
-                            >
-                              {module?.label}
-                            </span>
-                          );
-                        })}
+                   {Object.entries(formData.modules)
+  .filter(([_, selected]) => selected)
+  .map(([key]) => {
+    const moduleItem = modules.find(m => m.id === key);
+    return (
+      <span
+        key={key}
+        className="px-2 py-1 bg-primary/10 text-primary rounded text-xs"
+      >
+        {moduleItem?.label}
+      </span>
+    );
+  })}
+
                     </div>
                   </div>
                   <div>
@@ -952,14 +959,12 @@ const RegisterCompanyWizard: React.FC = () => {
                       />
                       <label
                         htmlFor="activation-toggle"
-                        className={`block w-12 h-6 rounded-full cursor-pointer transition-colors ${
-                          field.value ? "bg-primary" : "bg-gray-300"
-                        }`}
+                        className={`block w-12 h-6 rounded-full cursor-pointer transition-colors ${field.value ? "bg-primary" : "bg-gray-300"
+                          }`}
                       >
                         <span
-                          className={`absolute top-1 left-1 w-4 h-4 rounded-full bg-white transition-transform ${
-                            field.value ? "transform translate-x-6" : ""
-                          }`}
+                          className={`absolute top-1 left-1 w-4 h-4 rounded-full bg-white transition-transform ${field.value ? "transform translate-x-6" : ""
+                            }`}
                         />
                       </label>
                     </div>
@@ -1035,27 +1040,24 @@ const RegisterCompanyWizard: React.FC = () => {
               <React.Fragment key={index}>
                 <div className="flex flex-col items-center">
                   <div
-                    className={`w-10 h-10 rounded-full flex items-center justify-center text-sm font-medium ${
-                      index <= activeStep
+                    className={`w-10 h-10 rounded-full flex items-center justify-center text-sm font-medium ${index <= activeStep
                         ? "bg-primary text-white"
                         : "bg-gray-200 text-gray-500"
-                    }`}
+                      }`}
                   >
                     {index + 1}
                   </div>
                   <span
-                    className={`text-xs mt-2 font-medium ${
-                      index <= activeStep ? "text-primary" : "text-gray-500"
-                    }`}
+                    className={`text-xs mt-2 font-medium ${index <= activeStep ? "text-primary" : "text-gray-500"
+                      }`}
                   >
                     {step.label}
                   </span>
                 </div>
                 {index < steps.length - 1 && (
                   <div
-                    className={`flex-1 h-1 mx-4 ${
-                      index < activeStep ? "bg-primary" : "bg-gray-200"
-                    }`}
+                    className={`flex-1 h-1 mx-4 ${index < activeStep ? "bg-primary" : "bg-gray-200"
+                      }`}
                   />
                 )}
               </React.Fragment>

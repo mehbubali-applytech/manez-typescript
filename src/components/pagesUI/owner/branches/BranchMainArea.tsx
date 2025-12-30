@@ -259,7 +259,7 @@ const BranchMainArea: React.FC = () => {
               <Link href="/">Home</Link>
             </li>
             <li className="breadcrumb-item">
-              <Link href="/super-admin">Admin</Link>
+              <Link href="/owner">Owner</Link>
             </li>
             <li className="breadcrumb-item active">All Branches</li>
           </ol>

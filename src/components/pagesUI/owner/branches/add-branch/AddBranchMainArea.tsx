@@ -277,7 +277,7 @@ const AddBranchMainArea: React.FC<{ isEdit?: boolean; locationId?: string }> = (
                   <Link href="/">Home</Link>
                 </li>
                 <li className="breadcrumb-item">
-                  <Link href="/super-admin">Admin</Link>
+                  <Link href="/owner">Owner</Link>
                 </li>
                 <li className="breadcrumb-item active">All Branches</li>
               </ol>

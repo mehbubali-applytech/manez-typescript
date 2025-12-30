@@ -8,6 +8,7 @@ import BasicInfo from "./BasicInfo";
 import CompanySideContentSection from "../../super-admin/companies/[id]/CompanySideContentSection";
 import CompanyAddDealsModal from "@/components/pagesUI/company/company-details/CompanyAddDealsModal";
 import CompanySendMailModal from "../../super-admin/companies/[id]/CompanySendMailModal";
+import QuickAccess from "./QuickAccess";
 
 const dummyCompaniesData: ICompany[] = [
   {
@@ -106,6 +107,7 @@ const CompanyOverviewMainArea = () => {
               </div>
 
               <div className="col-span-12 xl:col-span-9">
+                <QuickAccess />
                 <CompanySideContentSection />
               </div>
             </div>

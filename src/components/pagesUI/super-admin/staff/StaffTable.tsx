@@ -135,8 +135,6 @@ const filteredData = allStaffData.filter(staff => {
   // Update debug info
   useEffect(() => {
     setDebugInfo(`Showing ${filteredData.length} of ${allStaffData.length} staff. Filters: status=${status}, department=${department}, company=${company}`);
-    console.log('Filtered data count:', filteredData.length);
-    console.log('Filtered staff:', filteredData.map(s => s.fullName));
   }, [filteredData, status, department, company]);
 
   const {
@@ -254,7 +252,7 @@ const filteredData = allStaffData.filter(staff => {
             <Box sx={{ width: "100%" }} className="table-responsive">
               <Paper sx={{ width: "100%", mb: 2 }}>
                 <TableContainer className="table mb-[20px] hover multiple_tables w-full">
-                  <Table aria-labelledby="tableTitle" className="whitespace-nowrap">
+                  <Table aria-labelledby="tableTitle" className="whitespace-nowrap" key={allStaffData.length}>
                     <TableHead>
                       <TableRow className="table__title bg-gray-50">
                         <TableCell padding="checkbox" className="!font-semibold">

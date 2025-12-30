@@ -244,7 +244,7 @@ const EmployeeTable: React.FC<EmployeeTableProps> = ({
                       <Tooltip title="View Profile">
                         <IconButton
                           size="small"
-                          onClick={() => window.location.href = `/admin/employees/${employee.employeeId}`}
+                          onClick={() => window.location.href = `/owner/employees/${employee.employeeId}`}
                         >
                           <Visibility fontSize="small" />
                         </IconButton>

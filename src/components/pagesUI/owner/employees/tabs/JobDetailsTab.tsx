@@ -97,21 +97,18 @@ const JobDetailsTab: React.FC<JobDetailsTabProps> = ({ watchWorkType }) => {
   const dateOfJoining = watch('dateOfJoining');
   const employmentStatus = watch('employmentStatus');
 
-
-  // Auto-set contract dates based on joining date for contract employees
 useEffect(() => {
   if (watchWorkType === 'Contract' && dateOfJoining) {
     setValue('contractStartDate', dateOfJoining, { shouldDirty: false });
 
-    setValue('contractEndDate', (prev:any) => {
-      if (prev) return prev; // don't override user value
+    setValue('contractEndDate', (prev: any) => {
+      if (prev) return prev;
       const end = new Date(dateOfJoining);
       end.setFullYear(end.getFullYear() + 1);
       return end.toISOString().split('T')[0];
     });
   }
-}, [watchWorkType, dateOfJoining]);
-
+}, [watchWorkType, dateOfJoining, setValue]);
 
   const handleProbationToggle = (enabled: boolean) => {
     setProbationEnabled(enabled);
@@ -119,7 +116,6 @@ useEffect(() => {
       setValue('probationEndDate', undefined);
     }
   };
-
 
   const getEmploymentStatusColor = (status: string): AlertColor => {
     switch (status) {
@@ -132,12 +128,11 @@ useEffect(() => {
       case "Terminated":
         return "error";
       case "Draft":
-        return "info"; // ✅ instead of default
+        return "info";
       default:
-        return "info"; // ✅ safe fallback
+        return "info";
     }
   };
-
 
   return (
     <Box>
@@ -162,7 +157,6 @@ useEffect(() => {
               register={register("employeeCode")}
             />
 
-
             {/* Date of Joining */}
             <InputField
               label="Date of Joining *"
@@ -173,7 +167,6 @@ useEffect(() => {
                 required: "Date of joining is required"
               })}
             />
-
 
             {/* Probation Period */}
             <Box>
@@ -201,7 +194,6 @@ useEffect(() => {
                   register={register("probationEndDate")}
                 />
               )}
-
             </Box>
 
             {/* Role Selection */}
@@ -215,21 +207,26 @@ useEffect(() => {
                 control={control}
                 rules={{ required: "Role is required" }}
                 render={({ field, fieldState }) => (
-                  <FormControl fullWidth size="small" error={fieldState.invalid}>
-                    <Select {...field}>
-                      <MenuItem value="">Select a role</MenuItem>
-                      {ROLES.map(role => (
-                        <MenuItem key={role.id} value={role.id}>
-                          {role.name}
-                        </MenuItem>
-                      ))}
-                    </Select>
-                    {fieldState.error && (
-                      <Typography variant="caption" color="error">
-                        {fieldState.error.message}
-                      </Typography>
+                  <Autocomplete
+                    options={ROLES}
+                    getOptionLabel={(option) => option.name}
+                    value={ROLES.find(role => role.id === field.value) || null}
+                    onChange={(_, value) => field.onChange(value?.id || '')}
+                    renderInput={(params) => (
+                      <TextField
+                        {...params}
+                        size="small"
+                        placeholder="Select a role"
+                        error={fieldState.invalid}
+                        helperText={fieldState.error?.message}
+                      />
                     )}
-                  </FormControl>
+                    renderOption={(props, option) => (
+                      <MenuItem {...props} key={option.id}>
+                        {option.name}
+                      </MenuItem>
+                    )}
+                  />
                 )}
               />
             </Box>
@@ -245,21 +242,26 @@ useEffect(() => {
                 control={control}
                 rules={{ required: "Department is required" }}
                 render={({ field, fieldState }) => (
-                  <FormControl fullWidth size="small" error={fieldState.invalid}>
-                    <Select {...field}>
-                      <MenuItem value="">Select department</MenuItem>
-                      {DEPARTMENTS.map(dept => (
-                        <MenuItem key={dept.id} value={dept.id}>
-                          {dept.name}
-                        </MenuItem>
-                      ))}
-                    </Select>
-                    {fieldState.error && (
-                      <Typography variant="caption" color="error">
-                        {fieldState.error.message}
-                      </Typography>
+                  <Autocomplete
+                    options={DEPARTMENTS}
+                    getOptionLabel={(option) => option.name}
+                    value={DEPARTMENTS.find(dept => dept.id === field.value) || null}
+                    onChange={(_, value) => field.onChange(value?.id || '')}
+                    renderInput={(params) => (
+                      <TextField
+                        {...params}
+                        size="small"
+                        placeholder="Select department"
+                        error={fieldState.invalid}
+                        helperText={fieldState.error?.message}
+                      />
                     )}
-                  </FormControl>
+                    renderOption={(props, option) => (
+                      <MenuItem {...props} key={option.id}>
+                        {option.name}
+                      </MenuItem>
+                    )}
+                  />
                 )}
               />
             </Box>
@@ -280,16 +282,21 @@ useEffect(() => {
                     value={EMPLOYEES.find(emp => emp.id === field.value) || null}
                     onChange={(_, value) => field.onChange(value?.id || '')}
                     renderInput={(params) => (
-                      <Autocomplete
-                        options={EMPLOYEES}
-                        getOptionLabel={(option) => `${option.name} - ${option.role}`}
-                        value={EMPLOYEES.find(emp => emp.id === field.value) || null}
-                        onChange={(_, value) => field.onChange(value?.id ?? null)}
-                        renderInput={(params) => (
-                          <TextField {...params} size="small" placeholder="Search manager" />
-                        )}
+                      <TextField
+                        {...params}
+                        size="small"
+                        placeholder="Search manager"
                       />
-
+                    )}
+                    renderOption={(props, option) => (
+                      <MenuItem {...props} key={option.id}>
+                        <Box>
+                          <Typography variant="body2">{option.name}</Typography>
+                          <Typography variant="caption" color="text.secondary">
+                            {option.role}
+                          </Typography>
+                        </Box>
+                      </MenuItem>
                     )}
                   />
                 )}
@@ -312,21 +319,26 @@ useEffect(() => {
                 control={control}
                 rules={{ required: "Work location is required" }}
                 render={({ field, fieldState }) => (
-                  <FormControl fullWidth size="small" error={fieldState.invalid}>
-                    <Select {...field}>
-                      <MenuItem value="">Select work location</MenuItem>
-                      {WORK_LOCATIONS.map(location => (
-                        <MenuItem key={location.id} value={location.id}>
-                          {location.name}
-                        </MenuItem>
-                      ))}
-                    </Select>
-                    {fieldState.error && (
-                      <Typography variant="caption" color="error">
-                        {fieldState.error.message}
-                      </Typography>
+                  <Autocomplete
+                    options={WORK_LOCATIONS}
+                    getOptionLabel={(option) => option.name}
+                    value={WORK_LOCATIONS.find(location => location.id === field.value) || null}
+                    onChange={(_, value) => field.onChange(value?.id || '')}
+                    renderInput={(params) => (
+                      <TextField
+                        {...params}
+                        size="small"
+                        placeholder="Select work location"
+                        error={fieldState.invalid}
+                        helperText={fieldState.error?.message}
+                      />
                     )}
-                  </FormControl>
+                    renderOption={(props, option) => (
+                      <MenuItem {...props} key={option.id}>
+                        {option.name}
+                      </MenuItem>
+                    )}
+                  />
                 )}
               />
             </Box>
@@ -341,21 +353,30 @@ useEffect(() => {
                 name="shiftId"
                 control={control}
                 render={({ field }) => (
-                  <FormControl fullWidth size="small">
-                    <Select {...field}>
-                      <MenuItem value="">No shift assigned</MenuItem>
-                      {SHIFTS.map(shift => (
-                        <MenuItem key={shift.id} value={shift.id}>
-                          <Box>
-                            <Typography variant="body2">{shift.name}</Typography>
-                            <Typography variant="caption" color="text.secondary">
-                              {shift.timing}
-                            </Typography>
-                          </Box>
-                        </MenuItem>
-                      ))}
-                    </Select>
-                  </FormControl>
+                  <Autocomplete
+                    options={SHIFTS}
+                    getOptionLabel={(option) => option.name}
+                    value={SHIFTS.find(shift => shift.id === field.value) || null}
+                    onChange={(_, value) => field.onChange(value?.id || '')}
+                    renderInput={(params) => (
+                      <TextField
+                        {...params}
+                        size="small"
+                        placeholder="Select shift"
+                      />
+                    )}
+                    renderOption={(props, option) => (
+                      <MenuItem {...props} key={option.id}>
+                        <Box>
+                          <Typography variant="body2">{option.name}</Typography>
+                          <Typography variant="caption" color="text.secondary">
+                            {option.timing}
+                          </Typography>
+                        </Box>
+                      </MenuItem>
+                    )}
+                    noOptionsText="No shifts available"
+                  />
                 )}
               />
             </Box>
@@ -442,26 +463,32 @@ useEffect(() => {
                 control={control}
                 rules={{ required: "Employment status is required" }}
                 render={({ field, fieldState }) => (
-                  <FormControl fullWidth size="small" error={fieldState.invalid}>
-                    <Select {...field}>
-                      {EMPLOYMENT_STATUS_OPTIONS.map(status => (
-                        <MenuItem key={status.value} value={status.value}>
-                          <Chip
-                            label={status.label}
-                            size="small"
-                            color={status.color as any}
-                            variant="outlined"
-                            sx={{ mr: 1 }}
-                          />
-                        </MenuItem>
-                      ))}
-                    </Select>
-                    {fieldState.error && (
-                      <Typography variant="caption" color="error">
-                        {fieldState.error.message}
-                      </Typography>
+                  <Autocomplete
+                    options={EMPLOYMENT_STATUS_OPTIONS}
+                    getOptionLabel={(option) => option.label}
+                    value={EMPLOYMENT_STATUS_OPTIONS.find(status => status.value === field.value) || null}
+                    onChange={(_, value) => field.onChange(value?.value || '')}
+                    renderInput={(params) => (
+                      <TextField
+                        {...params}
+                        size="small"
+                        placeholder="Select employment status"
+                        error={fieldState.invalid}
+                        helperText={fieldState.error?.message}
+                      />
                     )}
-                  </FormControl>
+                    renderOption={(props, option) => (
+                      <MenuItem {...props} key={option.value}>
+                        <Chip
+                          label={option.label}
+                          size="small"
+                          color={option.color as any}
+                          variant="outlined"
+                          sx={{ mr: 1 }}
+                        />
+                      </MenuItem>
+                    )}
+                  />
                 )}
               />
               {employmentStatus && (

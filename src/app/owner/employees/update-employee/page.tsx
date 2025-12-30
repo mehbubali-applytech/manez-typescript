@@ -9,7 +9,7 @@ const AllCompaniesPage = () => {
     <>
       <MetaData pageTitle="Add Employees">
         <Wrapper role={"owner"}>
-          <AddEditEmployee mode="add"/>
+          <AddEditEmployee mode="edit"/>
         </Wrapper>
       </MetaData>
     </>

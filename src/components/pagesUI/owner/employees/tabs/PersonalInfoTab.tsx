@@ -27,7 +27,7 @@ import {
   Female,
   Transgender
 } from "@mui/icons-material";
-import { useFormContext, Controller,FieldError  } from "react-hook-form";
+import { useFormContext, Controller, FieldError } from "react-hook-form";
 import InputField from "@/components/elements/SharedInputs/InputField";
 
 interface PersonalInfoTabProps {
@@ -41,8 +41,15 @@ const PersonalInfoTab: React.FC<PersonalInfoTabProps> = ({
   onProfileImageUpload,
   watchSameAsPresentAddress
 }) => {
-  const { control, watch, setValue, formState: { errors } } = useFormContext();
-  
+  const {
+    control,
+    watch,
+    setValue,
+    register,
+    formState: { errors }
+  } = useFormContext();
+
+
   const presentAddress = watch('presentAddress');
   const sameAsPresent = watch('sameAsPresentAddress');
 
@@ -58,7 +65,7 @@ const PersonalInfoTab: React.FC<PersonalInfoTabProps> = ({
   };
 
   const getGenderIcon = (gender?: string) => {
-    switch(gender) {
+    switch (gender) {
       case 'Male': return <Male fontSize="small" />;
       case 'Female': return <Female fontSize="small" />;
       case 'Other': return <Transgender fontSize="small" />;
@@ -68,10 +75,10 @@ const PersonalInfoTab: React.FC<PersonalInfoTabProps> = ({
 
   return (
     <Box>
-      <Typography variant="h6" gutterBottom sx={{ 
-        display: 'flex', 
+      <Typography variant="h6" gutterBottom sx={{
+        display: 'flex',
         alignItems: 'center',
-        mb: 3 
+        mb: 3
       }}>
         <Person sx={{ mr: 1 }} />
         Personal Information
@@ -86,8 +93,8 @@ const PersonalInfoTab: React.FC<PersonalInfoTabProps> = ({
               <Box sx={{ position: 'relative' }}>
                 <Avatar
                   src={profileImage || ''}
-                  sx={{ 
-                    width: 100, 
+                  sx={{
+                    width: 100,
                     height: 100,
                     border: '3px solid',
                     borderColor: 'primary.light'
@@ -152,11 +159,12 @@ const PersonalInfoTab: React.FC<PersonalInfoTabProps> = ({
                   id="firstName"
                   type="text"
                   required={true}
-                  register={useFormContext().register("firstName", { 
+                  register={register("firstName", {
                     required: "First name is required",
                     minLength: { value: 2, message: "Minimum 2 characters" }
                   })}
                 />
+
               </Grid>
               <Grid item xs={12} md={4}>
                 <InputField
@@ -173,8 +181,8 @@ const PersonalInfoTab: React.FC<PersonalInfoTabProps> = ({
                   id="lastName"
                   type="text"
                   required={true}
-                  register={useFormContext().register("lastName", { 
-                    required: "Last name is required" 
+                  register={useFormContext().register("lastName", {
+                    required: "Last name is required"
                   })}
                 />
               </Grid>
@@ -195,7 +203,7 @@ const PersonalInfoTab: React.FC<PersonalInfoTabProps> = ({
               id="email"
               type="email"
               required={true}
-              register={useFormContext().register("email", { 
+              register={useFormContext().register("email", {
                 required: "Email is required",
                 pattern: {
                   value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
@@ -257,7 +265,7 @@ const PersonalInfoTab: React.FC<PersonalInfoTabProps> = ({
                 <Home sx={{ mr: 1 }} />
                 Present Address *
               </Typography>
-              
+
               <Grid container spacing={2}>
                 <Grid item xs={12}>
                   <InputField
@@ -265,8 +273,8 @@ const PersonalInfoTab: React.FC<PersonalInfoTabProps> = ({
                     id="presentAddress.addressLine1"
                     type="text"
                     required={true}
-                    register={useFormContext().register("presentAddress.addressLine1", { 
-                      required: "Address line 1 is required" 
+                    register={useFormContext().register("presentAddress.addressLine1", {
+                      required: "Address line 1 is required"
                     })}
                   />
                 </Grid>
@@ -285,8 +293,8 @@ const PersonalInfoTab: React.FC<PersonalInfoTabProps> = ({
                     id="presentAddress.city"
                     type="text"
                     required={true}
-                    register={useFormContext().register("presentAddress.city", { 
-                      required: "City is required" 
+                    register={useFormContext().register("presentAddress.city", {
+                      required: "City is required"
                     })}
                   />
                 </Grid>
@@ -296,8 +304,8 @@ const PersonalInfoTab: React.FC<PersonalInfoTabProps> = ({
                     id="presentAddress.state"
                     type="text"
                     required={true}
-                    register={useFormContext().register("presentAddress.state", { 
-                      required: "State is required" 
+                    register={useFormContext().register("presentAddress.state", {
+                      required: "State is required"
                     })}
                   />
                 </Grid>
@@ -307,8 +315,8 @@ const PersonalInfoTab: React.FC<PersonalInfoTabProps> = ({
                     id="presentAddress.country"
                     type="text"
                     required={true}
-                    register={useFormContext().register("presentAddress.country", { 
-                      required: "Country is required" 
+                    register={useFormContext().register("presentAddress.country", {
+                      required: "Country is required"
                     })}
                   />
                 </Grid>
@@ -318,8 +326,8 @@ const PersonalInfoTab: React.FC<PersonalInfoTabProps> = ({
                     id="presentAddress.zipCode"
                     type="text"
                     required={true}
-                    register={useFormContext().register("presentAddress.zipCode", { 
-                      required: "ZIP code is required" 
+                    register={useFormContext().register("presentAddress.zipCode", {
+                      required: "ZIP code is required"
                     })}
                   />
                 </Grid>
@@ -362,7 +370,7 @@ const PersonalInfoTab: React.FC<PersonalInfoTabProps> = ({
                       id="permanentAddress.addressLine1"
                       type="text"
                       required={!sameAsPresent}
-                      register={useFormContext().register("permanentAddress.addressLine1")}
+                      register={register("permanentAddress.addressLine1")}
                     />
                   </Grid>
                   <Grid item xs={12}>
@@ -371,7 +379,7 @@ const PersonalInfoTab: React.FC<PersonalInfoTabProps> = ({
                       id="permanentAddress.addressLine2"
                       type="text"
                       required={false}
-                      register={useFormContext().register("permanentAddress.addressLine2")}
+                      register={register("permanentAddress.addressLine2")}
                     />
                   </Grid>
                   <Grid item xs={12} md={6}>
@@ -380,7 +388,7 @@ const PersonalInfoTab: React.FC<PersonalInfoTabProps> = ({
                       id="permanentAddress.city"
                       type="text"
                       required={!sameAsPresent}
-                      register={useFormContext().register("permanentAddress.city")}
+                      register={register("permanentAddress.city")}
                     />
                   </Grid>
                   <Grid item xs={12} md={6}>
@@ -389,7 +397,7 @@ const PersonalInfoTab: React.FC<PersonalInfoTabProps> = ({
                       id="permanentAddress.state"
                       type="text"
                       required={!sameAsPresent}
-                      register={useFormContext().register("permanentAddress.state")}
+                      register={register("permanentAddress.state")}
                     />
                   </Grid>
                 </Grid>
@@ -402,7 +410,7 @@ const PersonalInfoTab: React.FC<PersonalInfoTabProps> = ({
                 <Emergency sx={{ mr: 1 }} />
                 Emergency Contact *
               </Typography>
-              
+
               <Grid container spacing={2}>
                 <Grid item xs={12} md={6}>
                   <InputField
@@ -410,8 +418,8 @@ const PersonalInfoTab: React.FC<PersonalInfoTabProps> = ({
                     id="emergencyContactName"
                     type="text"
                     required={true}
-                    register={useFormContext().register("emergencyContactName", { 
-                      required: "Emergency contact name is required" 
+                    register={useFormContext().register("emergencyContactName", {
+                      required: "Emergency contact name is required"
                     })}
                   />
                 </Grid>
@@ -421,8 +429,8 @@ const PersonalInfoTab: React.FC<PersonalInfoTabProps> = ({
                     id="emergencyContactRelation"
                     type="text"
                     required={true}
-                    register={useFormContext().register("emergencyContactRelation", { 
-                      required: "Relation is required" 
+                    register={useFormContext().register("emergencyContactRelation", {
+                      required: "Relation is required"
                     })}
                   />
                 </Grid>
@@ -432,7 +440,7 @@ const PersonalInfoTab: React.FC<PersonalInfoTabProps> = ({
                     id="emergencyContactPhone"
                     type="tel"
                     required={true}
-                    register={useFormContext().register("emergencyContactPhone", { 
+                    register={useFormContext().register("emergencyContactPhone", {
                       required: "Emergency contact phone is required",
                       pattern: {
                         value: /^\+?[1-9]\d{1,14}$/,

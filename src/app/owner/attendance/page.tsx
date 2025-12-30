@@ -4,7 +4,7 @@ import React from "react";
 import BranchMainArea from "@/components/pagesUI/owner/branches/BranchMainArea";
 import EmployeeAttendanceMainArea from "@/components/pagesUI/owner/attendance/EmployeeAttendanceMainArea";
 
-const AllCompaniesPage = () => {
+const AttamdancePage = () => {
   return (
     <>
       <MetaData pageTitle="Attendance">
@@ -16,4 +16,4 @@ const AllCompaniesPage = () => {
   );
 };
 
-export default AllCompaniesPage;
+export default AttamdancePage;
