@@ -43,9 +43,9 @@ const SignUpCoverForm = () => {
                             className="form-control"
                             id="nameEmail"
                             type="text"
-                            {...register("name", { required: "Username is required" })}
+                            {...register("username", { required: "Username is required" })}
                         />
-                        <ErrorMessage error={errors.name} />
+                        <ErrorMessage error={errors.username} />
                     </div>
                 </div>
                 <div className="from__input-box">

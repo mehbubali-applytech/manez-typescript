@@ -1,5 +1,13 @@
 import { SidebarCategory } from "@/interface";
 
+
+const subItems = [
+          { label: "Employees", link: "/owner/employees" },
+          { label: "Designations", link: "/owner/designations" },
+          { label: "Attendance", link: "/owner/attendance" },
+          { label: "Leaves", link: "/owner/leaves" },
+          { label: "Holidays", link: "/owner/holidays" },
+        ]
 const businessOwnerSidebarData: SidebarCategory[] = [
   {
     id: 1,
@@ -11,76 +19,134 @@ const businessOwnerSidebarData: SidebarCategory[] = [
         label: "Dashboard",
         icon: "icon-house",
         link: "/owner",
-      },
-
-      // Company Management
+      }
+    ],
+  },
+  {
+    id: 2,
+    category:"Company Management",
+    items:[
       {
-        id: 3,
-        label: "Company Profile",
+        id: 21,
+        label: "Overview",
         icon: "fa-regular fa-building",
-        subItems: [
-          {
-            label: "Overview",
-            link: "/owner/overview",
-          },
-          {
-            label: "Branches",
-            link: "/owner/branches",
-          },
-          {
-            label: "Departments",
-            link: "/owner/departments",
-          },
-          {
-            label: "Role",
-            link: "/owner/role",
-          },
-           {
-            label: "Shift",
-            link: "/owner/shift",
-          },
-        ],
+        link: "/owner/overview"
       },
-
-      // Staff & HRM
       {
-        id: 4,
-        label: "HR Management",
+        id: 22,
+        label: "Branches",
+        icon: "fa-regular icon-house",
+        link: "/owner/branches"
+      },
+      {
+        id: 23,
+        label: "Departments",
+        icon: "fa-regular fa-sitemap",
+        link: "/owner/departments",
+      },
+      {
+        id: 24,
+        label: "Roles & Permissions",
+        icon: "fa-regular fa-user-shield",
+        link: "/owner/role",
+      },
+      {
+        id: 25,
+        label: "Shifts",
+        icon: "fa-regular fa-clock",
+        link: "/owner/shift",
+      },
+    ]
+  }
+  ,
+  {
+    id: 3,
+    category: "HR Management",
+    items: [
+      {
+        id: 31,
+        label: "Employees",
         icon: "fa-light fa-users",
-        subItems: [
-          { label: "Employees", link: "/owner/employees" },
-          { label: "Designations", link: "/owner/designations" },
-          { label: "Attendance", link: "/owner/attendance" },
-          { label: "Leaves", link: "/owner/leaves" },
-          { label: "Holidays", link: "/owner/holidays" },
-        ],
+        link: "/owner/employees"
       },
-
-      // Payroll
       {
-        id: 5,
-        label: "Payroll",
+        id: 32,
+        label: "Designations",
+        icon: "fa-light fa-user-tag",
+        link: "/owner/designations"
+      },
+      {
+        id: 33,
+        label: "Attendance",
+        icon: "fa-light fa-calendar-check",
+        link: "/owner/attendance"
+      },
+      {
+        id: 34,
+        label: "Leaves",
+        icon: "fa-light fa-calendar-minus",
+        link: "/owner/leaves"
+      },
+      {
+        id: 35,
+        label: "Holidays",
+        icon: "fa-light fa-calendar-alt",
+        link: "/owner/holidays"
+      }
+    ]
+  },
+  {
+    id: 4,
+    category: "Payroll Management",
+    items: [
+      {
+        id: 41,
+        label: "Salary Structure",
         icon: "fa-light fa-money-bill",
-        subItems: [
-          { label: "Salary Structure", link: "/owner/payroll/salary-structure" },
-          // { label: "Salary Components", link: "/owner/payroll/components" },
-          { label: "Monthly Payroll", link: "/owner/payroll/monthly" },
-          { label: "Payroll Reports", link: "/owner/payroll/reports" },
-        ],
+        link: "/owner/payroll/salary-structure"
       },
-
-      // Finance
       {
-        id: 6,
-        label: "Finance",
-        icon: "fa-light fa-wallet",
-        subItems: [
-          { label: "Invoices", link: "/owner/finance/invoices" },
-          { label: "Expenses", link: "/owner/finance/expenses" },
-          { label: "Vendor Payments", link: "/owner/finance/vendors" },
-        ],
+        id: 42,
+        label: "Monthly Payroll",
+        icon: "fa-light fa-money-bill-wave",
+        link: "/owner/payroll/monthly"
       },
-
+      {
+        id: 43,
+        label: "Payroll Reports",
+        icon: "fa-light fa-chart-line",
+        link: "/owner/payroll/reports"
+      }
+    ]
+  },
+  {
+    id: 5,
+    category: "Finance Management",
+    items: [
+      {
+        id: 51,
+        label: "Invoices",
+        icon: "fa-light fa-file-invoice",
+        link: "/owner/finance/invoices"
+      },
+      {
+        id: 52,
+        label: "Expenses",
+        icon: "fa-light fa-file-invoice-dollar",
+        link: "/owner/finance/expenses"
+      },
+      {
+        id: 53,
+        label: "Vendor Payments",
+        icon: "fa-light fa-money-check",
+        link: "/owner/finance/vendors"
+      }
+    ]
+  },
+  {
+    id: 6,
+    category: "Mislellaneous",
+    items: [
       // Subscriptions
       {
         id: 7,

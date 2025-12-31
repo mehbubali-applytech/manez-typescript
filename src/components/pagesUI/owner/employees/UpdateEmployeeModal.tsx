@@ -220,12 +220,12 @@ const AddEditEmployee: React.FC<AddEditEmployeeProps> = ({ employee, mode = 'add
   };
 
   const handleSaveAndActivate = async (data: IEmployeeForm) => {
-const finalData: IEmployeeForm = {
-  ...data,
-  employmentStatus: 'Active'
-};
+    const finalData: IEmployeeForm = {
+      ...data,
+      employmentStatus: 'Active'
+    };
 
-await handleFinalSubmit(finalData);
+    await handleFinalSubmit(finalData);
 
 
     // Send onboarding email if system user is enabled
@@ -294,17 +294,17 @@ await handleFinalSubmit(finalData);
 
   return (
     <FormProvider {...methods}>
-          <div className="app__slide-wrapper">
-      {/* Breadcrumb */}
-      <div className="breadcrumb__wrapper mb-[25px]">
-        <nav>
-          <ol className="breadcrumb flex items-center mb-0">
-            <li className="breadcrumb-item">
-              <Link href="/">Home</Link>
-            </li>
-            <li className="breadcrumb-item">
-              <Link href="/owner">Owner</Link>
-            </li> 
+      <div className="app__slide-wrapper">
+        {/* Breadcrumb */}
+        <div className="breadcrumb__wrapper mb-[25px]">
+          <nav>
+            <ol className="breadcrumb flex items-center mb-0">
+              <li className="breadcrumb-item">
+                <Link href="/">Home</Link>
+              </li>
+              <li className="breadcrumb-item">
+                <Link href="/owner">Owner</Link>
+              </li>
               <li className="breadcrumb-item active">
                 {mode === 'add' ? 'Add New Employee' : 'Edit Employee'}
               </li>
@@ -416,7 +416,7 @@ await handleFinalSubmit(finalData);
                 <Button
                   variant="contained"
                   color="success"
-              className="!text-white"
+                  className="!text-white"
 
                   startIcon={<Send />}
                   onClick={methods.handleSubmit(handleSaveAndActivate)}
@@ -450,7 +450,7 @@ await handleFinalSubmit(finalData);
                   startIcon={<Save />}
                   onClick={methods.handleSubmit(handleFinalSubmit)}
                   disabled={isSubmitting}
-              className="!text-white"
+                  className="!text-white"
                 >
                   {isSubmitting ? (
                     <>
@@ -465,7 +465,7 @@ await handleFinalSubmit(finalData);
                 <Button
                   variant="contained"
                   endIcon={<ArrowForward />}
-              className="!text-white"
+                  className="!text-white"
 
                   onClick={handleNext}
                   disabled={isSubmitting}
@@ -559,7 +559,7 @@ await handleFinalSubmit(finalData);
           <Button
             onClick={() => {
               setShowExitConfirm(false);
-            router.push('/owner/employees');
+              router.push('/owner/employees');
             }}
             color="error"
           >

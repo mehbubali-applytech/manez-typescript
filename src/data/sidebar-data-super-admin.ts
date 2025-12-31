@@ -9,145 +9,178 @@ const superAdminSidebarData: SidebarCategory[] = [
         id: 2,
         label: "Dashboard",
         icon: "icon-house",
-         link: "/super-admin",
-      },
-
-      {
-        id: 3,
-        label: "Companies",
-        icon: "fa-sharp fa-light fa-wallet",
-        subItems: [
-          {
-            label: "All Companies",
-            link: "/super-admin/companies",
-          }
-        ],
-      },
-       {
-        id: 4,
-        label: "Staff Management",
-        icon: "fa-sharp fa-light fa-wallet",
-        subItems: [
-          {
-            label: "All Staff",
-            link: "/super-admin/staff",
-          },
-          {
-            label:"HR Managers",
-            link:"/super-admin/hr-manager"
-          },
-          {
-            label:"Finance Executives",
-            link:"/super-admin/finance-executives"
-          },
-          {
-            label:"Compliance Officers",
-            link:"/super-admin/compliance-officers"
-          },
-          {
-            label:"Employees",
-            link:"/super-admin/employees"
-          }
-        ],
-      },
-
-      {
-        id: 5,
-        label: "Module Management",
-        icon: "fa-sharp fa-light fa-grid-2",
-        subItems: [
-          {
-            label: "Enabled Modules",
-            link: "/super-admin/modules",
-          },
-          {
-            label: "Module Tiers",
-            link: "/super-admin/modules/tiers",
-          },
-        ],
-      },
-
-      {
-        id: 6,
-        label: "Subscriptions",
-        icon: "fa-sharp fa-light fa-wallet",
-        subItems: [
-          {
-            label: "Plans",
-            link: "/super-admin/subscriptions",
-          },
-          {
-            label: "Company Subscriptions",
-            link: "/super-admin/subscriptions/companies",
-          },
-        ],
-      },
-
-      {
-        id: 7,
-        label: "Reports & Analytics",
-        icon: "fa-light fa-notebook",
-        subItems: [
-          {
-            label: "Platform Usage",
-            link: "/super-admin/reports/platform",
-          },
-          {
-            label: "Attendance Summary",
-            link: "/super-admin/reports/attendance",
-          },
-          {
-            label: "Payroll Summary",
-            link: "/super-admin/reports/payroll",
-          },
-          {
-            label: "Compliance Overview",
-            link: "/super-admin/reports/compliance",
-          },
-        ],
-      },
-
-      {
-        id: 8,
-        label: "Support & Logs",
-        icon: "icon-apexcharts",
-        subItems: [
-          {
-            label: "Activity Logs",
-            link: "/super-admin/logs",
-          },
-          {
-            label: "Audit Trail",
-            link: "/super-admin/audit",
-          },
-          {
-            label: "Support Tickets",
-            link: "/super-admin/support/tickets",
-          },
-        ],
-      },
-
-      {
-        id: 9,
-        label: "Platform Settings",
-        icon: "icon-crm",
-        subItems: [
-          {
-            label: "General Settings",
-            link: "/super-admin/settings/general",
-          },
-          {
-            label: "Notification Templates",
-            link: "/super-admin/settings/templates",
-          },
-          {
-            label: "Security & Retention",
-            link: "/super-admin/settings/security",
-          },
-        ],
-      },
+        link: "/super-admin",
+      }
     ],
   },
+  {
+    id: 2,
+    category: "Company Management",
+    items: [
+      {
+        id: 21,
+        label: "All Companies",
+        icon: "fa-regular fa-building",
+        link: "/super-admin/companies"
+      },
+      {
+        id: 22,
+        label: "Company Subscriptions",
+        icon: "fa-regular fa-wallet",
+        link: "/super-admin/subscriptions/companies"
+      }
+    ]
+  },
+  {
+    id: 3,
+    category: "Staff Management",
+    items: [
+      {
+        id: 31,
+        label: "All Staff",
+        icon: "fa-light fa-users",
+        link: "/super-admin/staff"
+      },
+      {
+        id: 32,
+        label: "HR Managers",
+        icon: "fa-light fa-user-tie",
+        link: "/super-admin/hr-manager"
+      },
+      {
+        id: 33,
+        label: "Finance Executives",
+        icon: "fa-light fa-chart-line",
+        link: "/super-admin/finance-executives"
+      },
+      {
+        id: 34,
+        label: "Compliance Officers",
+        icon: "fa-light fa-user-shield",
+        link: "/super-admin/compliance-officers"
+      },
+      {
+        id: 35,
+        label: "Employees",
+        icon: "fa-light fa-user",
+        link: "/super-admin/employees"
+      },
+      {
+        id: 36,
+        label: "Roles & Permissions",
+        icon: "fa-light fa-key",
+        link: "/super-admin/role"
+      }
+    ]
+  },
+  {
+    id: 4,
+    category: "Module Management",
+    items: [
+      {
+        id: 41,
+        label: "Enabled Modules",
+        icon: "fa-light fa-puzzle-piece",
+        link: "/super-admin/modules"
+      },
+      {
+        id: 42,
+        label: "Module Tiers",
+        icon: "fa-light fa-layer-group",
+        link: "/super-admin/modules/tiers"
+      }
+    ]
+  },
+  {
+    id: 5,
+    category: "Subscriptions",
+    items: [
+      {
+        id: 51,
+        label: "Subscription Plans",
+        icon: "fa-light fa-badge-check",
+        link: "/super-admin/subscriptions"
+      }
+    ]
+  },
+  {
+    id: 6,
+    category: "Reports & Analytics",
+    items: [
+      {
+        id: 61,
+        label: "Platform Usage",
+        icon: "fa-light fa-chart-simple",
+        link: "/super-admin/reports/platform"
+      },
+      {
+        id: 62,
+        label: "Attendance Summary",
+        icon: "fa-light fa-calendar-check",
+        link: "/super-admin/reports/attendance"
+      },
+      {
+        id: 63,
+        label: "Payroll Summary",
+        icon: "fa-light fa-money-bill-wave",
+        link: "/super-admin/reports/payroll"
+      },
+      {
+        id: 64,
+        label: "Compliance Overview",
+        icon: "fa-light fa-file-contract",
+        link: "/super-admin/reports/compliance"
+      }
+    ]
+  },
+  {
+    id: 7,
+    category: "Miscellaneous",
+    items: [
+      {
+        id: 71,
+        label: "Activity Logs",
+        icon: "fa-light fa-history",
+        link: "/super-admin/logs"
+      },
+      {
+        id: 72,
+        label: "Audit Trail",
+        icon: "fa-light fa-clipboard-check",
+        link: "/super-admin/audit"
+      },
+      {
+        id: 73,
+        label: "Support Tickets",
+        icon: "fa-light fa-ticket",
+        link: "/super-admin/support/tickets"
+      }
+    ]
+  },
+  {
+    id: 8,
+    category: "Settings",
+    items: [
+      {
+        id: 81,
+        label: "General Settings",
+        icon: "fa-light fa-cog",
+        link: "/super-admin/settings/general"
+      },
+      {
+        id: 82,
+        label: "Notification Templates",
+        icon: "fa-light fa-bell",
+        link: "/super-admin/settings/templates"
+      },
+      {
+        id: 83,
+        label: "Security & Retention",
+        icon: "fa-light fa-shield",
+        link: "/super-admin/settings/security"
+      }
+    ]
+  }
 ];
 
 export default superAdminSidebarData;

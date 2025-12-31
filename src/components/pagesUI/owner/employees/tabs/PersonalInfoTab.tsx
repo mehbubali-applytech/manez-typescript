@@ -1,7 +1,7 @@
 // tabs/PersonalInfoTab.tsx
 "use client";
 
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Box,
   Grid,
@@ -11,14 +11,13 @@ import {
   FormControlLabel,
   Checkbox,
   Chip,
-  Tooltip,
-  Alert
+  Alert,
+  Autocomplete,
+  TextField,
+  CircularProgress
 } from "@mui/material";
 import {
   Person,
-  Phone,
-  Email,
-  Cake,
   Home,
   Emergency,
   CloudUpload,
@@ -27,8 +26,23 @@ import {
   Female,
   Transgender
 } from "@mui/icons-material";
-import { useFormContext, Controller, FieldError } from "react-hook-form";
+import { useFormContext, Controller } from "react-hook-form";
 import InputField from "@/components/elements/SharedInputs/InputField";
+
+// Types for API response
+interface PostOffice {
+  Name: string;
+  District: string;
+  State: string;
+  Country: string;
+  Pincode: string;
+}
+
+interface ApiResponse {
+  Message: string;
+  Status: string;
+  PostOffice: PostOffice[];
+}
 
 interface PersonalInfoTabProps {
   profileImage: string | null;
@@ -46,32 +60,92 @@ const PersonalInfoTab: React.FC<PersonalInfoTabProps> = ({
     watch,
     setValue,
     register,
+    trigger,
     formState: { errors }
   } = useFormContext();
 
-
   const presentAddress = watch('presentAddress');
   const sameAsPresent = watch('sameAsPresentAddress');
+  const presentZipCode = watch('presentAddress.zipCode');
 
-  // Auto-fill permanent address if same as present
+  const [loading, setLoading] = useState(false);
+  const [postOffices, setPostOffices] = useState<PostOffice[]>([]);
+  const [cityOptions, setCityOptions] = useState<string[]>([]);
+  const zipDebounceTimer = React.useRef<NodeJS.Timeout | null>(null);
+
+
   useEffect(() => {
     if (sameAsPresent && presentAddress) {
       setValue('permanentAddress', presentAddress);
     }
   }, [sameAsPresent, presentAddress, setValue]);
 
+useEffect(() => {
+  const fetchPostOfficeData = async (zipCode: string) => {
+    setLoading(true);
+    try {
+      const response = await fetch(`https://api.postalpincode.in/pincode/${zipCode}`);
+      const data: ApiResponse[] = await response.json();
+
+      if (data[0]?.Status === "Success" && data[0]?.PostOffice?.length > 0) {
+        const offices = data[0].PostOffice;
+        setPostOffices(offices);
+
+        const cities = Array.from(new Set(offices.map(o => o.Name)));
+        setCityOptions(cities);
+
+        const firstOffice = offices[0];
+        setValue('presentAddress.state', firstOffice.State);
+        setValue('presentAddress.country', firstOffice.Country);
+
+        setValue('presentAddress.city', cities.length === 1 ? cities[0] : '');
+        trigger(['presentAddress.state', 'presentAddress.country']);
+      } else {
+        setPostOffices([]);
+        setCityOptions([]);
+        setValue('presentAddress.city', '');
+        setValue('presentAddress.state', '');
+        setValue('presentAddress.country', '');
+      }
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const zipCode = presentZipCode?.trim();
+
+  if (!zipCode || zipCode.length !== 6 || !/^\d+$/.test(zipCode)) {
+    setPostOffices([]);
+    setCityOptions([]);
+    return;
+  }
+
+  if (zipDebounceTimer.current) {
+    clearTimeout(zipDebounceTimer.current);
+  }
+
+  zipDebounceTimer.current = setTimeout(() => {
+    fetchPostOfficeData(zipCode);
+  }, 800);
+
+  return () => {
+    if (zipDebounceTimer.current) {
+      clearTimeout(zipDebounceTimer.current);
+    }
+  };
+}, [presentZipCode, setValue, trigger]);
+
+
   const handleGenderSelect = (gender: string) => {
     setValue('gender', gender as any);
   };
 
-  const getGenderIcon = (gender?: string) => {
-    switch (gender) {
-      case 'Male': return <Male fontSize="small" />;
-      case 'Female': return <Female fontSize="small" />;
-      case 'Other': return <Transgender fontSize="small" />;
-      default: return null;
-    }
+  const handleCityChange = (value: string | null) => {
+    setValue('presentAddress.city', value || '');
   };
+
 
   return (
     <Box>
@@ -85,10 +159,8 @@ const PersonalInfoTab: React.FC<PersonalInfoTabProps> = ({
       </Typography>
 
       <Grid container spacing={4}>
-        {/* Left Column - Basic Info */}
         <Grid item xs={12} md={6}>
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
-            {/* Profile Photo */}
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 3, mb: 2 }}>
               <Box sx={{ position: 'relative' }}>
                 <Avatar
@@ -164,7 +236,6 @@ const PersonalInfoTab: React.FC<PersonalInfoTabProps> = ({
                     minLength: { value: 2, message: "Minimum 2 characters" }
                   })}
                 />
-
               </Grid>
               <Grid item xs={12} md={4}>
                 <InputField
@@ -172,7 +243,7 @@ const PersonalInfoTab: React.FC<PersonalInfoTabProps> = ({
                   id="middleName"
                   type="text"
                   required={false}
-                  register={useFormContext().register("middleName")}
+                  register={register("middleName")}
                 />
               </Grid>
               <Grid item xs={12} md={4}>
@@ -181,7 +252,7 @@ const PersonalInfoTab: React.FC<PersonalInfoTabProps> = ({
                   id="lastName"
                   type="text"
                   required={true}
-                  register={useFormContext().register("lastName", {
+                  register={register("lastName", {
                     required: "Last name is required"
                   })}
                 />
@@ -194,7 +265,7 @@ const PersonalInfoTab: React.FC<PersonalInfoTabProps> = ({
               id="preferredName"
               type="text"
               required={false}
-              register={useFormContext().register("preferredName")}
+              register={register("preferredName")}
             />
 
             {/* Email */}
@@ -203,7 +274,7 @@ const PersonalInfoTab: React.FC<PersonalInfoTabProps> = ({
               id="email"
               type="email"
               required={true}
-              register={useFormContext().register("email", {
+              register={register("email", {
                 required: "Email is required",
                 pattern: {
                   value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
@@ -218,7 +289,7 @@ const PersonalInfoTab: React.FC<PersonalInfoTabProps> = ({
               id="phoneNumber"
               type="tel"
               required={false}
-              register={useFormContext().register("phoneNumber", {
+              register={register("phoneNumber", {
                 pattern: {
                   value: /^\+?[1-9]\d{1,14}$/,
                   message: "Invalid phone number format"
@@ -232,7 +303,7 @@ const PersonalInfoTab: React.FC<PersonalInfoTabProps> = ({
               id="dateOfBirth"
               type="date"
               required={false}
-              register={useFormContext().register("dateOfBirth")}
+              register={register("dateOfBirth")}
             />
 
             {/* Gender Selection */}
@@ -256,10 +327,8 @@ const PersonalInfoTab: React.FC<PersonalInfoTabProps> = ({
           </Box>
         </Grid>
 
-        {/* Right Column - Address & Emergency */}
         <Grid item xs={12} md={6}>
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
-            {/* Present Address */}
             <Box>
               <Typography variant="subtitle2" gutterBottom sx={{ display: 'flex', alignItems: 'center' }}>
                 <Home sx={{ mr: 1 }} />
@@ -273,7 +342,7 @@ const PersonalInfoTab: React.FC<PersonalInfoTabProps> = ({
                     id="presentAddress.addressLine1"
                     type="text"
                     required={true}
-                    register={useFormContext().register("presentAddress.addressLine1", {
+                    register={register("presentAddress.addressLine1", {
                       required: "Address line 1 is required"
                     })}
                   />
@@ -284,57 +353,139 @@ const PersonalInfoTab: React.FC<PersonalInfoTabProps> = ({
                     id="presentAddress.addressLine2"
                     type="text"
                     required={false}
-                    register={useFormContext().register("presentAddress.addressLine2")}
+                    register={register("presentAddress.addressLine2")}
                   />
                 </Grid>
+                
                 <Grid item xs={12} md={6}>
-                  <InputField
-                    label="City"
-                    id="presentAddress.city"
-                    type="text"
-                    required={true}
-                    register={useFormContext().register("presentAddress.city", {
+                  <Controller
+                    name="presentAddress.zipCode"
+                    control={control}
+                    rules={{
+                      required: "ZIP code is required",
+                      pattern: {
+                        value: /^\d{6}$/,
+                        message: "ZIP code must be 6 digits"
+                      }
+                    }}
+                    render={({ field, fieldState }) => (
+                      <TextField
+                        {...field}
+                        label="ZIP Code *"
+                        fullWidth
+                        error={!!fieldState.error}
+                        helperText={fieldState.error?.message}
+                        InputProps={{
+                          endAdornment: loading && (
+                            <CircularProgress size={20} />
+                          ),
+                        }}
+                      />
+                    )}
+                  />
+                </Grid>
+
+                <Grid item xs={12} md={6}>
+                  <Controller
+                    name="presentAddress.city"
+                    control={control}
+                    rules={{
                       required: "City is required"
-                    })}
+                    }}
+                    render={({ field, fieldState }) => (
+                      <Autocomplete
+                        {...field}
+                        freeSolo
+                        options={cityOptions}
+                        loading={loading}
+                        value={field.value || ''}
+                        onChange={(_, newValue) => {
+                          field.onChange(newValue);
+                        }}
+                        onInputChange={(_, newInputValue) => {
+                          field.onChange(newInputValue);
+                        }}
+                        renderInput={(params) => (
+                          <TextField
+                            {...params}
+                            label="City *"
+                            error={!!fieldState.error}
+                            helperText={fieldState.error?.message || (cityOptions.length > 0 ? `Found ${cityOptions.length} cities` : '')}
+                            InputProps={{
+                              ...params.InputProps,
+                              endAdornment: (
+                                <>
+                                  {loading ? <CircularProgress color="inherit" size={20} /> : null}
+                                  {params.InputProps.endAdornment}
+                                </>
+                              ),
+                            }}
+                          />
+                        )}
+                        disabled={loading}
+                      />
+                    )}
                   />
                 </Grid>
+
                 <Grid item xs={12} md={6}>
-                  <InputField
-                    label="State"
-                    id="presentAddress.state"
-                    type="text"
-                    required={true}
-                    register={useFormContext().register("presentAddress.state", {
+                  <Controller
+                    name="presentAddress.state"
+                    control={control}
+                    rules={{
                       required: "State is required"
-                    })}
+                    }}
+                    render={({ field, fieldState }) => (
+                      <TextField
+                        {...field}
+                        label="State *"
+                        fullWidth
+                        error={!!fieldState.error}
+                        helperText={fieldState.error?.message}
+                        InputProps={{
+                          readOnly: true,
+                        }}
+                        sx={{
+                          '& .MuiInputBase-input': {
+                            backgroundColor: 'action.hover',
+                            cursor: 'default'
+                          }
+                        }}
+                      />
+                    )}
                   />
                 </Grid>
+
                 <Grid item xs={12} md={6}>
-                  <InputField
-                    label="Country"
-                    id="presentAddress.country"
-                    type="text"
-                    required={true}
-                    register={useFormContext().register("presentAddress.country", {
+                  <Controller
+                    name="presentAddress.country"
+                    control={control}
+                    rules={{
                       required: "Country is required"
-                    })}
-                  />
-                </Grid>
-                <Grid item xs={12} md={6}>
-                  <InputField
-                    label="ZIP Code"
-                    id="presentAddress.zipCode"
-                    type="text"
-                    required={true}
-                    register={useFormContext().register("presentAddress.zipCode", {
-                      required: "ZIP code is required"
-                    })}
+                    }}
+                    render={({ field, fieldState }) => (
+                      <TextField
+                        {...field}
+                        label="Country *"
+                        fullWidth
+                        error={!!fieldState.error}
+                        helperText={fieldState.error?.message}
+                        InputProps={{
+                          readOnly: true,
+                        }}
+                        sx={{
+                          '& .MuiInputBase-input': {
+                            backgroundColor: 'action.hover',
+                            cursor: 'default'
+                          }
+                        }}
+                      />
+                    )}
                   />
                 </Grid>
               </Grid>
             </Box>
 
-            {/* Permanent Address */}
             <Box>
               <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 2 }}>
                 <Typography variant="subtitle2" sx={{ display: 'flex', alignItems: 'center' }}>
@@ -370,7 +521,9 @@ const PersonalInfoTab: React.FC<PersonalInfoTabProps> = ({
                       id="permanentAddress.addressLine1"
                       type="text"
                       required={!sameAsPresent}
-                      register={register("permanentAddress.addressLine1")}
+                      register={register("permanentAddress.addressLine1", {
+                        required: !sameAsPresent ? "Address line 1 is required" : false
+                      })}
                     />
                   </Grid>
                   <Grid item xs={12}>
@@ -388,7 +541,9 @@ const PersonalInfoTab: React.FC<PersonalInfoTabProps> = ({
                       id="permanentAddress.city"
                       type="text"
                       required={!sameAsPresent}
-                      register={register("permanentAddress.city")}
+                      register={register("permanentAddress.city", {
+                        required: !sameAsPresent ? "City is required" : false
+                      })}
                     />
                   </Grid>
                   <Grid item xs={12} md={6}>
@@ -397,14 +552,15 @@ const PersonalInfoTab: React.FC<PersonalInfoTabProps> = ({
                       id="permanentAddress.state"
                       type="text"
                       required={!sameAsPresent}
-                      register={register("permanentAddress.state")}
+                      register={register("permanentAddress.state", {
+                        required: !sameAsPresent ? "State is required" : false
+                      })}
                     />
                   </Grid>
                 </Grid>
               )}
             </Box>
 
-            {/* Emergency Contact */}
             <Box>
               <Typography variant="subtitle2" gutterBottom sx={{ display: 'flex', alignItems: 'center' }}>
                 <Emergency sx={{ mr: 1 }} />
@@ -418,7 +574,7 @@ const PersonalInfoTab: React.FC<PersonalInfoTabProps> = ({
                     id="emergencyContactName"
                     type="text"
                     required={true}
-                    register={useFormContext().register("emergencyContactName", {
+                    register={register("emergencyContactName", {
                       required: "Emergency contact name is required"
                     })}
                   />
@@ -429,7 +585,7 @@ const PersonalInfoTab: React.FC<PersonalInfoTabProps> = ({
                     id="emergencyContactRelation"
                     type="text"
                     required={true}
-                    register={useFormContext().register("emergencyContactRelation", {
+                    register={register("emergencyContactRelation", {
                       required: "Relation is required"
                     })}
                   />
@@ -440,7 +596,7 @@ const PersonalInfoTab: React.FC<PersonalInfoTabProps> = ({
                     id="emergencyContactPhone"
                     type="tel"
                     required={true}
-                    register={useFormContext().register("emergencyContactPhone", {
+                    register={register("emergencyContactPhone", {
                       required: "Emergency contact phone is required",
                       pattern: {
                         value: /^\+?[1-9]\d{1,14}$/,
@@ -455,7 +611,6 @@ const PersonalInfoTab: React.FC<PersonalInfoTabProps> = ({
         </Grid>
       </Grid>
 
-      {/* Validation Summary */}
       {Object.keys(errors).length > 0 && (
         <Alert severity="error" sx={{ mt: 3 }}>
           <Typography variant="subtitle2">

@@ -7,8 +7,8 @@ export interface ISignInForm {
 };
 //Define an interface for the sign up form 
 export type ISignUpForm = {
-    name: string;
-    email:string;
+    username: string;
+    email?: string;
     password: string;
     rememberMe?: boolean;
 };

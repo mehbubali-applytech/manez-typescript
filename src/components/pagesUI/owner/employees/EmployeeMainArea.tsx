@@ -132,25 +132,7 @@ const EmployeeMainArea: React.FC = () => {
           </Box>
         </Box>
         
-        {/* Quick Stats */}
-        <Box sx={{ display: 'flex', gap: 2, mb: 3 }}>
-          <Chip 
-            icon={<Group />} 
-            label={`${employees.length} Total Employees`}
-            variant="outlined"
-            color="primary"
-          />
-          <Chip 
-            icon={<Business />} 
-            label="5 Departments"
-            variant="outlined"
-          />
-          <Chip 
-            icon={<LocationOn />} 
-            label="8 Locations"
-            variant="outlined"
-          />
-        </Box>
+
       </Box>
 
       {/* Summary Cards */}

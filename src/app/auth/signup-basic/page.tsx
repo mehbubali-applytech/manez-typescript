@@ -7,6 +7,8 @@ import SocialLinks from '@/components/SocialLinks/SocialLinks';
 import SignUpBasicForm from '@/form/auth/SignUp/basic-form';
 
 const SignUpBasicMain = () => {
+
+    
     return (
         <>
             <div className="container-xxl">
