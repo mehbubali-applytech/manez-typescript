@@ -442,7 +442,17 @@ const AttendanceRequests: React.FC<AttendanceRequestsProps> = ({
 
       {/* Requests Table */}
       <TableContainer component={Paper}>
-        <Table>
+  <Table
+    sx={{
+      '& .MuiTableCell-root': {
+        color: '#000',
+      },
+      '& .MuiTypography-root': {
+        color: '#000',
+      },
+    }}
+  >
+
           <TableHead>
             <TableRow sx={{ bgcolor: 'grey.100' }}>
               <TableCell>Employee</TableCell>
@@ -462,7 +472,7 @@ const AttendanceRequests: React.FC<AttendanceRequestsProps> = ({
                 key={request.id}
                 hover
                 sx={{ 
-                  ...(request.status === 'Pending' && { bgcolor: 'warning.light' }),
+                  ...(request.status === 'Pending' && { bgcolor: '#ffd7a3' }),
                   ...(request.status === 'Rejected' && { bgcolor: 'error.lighter' })
                 }}
               >

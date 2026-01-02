@@ -5,20 +5,22 @@ import AddNewEmployeeModal from "../AddNewEmployee";
 import EmployeesTable from "../EmployeesTable";
 import { IEmployee, createMockEmployees } from "../../../owner/employees/EmployeeTypes";
 
+const COMPANIES = [
+  { id: "COMP001", name: "TechCorp Solutions", code: "TECHSOL" },
+  { id: "COMP002", name: "Global Innovations", code: "GLOBINN" },
+  { id: "COMP003", name: "Digital Dynamics", code: "DIGIDYN" },
+  { id: "COMP004", name: "Future Systems", code: "FUTSYS" },
+  { id: "COMP005", name: "Quantum Ventures", code: "QUANVEN" },
+];
+
+
 const CompanyEmployeesMainArea: React.FC<{ employeeId: string }> = ({ employeeId }) => {
   const [modalOpen, setModalOpen] = useState(false);
   const [employees, setEmployees] = useState<IEmployee[]>([]);
   const [companyName, setCompanyName] = useState<string>("");
   const [loading, setLoading] = useState(true);
 
-  // Mock company data
-  const companies = [
-    { id: "COMP001", name: "TechCorp Solutions", code: "TECHSOL" }, 
-    { id: "COMP002", name: "Global Innovations", code: "GLOBINN" },
-    { id: "COMP003", name: "Digital Dynamics", code: "DIGIDYN" },
-    { id: "COMP004", name: "Future Systems", code: "FUTSYS" },
-    { id: "COMP005", name: "Quantum Ventures", code: "QUANVEN" },
-  ];
+
 
   useEffect(() => {
     // Simulate API call to fetch company data
@@ -26,7 +28,8 @@ const CompanyEmployeesMainArea: React.FC<{ employeeId: string }> = ({ employeeId
       setLoading(true);
       try {
         // Find company details
-        const company = companies.find(comp => comp.id === employeeId);
+        const company = COMPANIES.find(comp => comp.id === employeeId);
+
         setCompanyName(company?.name || `Company ${employeeId}`);
         
         // Create mock employees for this company
@@ -59,7 +62,7 @@ const CompanyEmployeesMainArea: React.FC<{ employeeId: string }> = ({ employeeId
 
   const handleAddEmployee = (newEmployee: IEmployee) => {
     // Add company-specific data to the new employee
-    const company = companies.find(comp => comp.id === employeeId);
+    const company = COMPANIES.find(comp => comp.id === employeeId);
     const companyEmployee = {
       ...newEmployee,
       workLocationName: company?.name || "Company Office",
@@ -80,7 +83,7 @@ const CompanyEmployeesMainArea: React.FC<{ employeeId: string }> = ({ employeeId
         // Preserve company data
         companyName: (emp as any).companyName || companyName,
         companyId: employeeId,
-        companyCode: (emp as any).companyCode || companies.find(comp => comp.id === employeeId)?.code || "UNK"
+        companyCode: (emp as any).companyCode || COMPANIES.find(comp => comp.id === employeeId)?.code || "UNK"
       } as IEmployee & { companyName: string; companyId: string; companyCode: string } : emp
     ));
   };

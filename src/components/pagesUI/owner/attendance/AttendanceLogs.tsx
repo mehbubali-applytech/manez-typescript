@@ -589,7 +589,16 @@ const AttendanceLogs: React.FC<AttendanceLogsProps> = ({
         {/* Table */}
         {viewMode === 'list' ? (
           <TableContainer component={Paper}>
-            <Table>
+  <Table
+    sx={{
+      '& .MuiTableCell-root': {
+        color: '#000',
+      },
+      '& .MuiTypography-root': {
+        color: '#000',
+      },
+    }}
+  >
               <TableHead>
                 <TableRow sx={{ bgcolor: 'grey.100' }}>
                   <TableCell>Date</TableCell>
@@ -611,7 +620,7 @@ const AttendanceLogs: React.FC<AttendanceLogsProps> = ({
                     key={record.id}
                     hover
                     sx={{ 
-                      ...(record.attendanceStatus === 'Late' && { bgcolor: 'warning.light' }),
+                      ...(record.attendanceStatus === 'Late' && { bgcolor: '#fab1b1'}),
                       ...(record.attendanceStatus === 'Absent' && { bgcolor: 'error.lighter' })
                     }}
                   >

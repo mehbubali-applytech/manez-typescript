@@ -114,7 +114,8 @@ const EmployeeProfileMainArea: React.FC<EmployeeProfileMainAreaProps> = ({ emplo
               onEdit={handleEditProfile}
             />
             
-            <AttendanceAccessCard
+
+                 <AttendanceAccessCard
               employee={employee}
               onEditAccess={handleEditProfile}
               onEditGeoFence={handleEditProfile}

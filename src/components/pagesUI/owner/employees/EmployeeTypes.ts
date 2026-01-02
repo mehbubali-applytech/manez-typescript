@@ -1,6 +1,6 @@
 // EmployeeTypes.ts
 export interface IEmployee {
-    [key: string]: any;
+  [key: string]: any;
   employeeId: string;
   employeeCode?: string;
   firstName: string;
@@ -53,6 +53,14 @@ export interface IEmployee {
   
   // Attendance & Access
   attendanceType: 'App' | 'Biometric' | 'GPS';
+  presentDayStatus?: 'Present' | 'Absent' | 'On Leave' | 'Work From Home';
+  attendanceSummary?: IAttendanceSummary; // ✅ New: Backend-calculated summary
+  absenceDaysThisMonth?: number;          // ✅ Kept for backward compatibility
+  presentDaysThisMonth?: number;          // ✅ Kept for backward compatibility
+  leaveDaysThisMonth?: number;            // ✅ Kept for backward compatibility
+  holidayDaysThisMonth?: number;          // ✅ Kept for backward compatibility
+  attendancePercentage?: number;          // ✅ Kept for backward compatibility
+
   geoFence?: IGeoFence;
   systemUserEnabled: boolean;
   username?: string;
@@ -66,6 +74,172 @@ export interface IEmployee {
   updatedBy: string;
   status: 'Active' | 'Inactive' | 'Draft';
 }
+
+
+export interface IAttendanceSummary {
+  present: number;
+  absent: number;
+  leave: number;
+  holiday: number;
+  workingDays: number; // present + absent
+  totalDays: number;   // present + absent + leave + holiday
+  percentage: number;  // (present / workingDays) * 100
+  lateArrivals: number;
+  earlyDepartures: number;
+  overtimeHours: number;
+  regularHours: number;
+  averageHoursPerDay: number;
+}
+
+
+export const getAttendanceData = (employee: IEmployee) => {
+  // Prefer backend-calculated summary
+  if (employee.attendanceSummary) {
+    return {
+      presentDays: employee.attendanceSummary.present,
+      absentDays: employee.attendanceSummary.absent,
+      leaveDays: employee.attendanceSummary.leave,
+      holidayDays: employee.attendanceSummary.holiday,
+      workingDays: employee.attendanceSummary.workingDays,
+      totalDays: employee.attendanceSummary.totalDays,
+      attendanceRate: employee.attendanceSummary.percentage,
+    };
+  }
+  
+  // Fallback to individual fields (with nullish coalescing)
+  const presentDays = employee.presentDaysThisMonth ?? 0;
+  const absentDays = employee.absenceDaysThisMonth ?? 0;
+  const leaveDays = employee.leaveDaysThisMonth ?? 0;
+  const holidayDays = employee.holidayDaysThisMonth ?? 0;
+  const workingDays = presentDays + absentDays;
+  const totalDays = presentDays + absentDays + leaveDays + holidayDays;
+  
+  // Calculate rate with safe fallback
+  const attendanceRate = employee.attendancePercentage ?? 
+    (workingDays > 0 ? Math.round((presentDays / workingDays) * 100) : 0);
+  
+  return {
+    presentDays,
+    absentDays,
+    leaveDays,
+    holidayDays,
+    workingDays,
+    totalDays,
+    attendanceRate,
+  };
+};
+
+export const createRealisticMockEmployee = (overrides?: Partial<IEmployee>): IEmployee => {
+  const today = new Date();
+  const currentMonth = today.getMonth();
+  const currentYear = today.getFullYear();
+  
+  // Generate realistic attendance data
+  const workingDays = 22; // Typical working days
+  const presentDays = Math.floor(Math.random() * (workingDays - 14) + 14); // 14-21 days
+  const leaveDays = Math.floor(Math.random() * 5); // 0-4 days
+  const holidayDays = Math.floor(Math.random() * 3) + 1; // 1-3 days
+  const absentDays = Math.max(0, workingDays - presentDays - leaveDays);
+  const totalDays = presentDays + absentDays + leaveDays + holidayDays;
+  const attendancePercentage = Math.round((presentDays / workingDays) * 100);
+  
+  const statuses: Array<'Present' | 'Absent' | 'On Leave' | 'Work From Home'> = [
+    'Present', 'Absent', 'On Leave', 'Work From Home'
+  ];
+  
+  const baseEmployee: IEmployee = {
+    employeeId: `EMP${Date.now().toString().slice(-6)}`,
+    employeeCode: `EMP${Math.floor(1000 + Math.random() * 9000)}`,
+    firstName: 'John',
+    lastName: 'Doe',
+    email: 'john.doe@example.com',
+    phoneNumber: '+91 9876543210',
+    dateOfBirth: '1990-05-15',
+    gender: 'Male',
+    dateOfJoining: new Date(currentYear, currentMonth - 6, 1).toISOString().split('T')[0],
+    roleId: 1,
+    roleName: 'Software Engineer',
+    departmentId: 1,
+    departmentName: 'Engineering',
+    workLocationId: 1,
+    workLocationName: 'Bangalore Office',
+    workType: 'Full-time',
+    employmentStatus: 'Active',
+    attendanceType: 'Biometric',
+    status: 'Active',
+    presentAddress: {
+      addressLine1: '123 Tech Park',
+      city: 'Bangalore',
+      state: 'Karnataka',
+      country: 'India',
+      zipCode: '560001'
+    },
+    emergencyContactName: 'Jane Doe',
+    emergencyContactRelation: 'Spouse',
+    emergencyContactPhone: '+91 9876543211',
+    documents: [],
+    costToCompany: 1200000,
+    payFrequency: 'Monthly',
+    systemUserEnabled: true,
+    username: 'john.doe',
+    roles: ['Employee', 'Developer'],
+    sameAsPresentAddress: true,
+    
+    // ✅ New: Backend-calculated summary (preferred)
+    attendanceSummary: {
+      present: presentDays,
+      absent: absentDays,
+      leave: leaveDays,
+      holiday: holidayDays,
+      workingDays: workingDays,
+      totalDays: totalDays,
+      percentage: attendancePercentage,
+      lateArrivals: Math.floor(Math.random() * 3),
+      earlyDepartures: Math.floor(Math.random() * 2),
+      overtimeHours: Math.floor(Math.random() * 10),
+      regularHours: presentDays * 8,
+      averageHoursPerDay: 8.2 + Math.random() * 0.8,
+    },
+    
+    // ✅ Kept for backward compatibility
+    presentDayStatus: statuses[Math.floor(Math.random() * statuses.length)],
+    presentDaysThisMonth: presentDays,
+    absenceDaysThisMonth: absentDays,
+    leaveDaysThisMonth: leaveDays,
+    holidayDaysThisMonth: holidayDays,
+    attendancePercentage: attendancePercentage,
+    
+    // Geo-fencing
+    geoFence: {
+      latitude: 12.9716,
+      longitude: 77.5946,
+      radius: 500,
+      address: 'Tech Park, Bangalore'
+    },
+    
+    // System
+    createdAt: new Date(currentYear, currentMonth - 6, 1).toISOString(),
+    updatedAt: new Date().toISOString(),
+    createdBy: 'Admin',
+    updatedBy: 'Admin',
+  };
+
+  return { ...baseEmployee, ...overrides };
+};
+
+// Usage example in components:
+export const ExampleUsage = () => {
+  // In your component, use the helper function:
+  const employee = createRealisticMockEmployee();
+  const attendance = getAttendanceData(employee);
+  
+  // Clean, safe access to data:
+  console.log({
+    presentDays: attendance.presentDays,
+    attendanceRate: attendance.attendanceRate,
+    workingDays: attendance.workingDays,
+  });
+};
 
 export interface IAddress {
   addressLine1: string;

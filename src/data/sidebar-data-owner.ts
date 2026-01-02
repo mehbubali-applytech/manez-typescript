@@ -46,12 +46,6 @@ const businessOwnerSidebarData: SidebarCategory[] = [
       },
       {
         id: 24,
-        label: "Roles & Permissions",
-        icon: "fa-regular fa-user-shield",
-        link: "/owner/role",
-      },
-      {
-        id: 25,
         label: "Shifts",
         icon: "fa-regular fa-clock",
         link: "/owner/shift",
@@ -116,6 +110,12 @@ const businessOwnerSidebarData: SidebarCategory[] = [
         label: "Payroll Reports",
         icon: "fa-light fa-chart-line",
         link: "/owner/payroll/reports"
+      },
+      {
+        id: 44,
+        label: "Grades",
+        icon: "fa-light icon-lobster",
+        link: "/owner/grade"
       }
     ]
   },

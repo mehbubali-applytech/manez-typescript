@@ -284,7 +284,7 @@ const AddEditRole: React.FC<{ isEdit?: boolean; roleId?: string }> = ({
       );
 
       setTimeout(() => {
-        router.push("/super-admin/roles");
+        router.push("/super-admin/role");
       }, 1000);
 
     } catch (error) {
@@ -305,7 +305,7 @@ const AddEditRole: React.FC<{ isEdit?: boolean; roleId?: string }> = ({
       setDeleteDialogOpen(false);
 
       setTimeout(() => {
-        router.push("/super-admin/roles");
+        router.push("/super-admin/role");
       }, 500);
 
     } catch (error) {
@@ -316,10 +316,10 @@ const AddEditRole: React.FC<{ isEdit?: boolean; roleId?: string }> = ({
   const handleCancel = () => {
     if (isDirty) {
       if (confirm("You have unsaved changes. Are you sure you want to cancel?")) {
-        router.push("/admin/roles");
+        router.push("/super-admin/role");
       }
     } else {
-      router.push("/super-admin/roles");
+      router.push("/super-admin/role");
     }
   };
 
@@ -890,6 +890,7 @@ const AddEditRole: React.FC<{ isEdit?: boolean; roleId?: string }> = ({
             <Button
               type="submit"
               variant="contained"
+              className="!text-white"
               startIcon={<Save />}
               disabled={isSubmitting}
               sx={{

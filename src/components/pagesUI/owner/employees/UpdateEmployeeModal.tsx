@@ -330,6 +330,65 @@ const AddEditEmployee: React.FC<AddEditEmployeeProps> = ({ employee, mode = 'add
           </div>
         </div>
 
+
+              {/* Progress Summary */}
+        <Paper elevation={0} sx={{
+          border: '1px solid',
+          borderColor: 'info.light',
+          borderRadius: 2,
+          bgcolor: 'info.50',
+          p: 3,
+          mb: 3
+        }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 2 }}>
+            <Box sx={{
+              width: 40,
+              height: 40,
+              borderRadius: '50%',
+              bgcolor: 'info.light',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              flexShrink: 0
+            }}>
+              <Typography sx={{ color: 'info.main', fontWeight: 'bold' }}>💡</Typography>
+            </Box>
+            <Typography variant="h6" sx={{ color: 'info.dark', fontWeight: 600 }}>
+              Employee Onboarding Checklist
+            </Typography>
+          </Box>
+
+          <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: 2 }}>
+            {steps.map((step, index) => (
+              <Box
+                key={step.label}
+                sx={{
+                  p: 2,
+                  bgcolor: index <= activeStep ? 'white' : 'grey.100',
+                  borderRadius: 1,
+                  border: '1px solid',
+                  borderColor: index <= activeStep ? 'info.light' : 'divider'
+                }}
+              >
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
+                  <Typography variant="subtitle2" sx={{
+                    color: index <= activeStep ? 'info.main' : 'text.secondary',
+                    fontWeight: index <= activeStep ? 600 : 400
+                  }}>
+                    {step.label}
+                  </Typography>
+                  {index < activeStep && (
+                    <Chip label="✓" size="small" sx={{ bgcolor: 'success.main', color: 'white' }} />
+                  )}
+                </Box>
+                <Typography variant="caption" sx={{ color: 'text.secondary' }}>
+                  {getStepDescription(index)}
+                </Typography>
+              </Box>
+            ))}
+          </Box>
+        </Paper>
+
         {/* Main Content */}
         <Paper elevation={0} sx={{
           border: '1px solid',
@@ -477,63 +536,7 @@ const AddEditEmployee: React.FC<AddEditEmployeeProps> = ({ employee, mode = 'add
           </Box>
         </Paper>
 
-        {/* Progress Summary */}
-        <Paper elevation={0} sx={{
-          border: '1px solid',
-          borderColor: 'info.light',
-          borderRadius: 2,
-          bgcolor: 'info.50',
-          p: 3,
-          mb: 3
-        }}>
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 2 }}>
-            <Box sx={{
-              width: 40,
-              height: 40,
-              borderRadius: '50%',
-              bgcolor: 'info.light',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              flexShrink: 0
-            }}>
-              <Typography sx={{ color: 'info.main', fontWeight: 'bold' }}>💡</Typography>
-            </Box>
-            <Typography variant="h6" sx={{ color: 'info.dark', fontWeight: 600 }}>
-              Employee Onboarding Checklist
-            </Typography>
-          </Box>
 
-          <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: 2 }}>
-            {steps.map((step, index) => (
-              <Box
-                key={step.label}
-                sx={{
-                  p: 2,
-                  bgcolor: index <= activeStep ? 'white' : 'grey.100',
-                  borderRadius: 1,
-                  border: '1px solid',
-                  borderColor: index <= activeStep ? 'info.light' : 'divider'
-                }}
-              >
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
-                  <Typography variant="subtitle2" sx={{
-                    color: index <= activeStep ? 'info.main' : 'text.secondary',
-                    fontWeight: index <= activeStep ? 600 : 400
-                  }}>
-                    {step.label}
-                  </Typography>
-                  {index < activeStep && (
-                    <Chip label="✓" size="small" sx={{ bgcolor: 'success.main', color: 'white' }} />
-                  )}
-                </Box>
-                <Typography variant="caption" sx={{ color: 'text.secondary' }}>
-                  {getStepDescription(index)}
-                </Typography>
-              </Box>
-            ))}
-          </Box>
-        </Paper>
       </div>
 
       {/* Exit Confirmation Dialog */}

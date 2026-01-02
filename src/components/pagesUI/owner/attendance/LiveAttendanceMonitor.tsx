@@ -424,7 +424,7 @@ useEffect(() => {
                 key={record.id}
                 sx={{ 
                   '&:hover': { bgcolor: 'action.hover' },
-                  ...(record.attendanceStatus === 'Late' && { bgcolor: 'error.light' }),
+                  ...(record.attendanceStatus === 'Late' && { bgcolor: '#fab1b1' }),
                   ...(record.attendanceStatus === 'Absent' && { bgcolor: 'error.lighter' })
                 }}
               >
