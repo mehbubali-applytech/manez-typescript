@@ -167,9 +167,9 @@ const AnnouncementTable = () => {
         <DeleteModal
           open={modalDeleteOpen}
           setOpen={setModalDeleteOpen}
-          handleDeleteFunc={handleDelete}
-          deleteId={deleteId}
+          onConfirm={() => handleDelete(deleteId)}
         />
+
       )}
     </>
   );

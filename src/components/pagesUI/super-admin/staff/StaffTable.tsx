@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useState, useMemo } from "react";
 import Box from "@mui/material/Box";
 import Table from "@mui/material/Table";
 import TableBody from "@mui/material/TableBody";
@@ -11,23 +11,17 @@ import TableRow from "@mui/material/TableRow";
 import TableSortLabel from "@mui/material/TableSortLabel";
 import Paper from "@mui/material/Paper";
 import { visuallyHidden } from "@mui/utils";
-import useMaterialTableHook from "@/hooks/useMaterialTableHook";
 import { Checkbox, Avatar, Rating, Typography, Chip } from "@mui/material";
 import TableControls from "@/components/elements/SharedInputs/TableControls";
 import DeleteModal from "@/components/common/DeleteModal";
 import StaffDetailsModal from "./StaffDetailsModal";
-import { getTableStatusClass } from "@/hooks/use-condition-class";
 import PersonIcon from "@mui/icons-material/Person";
 import BusinessIcon from "@mui/icons-material/Business";
-import GroupsIcon from "@mui/icons-material/Groups";
-import EmailIcon from "@mui/icons-material/Email";
-import WorkIcon from "@mui/icons-material/Work";
-import CalendarTodayIcon from "@mui/icons-material/CalendarToday";
-import AttachMoneyIcon from "@mui/icons-material/AttachMoney";
 import EditIcon from "@mui/icons-material/Edit";
 import VisibilityIcon from "@mui/icons-material/Visibility";
+import WorkIcon from "@mui/icons-material/Work";
+import CalendarTodayIcon from "@mui/icons-material/CalendarToday";
 import { IStaff } from "./staff.interface";
-
 
 // Mock data for all staff across companies
 const allStaffData: IStaff[] = [
@@ -45,7 +39,7 @@ const allStaffData: IStaff[] = [
     company: "TechNova Solutions",
     companyId: 1,
     location: "San Francisco, CA",
-    joinDate: "2020-03-15",
+    joinDate: "2024-03-15",
     status: "Active",
     employmentType: "Full-time",
     salary: 125000,
@@ -66,6 +60,114 @@ const allStaffData: IStaff[] = [
     projectsCompleted: 42,
     lastLogin: "2024-03-28 09:15:23",
     notes: "Top performer, leads the React team"
+  },
+  {
+    id: 2,
+    employeeId: "EMP-002",
+    firstName: "Sarah",
+    lastName: "Johnson",
+    fullName: "Sarah Johnson",
+    email: "sarah.johnson@technova.com",
+    phone: "+1 (555) 234-5678",
+    mobile: "+1 (555) 876-5432",
+    position: "Engineering Manager",
+    department: "Engineering",
+    company: "TechNova Solutions",
+    companyId: 1,
+    location: "San Francisco, CA",
+    joinDate: "2024-02-01",
+    status: "Active",
+    employmentType: "Full-time",
+    salary: 150000,
+    currency: "USD",
+    supervisor: "Michael Chen",
+    gender: "Female",
+    dateOfBirth: "1985-08-12",
+    address: "456 Manager Ave, San Francisco, CA 94107",
+    city: "San Francisco",
+    country: "USA",
+    zipCode: "94107",
+    emergencyContact: "+1 (555) 222-3333",
+    skills: ["Management", "Project Planning", "Agile", "Python", "Cloud Architecture"],
+    education: "MBA, Harvard Business School",
+    experience: 12,
+    performanceRating: 4.9,
+    attendanceRate: 98.2,
+    projectsCompleted: 28,
+    lastLogin: "2024-03-28 08:30:15",
+    notes: "Department head, excellent leadership skills"
+  },
+  {
+    id: 3,
+    employeeId: "EMP-003",
+    firstName: "Michael",
+    lastName: "Chen",
+    fullName: "Michael Chen",
+    email: "michael.chen@globalcorp.com",
+    phone: "+1 (555) 345-6789",
+    mobile: "+1 (555) 765-4321",
+    position: "Finance Director",
+    department: "Finance",
+    company: "Global Corp",
+    companyId: 2,
+    location: "New York, NY",
+    joinDate: "2024-01-10",
+    status: "Active",
+    employmentType: "Full-time",
+    salary: 180000,
+    currency: "USD",
+    supervisor: "CEO",
+    gender: "Male",
+    dateOfBirth: "1980-11-25",
+    address: "789 Finance St, New York, NY 10001",
+    city: "New York",
+    country: "USA",
+    zipCode: "10001",
+    emergencyContact: "+1 (555) 333-4444",
+    skills: ["Financial Analysis", "Budgeting", "Risk Management", "Excel", "SAP"],
+    education: "PhD Economics, MIT",
+    experience: 15,
+    performanceRating: 4.7,
+    attendanceRate: 99.0,
+    projectsCompleted: 15,
+    lastLogin: "2024-03-27 10:45:30",
+    notes: "Key player in financial planning"
+  },
+  {
+    id: 4,
+    employeeId: "EMP-004",
+    firstName: "Emma",
+    lastName: "Wilson",
+    fullName: "Emma Wilson",
+    email: "emma.wilson@globalcorp.com",
+    phone: "+1 (555) 456-7890",
+    mobile: "+1 (555) 654-3210",
+    position: "HR Manager",
+    department: "Human Resources",
+    company: "Global Corp",
+    companyId: 2,
+    location: "New York, NY",
+    joinDate: "2023-12-05",
+    status: "Inactive",
+    employmentType: "Full-time",
+    salary: 95000,
+    currency: "USD",
+    supervisor: "Michael Chen",
+    gender: "Female",
+    dateOfBirth: "1992-03-18",
+    address: "321 HR Blvd, New York, NY 10002",
+    city: "New York",
+    country: "USA",
+    zipCode: "10002",
+    emergencyContact: "+1 (555) 444-5555",
+    skills: ["Recruitment", "Employee Relations", "Compensation", "HRIS", "Training"],
+    education: "BA Psychology, Columbia University",
+    experience: 6,
+    performanceRating: 4.5,
+    attendanceRate: 96.8,
+    projectsCompleted: 8,
+    lastLogin: "2024-02-15 14:20:45",
+    notes: "On maternity leave until June 2024"
   }
 ];
 
@@ -88,72 +190,151 @@ interface AllStaffTableProps {
   department?: string;
   company?: string;
   dateRange?: { start: string; end: string };
+  onEdit?: (staff: IStaff) => void;
+  onDelete?: (id: number) => void;
 }
 
 const StaffTable: React.FC<AllStaffTableProps> = ({ 
   status = "all",
   department = "all",
   company = "all",
-  dateRange 
+  dateRange,
+  onEdit,
+  onDelete
 }) => {
   const [detailsModalOpen, setDetailsModalOpen] = useState(false);
   const [selectedStaff, setSelectedStaff] = useState<IStaff | null>(null);
   const [modalDeleteOpen, setModalDeleteOpen] = useState(false);
   const [deleteId, setDeleteId] = useState<number>(0);
-  const [debugInfo, setDebugInfo] = useState<string>("");
+  
+  // State for table controls (same as DepartmentTable)
+  const [selected, setSelected] = useState<number[]>([]);
+  const [page, setPage] = useState(1);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [order, setOrder] = useState<"asc" | "desc">("asc");
+  const [orderBy, setOrderBy] = useState<string>("fullName");
 
-  // Debug logging
-  useEffect(() => {
-    console.log('AllStaffTable Props:', { status, department, company, dateRange });
-    console.log('Total staff:', allStaffData.length);
+  // Filter data based on props (same as DepartmentTable)
+  const filteredData = useMemo(() => {
+    return allStaffData.filter(staff => {
+      // Filter by status
+      if (status !== "all" && staff.status.toLowerCase() !== status.toLowerCase()) {
+        return false;
+      }
+      
+      // Filter by department
+      if (department !== "all" && staff.department.toLowerCase() !== department.toLowerCase()) {
+        return false;
+      }
+      
+      // Filter by company
+      if (company !== "all" && staff.company.toLowerCase() !== company.toLowerCase()) {
+        return false;
+      }
+      
+      // Filter by date range
+      if (dateRange && dateRange.start && dateRange.end) {
+        const joinDate = new Date(staff.joinDate);
+        const startDate = new Date(dateRange.start);
+        const endDate = new Date(dateRange.end);
+        
+        if (joinDate < startDate || joinDate > endDate) {
+          return false;
+        }
+      }
+      
+      return true;
+    });
   }, [status, department, company, dateRange]);
 
-const filteredData = allStaffData.filter(staff => {
-  if (status !== "all" && staff.status.toLowerCase() !== status.toLowerCase()) return false;
-  if (department !== "all" && staff.department.toLowerCase() !== department.toLowerCase()) return false;
-  if (company !== "all" && staff.company.toLowerCase() !== company.toLowerCase()) return false;
+  // Filter by search query
+  const searchedData = useMemo(() => {
+    if (!searchQuery.trim()) return filteredData;
+    
+    const query = searchQuery.toLowerCase();
+    return filteredData.filter(staff => 
+      staff.fullName.toLowerCase().includes(query) ||
+      staff.employeeId.toLowerCase().includes(query) ||
+      staff.email.toLowerCase().includes(query) ||
+      staff.position.toLowerCase().includes(query) ||
+      staff.department.toLowerCase().includes(query) ||
+      staff.company.toLowerCase().includes(query)
+    );
+  }, [filteredData, searchQuery]);
 
- if (
-  dateRange &&
-  dateRange.start &&
-  dateRange.end &&
-  !isNaN(new Date(dateRange.start).getTime()) &&
-  !isNaN(new Date(dateRange.end).getTime())
-) {
-  const joinDate = new Date(staff.joinDate);
-  const startDate = new Date(dateRange.start);
-  const endDate = new Date(dateRange.end);
+  // Sort data
+  const sortedData = useMemo(() => {
+    return [...searchedData].sort((a, b) => {
+      if (orderBy === "fullName" || orderBy === "employeeId" || orderBy === "company" || 
+          orderBy === "department" || orderBy === "position" || orderBy === "status" || 
+          orderBy === "employmentType" || orderBy === "joinDate") {
+        const valueA = a[orderBy]?.toLowerCase() || '';
+        const valueB = b[orderBy]?.toLowerCase() || '';
+        return order === "asc" ? valueA.localeCompare(valueB) : valueB.localeCompare(valueA);
+      }
+      if (orderBy === "performanceRating" || orderBy === "salary") {
+        return order === "asc" ? (a[orderBy] || 0) - (b[orderBy] || 0) : (b[orderBy] || 0) - (a[orderBy] || 0);
+      }
+      return 0;
+    });
+  }, [searchedData, order, orderBy]);
 
-  if (joinDate < startDate || joinDate > endDate) return false;
-}
+  // Paginate data
+  const paginatedRows = useMemo(() => {
+    return sortedData.slice(
+      (page - 1) * rowsPerPage,
+      page * rowsPerPage
+    );
+  }, [sortedData, page, rowsPerPage]);
 
+  const handleSelectAllClick = (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (event.target.checked) {
+      setSelected(sortedData.map(staff => staff.id));
+    } else {
+      setSelected([]);
+    }
+  };
 
-  return true;
-});
+  const handleClick = (id: number) => {
+    const selectedIndex = selected.indexOf(id);
+    let newSelected: number[] = [];
 
+    if (selectedIndex === -1) {
+      newSelected = newSelected.concat(selected, id);
+    } else if (selectedIndex === 0) {
+      newSelected = newSelected.concat(selected.slice(1));
+    } else if (selectedIndex === selected.length - 1) {
+      newSelected = newSelected.concat(selected.slice(0, -1));
+    } else if (selectedIndex > 0) {
+      newSelected = newSelected.concat(
+        selected.slice(0, selectedIndex),
+        selected.slice(selectedIndex + 1)
+      );
+    }
 
-  // Update debug info
-  useEffect(() => {
-    setDebugInfo(`Showing ${filteredData.length} of ${allStaffData.length} staff. Filters: status=${status}, department=${department}, company=${company}`);
-  }, [filteredData, status, department, company]);
+    setSelected(newSelected);
+  };
 
-  const {
-    order,
-    orderBy,
-    selected,
-    page,
-    rowsPerPage,
-    searchQuery,
-    paginatedRows,
-    filteredRows,
-    handleDelete,
-    handleRequestSort,
-    handleSelectAllClick,
-    handleClick,
-    handleChangePage,
-    handleChangeRowsPerPage,
-    handleSearchChange,
-  } = useMaterialTableHook<IStaff>(filteredData, 10);
+  const handleRequestSort = (property: string) => {
+    const isAsc = orderBy === property && order === "asc";
+    setOrder(isAsc ? "desc" : "asc");
+    setOrderBy(property);
+  };
+
+  const handleChangePage = (newPage: number) => {
+    setPage(newPage);
+  };
+
+  const handleChangeRowsPerPage = (newRowsPerPage: number) => {
+    setRowsPerPage(newRowsPerPage);
+    setPage(1);
+  };
+
+  const handleSearchChange = (value: string) => {
+    setSearchQuery(value);
+    setPage(1);
+  };
 
   const getStatusClass = (status: string) => {
     switch (status.toLowerCase()) {
@@ -199,20 +380,6 @@ const filteredData = allStaffData.filter(staff => {
         return "error";
       case "human resources":
         return "secondary";
-      case "it":
-        return "info";
-      case "customer support":
-        return "success";
-      case "research & development":
-        return "primary";
-      case "legal":
-        return "default";
-      case "medical":
-        return "info";
-      case "design":
-        return "warning";
-      case "logistics":
-        return "success";
       default:
         return "default";
     }
@@ -221,6 +388,15 @@ const filteredData = allStaffData.filter(staff => {
   const handleViewStaff = (staff: IStaff) => {
     setSelectedStaff(staff);
     setDetailsModalOpen(true);
+  };
+
+  const handleDelete = (id: number) => {
+    if (onDelete) {
+      onDelete(id);
+    }
+    setModalDeleteOpen(false);
+    // Remove from selected if it was selected
+    setSelected(selected.filter(item => item !== id));
   };
 
   const formatCurrency = (amount: number, currency: string) => {
@@ -232,7 +408,6 @@ const filteredData = allStaffData.filter(staff => {
         maximumFractionDigits: 0
       }).format(amount);
     } catch (error) {
-      console.error('Error formatting currency:', error);
       return `$${amount.toLocaleString()}`;
     }
   };
@@ -252,16 +427,16 @@ const filteredData = allStaffData.filter(staff => {
             <Box sx={{ width: "100%" }} className="table-responsive">
               <Paper sx={{ width: "100%", mb: 2 }}>
                 <TableContainer className="table mb-[20px] hover multiple_tables w-full">
-                  <Table aria-labelledby="tableTitle" className="whitespace-nowrap" key={allStaffData.length}>
+                  <Table aria-labelledby="tableTitle" className="whitespace-nowrap">
                     <TableHead>
                       <TableRow className="table__title bg-gray-50">
                         <TableCell padding="checkbox" className="!font-semibold">
                           <Checkbox
                             className="custom-checkbox checkbox-small"
                             color="primary"
-                            indeterminate={selected.length > 0 && selected.length < filteredRows.length}
-                            checked={filteredRows.length > 0 && selected.length === filteredRows.length}
-                            onChange={(e) => handleSelectAllClick(e.target.checked, filteredRows)}
+                            indeterminate={selected.length > 0 && selected.length < sortedData.length}
+                            checked={sortedData.length > 0 && selected.length === sortedData.length}
+                            onChange={handleSelectAllClick}
                             size="small"
                           />
                         </TableCell>
@@ -299,44 +474,33 @@ const filteredData = allStaffData.filter(staff => {
                                 No staff found
                               </Typography>
                               <Typography variant="body2" color="text.secondary">
-                                {filteredData.length === 0
+                                {sortedData.length === 0
                                   ? "Try adjusting your filters to see more results"
                                   : "Check your search query or try different keywords"}
                               </Typography>
-                              {(status !== "all" || department !== "all" || company !== "all") && (
-                                <div className="mt-2">
-                                  <button
-                                    onClick={() => window.location.reload()}
-                                    className="px-3 py-1 bg-blue-600 text-white rounded text-sm hover:bg-blue-700"
-                                  >
-                                    Clear All Filters
-                                  </button>
-                                </div>
-                              )}
                             </div>
                           </TableCell>
                         </TableRow>
                       ) : (
-                        paginatedRows.map((row, index) => {
-                          const statusClass = getTableStatusClass(row.status);
+                        paginatedRows.map((row) => {
+                          const isSelected = selected.includes(row.id);
+                          const statusClass = getStatusClass(row.status);
                           const typeClass = getEmploymentTypeClass(row.employmentType);
                           const deptClass = getDepartmentClass(row.department);
-                          const isRowSelected = selected.includes(index);
-
 
                           return (
                             <TableRow
                               key={row.id}
-                              selected={isRowSelected}
-                              onClick={() =>  handleClick(row.id)}
-                              className={`hover:bg-blue-50 ${isRowSelected ? 'bg-blue-50' : ''}`}
+                              hover
+                              selected={isSelected}
+                              onClick={() => handleClick(row.id)}
                             >
                               <TableCell padding="checkbox">
                                 <Checkbox
                                   className="custom-checkbox checkbox-small"
-                                  checked={isRowSelected}
-                                  size="small"
+                                  checked={isSelected}
                                   onChange={() => handleClick(row.id)}
+                                  size="small"
                                 />
                               </TableCell>
                               <TableCell>
@@ -451,7 +615,9 @@ const filteredData = allStaffData.filter(staff => {
                                     className="table__icon edit p-1.5 hover:bg-green-100 rounded"
                                     onClick={(e) => {
                                       e.stopPropagation();
-                                      alert(`Editing ${row.fullName}...`);
+                                      if (onEdit) {
+                                        onEdit(row);
+                                      }
                                     }}
                                     title="Edit Staff"
                                   >
@@ -481,77 +647,123 @@ const filteredData = allStaffData.filter(staff => {
               </Paper>
             </Box>
 
-            <Box className="table-search-box mt-[30px]" sx={{ p: 2 }}>
-              <Box>
-                <Typography variant="body2">
-                  {`Showing ${(page - 1) * rowsPerPage + 1} to ${Math.min(
-                    page * rowsPerPage,
-                    filteredRows.length
-                  )} of ${filteredRows.length} entries`}
-                </Typography>
-                {(status !== "all" || department !== "all" || company !== "all") && (
-                  <Typography variant="caption" className="ml-2 text-gray-600">
-                    (Filtered: {status !== "all" ? `Status: ${status}` : ""}
-                    {department !== "all" ? ` • Department: ${department}` : ""}
-                    {company !== "all" ? ` • Company: ${company}` : ""})
-                  </Typography>
-                )}
-              </Box>
-              <Pagination
-                count={Math.ceil(filteredRows.length / rowsPerPage)}
-                page={page}
-                onChange={(e, value) => handleChangePage(value)}
-                variant="outlined"
-                shape="rounded"
-                className="manaz-pagination-button"
-              />
-            </Box>
-
-            {/* Bulk Actions Bar */}
-            {selected.length > 0 && (
-              <div className="fixed bottom-4 left-1/2 transform -translate-x-1/2 bg-blue-600 text-white px-4 py-2 rounded-lg shadow-lg flex items-center gap-4 z-50">
-                <Typography variant="body2">
-                  {selected.length} staff member{selected.length > 1 ? 's' : ''} selected
-                </Typography>
-                <div className="flex gap-2">
-                  <button
-                    className="px-3 py-1 bg-white text-blue-600 rounded text-sm font-medium hover:bg-blue-50"
-                    onClick={() => {
-                      const selectedStaff = selected.map(i => filteredRows[i]);
-
-                      alert(`Exporting ${selected.length} staff members...`);
-                      console.log('Selected staff:', selectedStaff);
-                    }}
-                  >
-                    <i className="fa-regular fa-download mr-1"></i>
-                    Export Selected
-                  </button>
-                  <button
-                    className="px-3 py-1 bg-red-500 text-white rounded text-sm font-medium hover:bg-red-600"
-                    onClick={() => {
-                      if (confirm(`Are you sure you want to delete ${selected.length} staff member${selected.length > 1 ? 's' : ''}?`)) {
-                        selected.forEach(index => {
-                          const staff = filteredRows[index];
-                          if (staff) handleDelete(staff.id);
-                        });
-                      }
-                    }}
-                  >
-                    <i className="fa-regular fa-trash mr-1"></i>
-                    Delete Selected
-                  </button>
-                  <button
-                    className="px-3 py-1 bg-gray-200 text-gray-700 rounded text-sm font-medium hover:bg-gray-300"
-                    onClick={() => handleSelectAllClick(false, [])}
-                  >
-                    Clear Selection
-                  </button>
+            {/* Staff Summary */}
+            {sortedData.length > 0 && (
+              <div className="card__wrapper mb-4">
+                <div className="p-4 bg-gray-50 rounded-lg">
+                  <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                    <div className="text-center">
+                      <div className="text-sm text-gray-600">Total Staff</div>
+                      <div className="text-xl font-semibold">{sortedData.length}</div>
+                    </div>
+                    <div className="text-center">
+                      <div className="text-sm text-gray-600">Active Staff</div>
+                      <div className="text-xl font-semibold text-green-600">
+                        {sortedData.filter(s => s.status === "Active").length}
+                      </div>
+                    </div>
+                    <div className="text-center">
+                      <div className="text-sm text-gray-600">Avg. Rating</div>
+                      <div className="text-xl font-semibold text-blue-600">
+                        {(sortedData.reduce((sum, s) => sum + (s.performanceRating || 0), 0) / sortedData.length).toFixed(1)}
+                      </div>
+                    </div>
+                    <div className="text-center">
+                      <div className="text-sm text-gray-600">Total Salary</div>
+                      <div className="text-xl font-semibold">
+                        {formatCurrency(
+                          sortedData.reduce((sum, s) => sum + s.salary, 0),
+                          sortedData[0]?.currency || "USD"
+                        )}
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
+            )}
+
+            {sortedData.length > 0 && (
+              <Box className="table-search-box mt-[30px]" sx={{ p: 2 }}>
+                <Box>
+                  <Typography variant="body2">
+                    {`Showing ${(page - 1) * rowsPerPage + 1} to ${Math.min(
+                      page * rowsPerPage,
+                      sortedData.length
+                    )} of ${sortedData.length} entries`}
+                  </Typography>
+                  {searchQuery && (
+                    <Typography variant="caption" className="ml-2 text-gray-600">
+                      (Filtered by: `{searchQuery}`)
+                    </Typography>
+                  )}
+                </Box>
+                <Pagination
+                  count={Math.ceil(sortedData.length / rowsPerPage)}
+                  page={page}
+                  onChange={(e, value) => handleChangePage(value)}
+                  variant="outlined"
+                  shape="rounded"
+                  className="manaz-pagination-button"
+                />
+              </Box>
             )}
           </div>
         </div>
       </div>
+
+      {/* Bulk Actions Bar */}
+      {selected.length > 0 && (
+        <div className="card__wrapper mb-4">
+          <div className="p-4 bg-primary-50 rounded-lg">
+            <div className="flex items-center justify-between">
+              <div className="text-primary-700 font-medium">
+                {selected.length} staff member(s) selected
+              </div>
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  className="px-3 py-1.5 bg-primary-500 text-white rounded-md hover:bg-primary-600 flex items-center gap-1 text-sm"
+                  onClick={() => {
+                    const selectedStaff = sortedData.filter(staff => selected.includes(staff.id));
+                    console.log('Bulk action on staff:', selectedStaff);
+                  }}
+                >
+                  <i className="fa-solid fa-toggle-on mr-1"></i>
+                  Toggle Status
+                </button>
+                <button
+                  type="button"
+                  className="px-3 py-1.5 bg-gray-600 text-white rounded-md hover:bg-gray-700 flex items-center gap-1 text-sm"
+                  onClick={() => {
+                    const selectedStaff = sortedData.filter(staff => selected.includes(staff.id));
+                    console.log('Bulk export staff:', selectedStaff);
+                  }}
+                >
+                  <i className="fa-solid fa-download mr-1"></i>
+                  Export Selected
+                </button>
+                <button
+                  type="button"
+                  className="px-3 py-1.5 bg-red-500 text-white rounded-md hover:bg-red-600 flex items-center gap-1 text-sm"
+                  onClick={() => {
+                    if (window.confirm(`Delete ${selected.length} staff member(s)?`)) {
+                      selected.forEach(id => {
+                        if (onDelete) {
+                          onDelete(id);
+                        }
+                      });
+                      setSelected([]);
+                    }
+                  }}
+                >
+                  <i className="fa-regular fa-trash mr-1"></i>
+                  Delete Selected
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {detailsModalOpen && selectedStaff && (
         <StaffDetailsModal
@@ -562,12 +774,11 @@ const filteredData = allStaffData.filter(staff => {
       )}
 
       {modalDeleteOpen && (
-        <DeleteModal
-          open={modalDeleteOpen}
-          setOpen={setModalDeleteOpen}
-          handleDeleteFunc={() => handleDelete(deleteId)}
-          deleteId={deleteId}
-        />
+           <DeleteModal
+  open={modalDeleteOpen}
+  setOpen={setModalDeleteOpen}
+  onConfirm={() => handleDelete(deleteId)}
+/>
       )}
     </>
   );

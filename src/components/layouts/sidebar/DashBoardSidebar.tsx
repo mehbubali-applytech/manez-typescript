@@ -23,18 +23,16 @@ const DashBoardSidebar: React.FC<DashBoardSidebarProps> = ({ role }) => {
   const [linkIdThree, setlinkIdThree] = useState<number | null>(null);
   const [linkIdFour, setlinkIdFour] = useState<number | null>(null);
   const pathName = usePathname(); // Current route
-  
 
-let currentSidebarData: SidebarCategory[] = sidebarData; 
+  let currentSidebarData: SidebarCategory[] = sidebarData; 
 
-if (role === "super-admin") {
-  currentSidebarData = superAdminSidebarData;
-} else if (role === "owner") {
-  currentSidebarData = businessOwnerSidebarData;
-} else if (role === "hrm") {
-  currentSidebarData = sidebarData;
-}
-
+  if (role === "super-admin") {
+    currentSidebarData = superAdminSidebarData;
+  } else if (role === "owner") {
+    currentSidebarData = businessOwnerSidebarData;
+  } else if (role === "hrm") {
+    currentSidebarData = sidebarData;
+  }
 
   // Utility function to handle collapse behavior for screens with max-width: 1199px
   const handleCollapse = (shouldCollapse: boolean) => {
@@ -96,8 +94,8 @@ if (role === "super-admin") {
       let foundSecondLayerId = null;
       let foundThirdLayerId = null;
 
-      // Iterate through sidebarData to find the object that matches the pathName
-      sidebarData.forEach((category) => {
+      // FIX: Use currentSidebarData instead of hardcoded sidebarData
+      currentSidebarData.forEach((category) => {
         category.items.forEach((item) => {
           // Check if the current pathName matches the link of the first level
           if (item.link === pathName) {
@@ -133,7 +131,7 @@ if (role === "super-admin") {
 
     // Call the function to find the matching object when pathName changes
     findLayerIds();
-  }, [pathName]); // Re-run the effect whenever pathName changes
+  }, [pathName, currentSidebarData]); // Add currentSidebarData to dependencies
 
   return (
     <>
@@ -175,7 +173,6 @@ if (role === "super-admin") {
                       }
                     >
                       <Link
-                        // onClick={() => handleClick(item.id)}
                         onClick={(e) => {
                           if (!item.link || item.link === "#") {
                             e.preventDefault(); // Prevent navigation when the link is "#"
@@ -306,8 +303,6 @@ if (role === "super-admin") {
               ))}
             </ul>
           </nav>
-
-
         </div>
       </div>
       <div className="app__offcanvas-overlay"></div>

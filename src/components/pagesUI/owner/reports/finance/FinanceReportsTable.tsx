@@ -514,11 +514,11 @@ const FinanceReportsTable: React.FC<FinanceReportsTableProps> = ({
 
       {modalDeleteOpen && (
         <DeleteModal
-          open={modalDeleteOpen}
-          setOpen={setModalDeleteOpen}
-          handleDeleteFunc={() => handleDelete(deleteId)}
-          deleteId={deleteId}
-        />
+  open={modalDeleteOpen}
+  setOpen={setModalDeleteOpen}
+  onConfirm={() => handleDelete(deleteId)}
+/>
+
       )}
     </>
   );

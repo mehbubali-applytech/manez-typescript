@@ -23,21 +23,21 @@ const QuickAccess = () => {
     };
 
     const handleStaffClick = ()=>{
-        router.push(`/owner/staff/${id}`)
+        router.push(`/owner/staff`)
     }
 
       const handleHRClick = ()=>{
-        router.push(`/owner/hr-manager/${id}`)
+        router.push(`/owner/hr-manager`)
     }
        const handleEmployeeClick = ()=>{
-        router.push(`/owner/employees/${id}`)
+        router.push(`/owner/employees`)
     }
 
       const handleComplianceClick = ()=>{
-        router.push(`/owner/compliance-officers/${id}`)
+        router.push(`/owner/compliance-officers`)
     }
        const handleFinanceClick = ()=>{
-        router.push(`/owner/finance-executives/${id}`)
+        router.push(`/owner/finance-executives`)
     }
     return (
         <>

@@ -5,6 +5,7 @@ export interface IHrManager {
   hrCode: string;
   department: string;
   company: string;
+  companyId?: string;
   email: string;
   phone: string;
   mobile?: string;

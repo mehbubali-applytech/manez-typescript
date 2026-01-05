@@ -220,7 +220,7 @@ const AddEditSalaryGrade: React.FC<AddEditSalaryGradeProps> = ({
             toast.success(mode === 'add' ? 'Salary grade created successfully!' : 'Salary grade updated successfully!');
 
             setTimeout(() => {
-                router.push('/admin/payroll/salary-grades');
+                router.push('/owner/grade');
             }, 1000);
 
         } catch (error) {
@@ -234,10 +234,10 @@ const AddEditSalaryGrade: React.FC<AddEditSalaryGradeProps> = ({
     const handleCancel = () => {
         if (isDirty) {
             if (confirm('You have unsaved changes. Are you sure you want to cancel?')) {
-                router.push('/admin/payroll/salary-grades');
+                router.push('/owner/grade');
             }
         } else {
-            router.push('/admin/payroll/salary-grades');
+            router.push('/owner/grade');
         }
     };
 
@@ -257,16 +257,10 @@ const AddEditSalaryGrade: React.FC<AddEditSalaryGradeProps> = ({
                 <nav>
                     <ol className="breadcrumb flex items-center mb-0">
                         <li className="breadcrumb-item">
-                            <a href="/">Home</a>
+                            <a href="/owner">Home</a>
                         </li>
                         <li className="breadcrumb-item">
-                            <a href="/admin">Admin</a>
-                        </li>
-                        <li className="breadcrumb-item">
-                            <a href="/admin/payroll">Payroll</a>
-                        </li>
-                        <li className="breadcrumb-item">
-                            <a href="/admin/payroll/salary-grades">Salary Grades</a>
+                            <a href="/owner/grade">Salary Grades</a>
                         </li>
                         <li className="breadcrumb-item active">
                             {mode === 'add' ? 'Add New Salary Grade' : 'Edit Salary Grade'}

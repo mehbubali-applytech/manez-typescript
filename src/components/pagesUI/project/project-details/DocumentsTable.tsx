@@ -172,12 +172,11 @@ const DocumentsTable = () => {
       </div>
 
       {modalDeleteOpen && (
-        <DeleteModal
-          open={modalDeleteOpen}
-          setOpen={setModalDeleteOpen}
-          handleDeleteFunc={handleDelete}
-          deleteId={deleteId}
-        />
+          <DeleteModal
+  open={modalDeleteOpen}
+  setOpen={setModalDeleteOpen}
+  onConfirm={() => handleDelete(deleteId)}
+/>
       )}
     </>
   );

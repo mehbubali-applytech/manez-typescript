@@ -93,11 +93,11 @@ const businessOwnerSidebarData: SidebarCategory[] = [
     id: 4,
     category: "Payroll Management",
     items: [
-      {
+            {
         id: 41,
-        label: "Salary Structure",
-        icon: "fa-light fa-money-bill",
-        link: "/owner/payroll/salary-structure"
+        label: "Grades",
+        icon: "fa-light icon-lobster",
+        link: "/owner/grade"
       },
       {
         id: 42,
@@ -110,13 +110,8 @@ const businessOwnerSidebarData: SidebarCategory[] = [
         label: "Payroll Reports",
         icon: "fa-light fa-chart-line",
         link: "/owner/payroll/reports"
-      },
-      {
-        id: 44,
-        label: "Grades",
-        icon: "fa-light icon-lobster",
-        link: "/owner/grade"
       }
+
     ]
   },
   {

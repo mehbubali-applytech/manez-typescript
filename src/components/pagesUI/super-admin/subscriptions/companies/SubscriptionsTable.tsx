@@ -347,12 +347,11 @@ const SubscriptionsTable = () => {
       )}
 
       {modalDeleteOpen && (
-        <DeleteModal
-          open={modalDeleteOpen}
-          setOpen={setModalDeleteOpen}
-          handleDeleteFunc={() => handleDelete(deleteId)}
-          deleteId={deleteId}
-        />
+           <DeleteModal
+  open={modalDeleteOpen}
+  setOpen={setModalDeleteOpen}
+  onConfirm={() => handleDelete(deleteId)}
+/>
       )}
     </>
   );

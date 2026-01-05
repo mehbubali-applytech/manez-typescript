@@ -68,7 +68,7 @@ const EmployeesTable: React.FC<Props> = ({ data, onUpdateEmployee, onDeleteEmplo
   } = useMaterialTableHook<IEmployee>(memoData, 10);
 
   const getStatusColor = (status: string) => {
-    switch(status) {
+    switch (status) {
       case 'Active': return 'success';
       case 'On Probation': return 'warning';
       case 'Resigned': return 'info';
@@ -78,7 +78,7 @@ const EmployeesTable: React.FC<Props> = ({ data, onUpdateEmployee, onDeleteEmplo
   };
 
   const getWorkTypeColor = (workType: string) => {
-    switch(workType) {
+    switch (workType) {
       case 'Full-time': return 'primary';
       case 'Part-time': return 'secondary';
       case 'Contract': return 'info';
@@ -87,10 +87,6 @@ const EmployeesTable: React.FC<Props> = ({ data, onUpdateEmployee, onDeleteEmplo
     }
   };
 
-  const handleDeleteConfirm = (employeeId: string) => {
-    onDeleteEmployee(employeeId);
-    setModalDeleteOpen(false);
-  };
 
   return (
     <>
@@ -145,10 +141,10 @@ const EmployeesTable: React.FC<Props> = ({ data, onUpdateEmployee, onDeleteEmplo
                             {row.employeeCode}
                           </span>
                         </TableCell>
-                        
+
                         <TableCell>
                           <div className="flex items-center gap-2">
-                            <Avatar 
+                            <Avatar
                               sx={{ width: 32, height: 32, bgcolor: 'primary.main' }}
                               src={row.profilePhoto}
                             >
@@ -164,30 +160,30 @@ const EmployeesTable: React.FC<Props> = ({ data, onUpdateEmployee, onDeleteEmplo
                             </div>
                           </div>
                         </TableCell>
-                        
+
                         <TableCell>{row.email}</TableCell>
-                        
+
                         <TableCell>
-                          <Chip 
+                          <Chip
                             label={row.departmentName}
                             size="small"
                             variant="outlined"
                           />
                         </TableCell>
-                        
+
                         <TableCell>{row.roleName}</TableCell>
-                        
+
                         <TableCell>
-                          <Chip 
+                          <Chip
                             label={row.workType}
                             size="small"
                             color={getWorkTypeColor(row.workType) as any}
                             variant="outlined"
                           />
                         </TableCell>
-                        
+
                         <TableCell>
-                          <Chip 
+                          <Chip
                             label={row.employmentStatus}
                             size="small"
                             color={getStatusColor(row.employmentStatus) as any}
@@ -267,14 +263,14 @@ const EmployeesTable: React.FC<Props> = ({ data, onUpdateEmployee, onDeleteEmplo
         />
       )}
 
-      {modalDeleteOpen && (
-        <DeleteModal
-          open={modalDeleteOpen}
-          setOpen={setModalDeleteOpen}
-          deleteId={Number(deleteId)}
-          handleDeleteFunc={() => handleDeleteConfirm(deleteId)}
-        />
-      )}
+  {modalDeleteOpen && (
+  <DeleteModal
+    open={modalDeleteOpen}
+    setOpen={setModalDeleteOpen}
+    onConfirm={() => onDeleteEmployee(deleteId)}
+  />
+)}
+
     </>
   );
 };

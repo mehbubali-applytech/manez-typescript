@@ -275,12 +275,6 @@ const SalaryGradeMainArea: React.FC = () => {
             <li className="breadcrumb-item">
               <Link href="/">Home</Link>
             </li>
-            <li className="breadcrumb-item">
-              <Link href="/owner">Owner</Link>
-            </li>
-            <li className="breadcrumb-item">
-              <Link href="/owner/payroll">Payroll</Link>
-            </li>
             <li className="breadcrumb-item active">Salary Grades</li>
           </ol>
         </nav>

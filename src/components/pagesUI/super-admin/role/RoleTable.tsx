@@ -312,14 +312,10 @@ const RoleTable: React.FC<RoleTableProps> = ({
 
       {modalDeleteOpen && (
         <DeleteModal
-          open={modalDeleteOpen}
-          setOpen={setModalDeleteOpen}
-          handleDeleteFunc={() => {
-            handleDelete(deleteId);
-            onDelete(deleteId);
-          }}
-          deleteId={deleteId}
-        />
+  open={modalDeleteOpen}
+  setOpen={setModalDeleteOpen}
+  onConfirm={() => handleDelete(deleteId)}
+/>
       )}
     </>
   );

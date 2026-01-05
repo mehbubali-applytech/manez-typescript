@@ -5,6 +5,7 @@ import StaffTable from "./StaffTable";
 import AddStaffModal from "./AddStaffModal";
 import AllStaffSummary from "./AllStaffSummary";
 import StaffFilters from "./StaffFilters";
+import { useRouter } from "next/navigation";
 
 const StaffMainArea = () => {
   const [modalOpen, setModalOpen] = useState(false);
@@ -15,6 +16,12 @@ const StaffMainArea = () => {
     start: "2024-01-01",
     end: "2024-03-31",
   });
+
+  const router = useRouter();
+
+  const handleAddClick = () => {
+    router.push("/super-admin/staff/add-staff");
+  }
 
   return (
     <>
@@ -31,7 +38,7 @@ const StaffMainArea = () => {
             <div className="breadcrumb__btn">
               <button
                 type="button"
-                onClick={() => setModalOpen(true)}
+                onClick={handleAddClick}
                 className="btn btn-primary"
               >
                 <i className="fa-regular fa-user-plus mr-2"></i>

@@ -50,7 +50,7 @@ const RoleTable: React.FC<RoleTableProps> = ({
 }) => {
   const [modalDeleteOpen, setModalDeleteOpen] = useState(false);
   const [deleteId, setDeleteId] = useState<number>(0);
-  
+
   const {
     order,
     orderBy,
@@ -105,7 +105,7 @@ const RoleTable: React.FC<RoleTableProps> = ({
               handleChangeRowsPerPage={handleChangeRowsPerPage}
               handleSearchChange={handleSearchChange}
             />
-            
+
             <Box sx={{ width: "100%" }} className="table-responsive">
               <Paper sx={{ width: "100%", mb: 2 }}>
                 <TableContainer className="table mb-[20px] hover multiple_tables w-full">
@@ -145,11 +145,11 @@ const RoleTable: React.FC<RoleTableProps> = ({
                         <TableCell>Actions</TableCell>
                       </TableRow>
                     </TableHead>
-                    
+
                     <TableBody className="table__body">
                       {paginatedRows.map((row, index) => {
                         const statusClass = getStatusClass(row.activeStatus);
-                        
+
                         return (
                           <TableRow
                             key={row.roleId}
@@ -194,7 +194,7 @@ const RoleTable: React.FC<RoleTableProps> = ({
                               )}
                             </TableCell>
                             <TableCell>
-                              <Tooltip 
+                              <Tooltip
                                 title={
                                   <div>
                                     {row.permissions?.slice(0, 5).map(p => (
@@ -289,7 +289,7 @@ const RoleTable: React.FC<RoleTableProps> = ({
                 </TableContainer>
               </Paper>
             </Box>
-            
+
             <Box className="table-search-box mt-[30px]" sx={{ p: 2 }}>
               <Box>
                 {`Showing ${(page - 1) * rowsPerPage + 1} to ${Math.min(
@@ -314,12 +314,9 @@ const RoleTable: React.FC<RoleTableProps> = ({
         <DeleteModal
           open={modalDeleteOpen}
           setOpen={setModalDeleteOpen}
-          handleDeleteFunc={() => {
-            handleDelete(deleteId);
-            onDelete(deleteId);
-          }}
-          deleteId={deleteId}
+          onConfirm={() => handleDelete(deleteId)}
         />
+
       )}
     </>
   );

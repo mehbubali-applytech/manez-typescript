@@ -25,7 +25,6 @@ const DUMMY_STAFF: IStaff[] = [
 
 
 const CompanyStaffMainArea: React.FC<{ companyCode: string }> = ({ companyCode }) => {
-  const [modalOpen, setModalOpen] = useState(false);
   const [staff, setStaff] = useState<IStaff[]>([]);
 
   const router = useRouter();

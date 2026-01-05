@@ -776,6 +776,7 @@ const HrManagerDetailsModal = ({
             <Button
               variant="contained"
               color="primary"
+              className="!text-white"
               startIcon={<EditIcon />}
               onClick={() => {
                 handleToggle();

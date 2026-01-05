@@ -20,7 +20,9 @@ import {
   Menu,
   MenuItem,
   Switch,
-  Button
+  Button,
+  Pagination,
+  TableSortLabel
 } from "@mui/material";
 import {
   MoreVert,
@@ -34,9 +36,15 @@ import {
   PersonOff,
   FileDownload,
   Send,
-  Visibility
+  Visibility,
+  Download,
+  PictureAsPdf,
+  Description
 } from "@mui/icons-material";
 import { IEmployee } from "./EmployeeTypes";
+import { visuallyHidden } from "@mui/utils";
+import TableControls from "@/components/elements/SharedInputs/TableControls";
+import DeleteModal from "@/components/common/DeleteModal";
 
 interface EmployeeTableProps {
   data: IEmployee[];
@@ -45,6 +53,15 @@ interface EmployeeTableProps {
   onStatusChange?: (id: string, status: string) => void;
   onSendOnboardingEmail?: (employee: IEmployee) => void;
 }
+
+// Table head cells
+const employeeHeadCells = [
+  { id: "employee", label: "Employee" },
+  { id: "contact", label: "Contact" },
+  { id: "jobDetails", label: "Job Details" },
+  { id: "status", label: "Status" },
+  { id: "joiningDate", label: "Joining Date" },
+];
 
 const EmployeeTable: React.FC<EmployeeTableProps> = ({
   data,
@@ -56,6 +73,13 @@ const EmployeeTable: React.FC<EmployeeTableProps> = ({
   const [selected, setSelected] = useState<string[]>([]);
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [selectedEmployee, setSelectedEmployee] = useState<IEmployee | null>(null);
+  const [modalDeleteOpen, setModalDeleteOpen] = useState(false);
+  const [deleteId, setDeleteId] = useState<string>(""); // Changed to string
+  const [page, setPage] = useState(1);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [order, setOrder] = useState<"asc" | "desc">("asc");
+  const [orderBy, setOrderBy] = useState<string>("employee");
 
   const handleSelectAllClick = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.checked) {
@@ -96,13 +120,14 @@ const EmployeeTable: React.FC<EmployeeTableProps> = ({
   };
 
   const getStatusColor = (status: string) => {
-    switch(status) {
-      case 'Active': return 'success';
-      case 'On Probation': return 'warning';
-      case 'Resigned': return 'info';
-      case 'Terminated': return 'error';
-      case 'Draft': return 'default';
-      default: return 'default';
+    switch(status.toLowerCase()) {
+      case 'active': return 'bg-success';
+      case 'on probation': return 'bg-warning';
+      case 'resigned': return 'bg-info';
+      case 'terminated': return 'bg-danger';
+      case 'draft': return 'bg-secondary';
+      case 'inactive': return 'bg-danger';
+      default: return 'default-badge';
     }
   };
 
@@ -113,7 +138,6 @@ const EmployeeTable: React.FC<EmployeeTableProps> = ({
 
   const formatPhone = (phone?: string) => {
     if (!phone) return '-';
-    // Format phone number for display
     return phone.replace(/(\d{3})(\d{3})(\d{4})/, '($1) $2-$3');
   };
 
@@ -121,158 +145,342 @@ const EmployeeTable: React.FC<EmployeeTableProps> = ({
     return `${firstName.charAt(0)}${lastName.charAt(0)}`.toUpperCase();
   };
 
+  // Filter data based on search query
+  const filteredData = data.filter(employee => {
+    if (!searchQuery) return true;
+    
+    const searchLower = searchQuery.toLowerCase();
+    return (
+      employee.firstName.toLowerCase().includes(searchLower) ||
+      employee.lastName.toLowerCase().includes(searchLower) ||
+      employee.email.toLowerCase().includes(searchLower) ||
+      employee.employeeCode?.toLowerCase().includes(searchLower) ||
+      employee.roleName?.toLowerCase().includes(searchLower) ||
+      employee.departmentName?.toLowerCase().includes(searchLower)
+    );
+  });
+
+  // Sort data
+  const sortedData = [...filteredData].sort((a, b) => {
+    if (orderBy === "employee") {
+      const nameA = `${a.firstName} ${a.lastName}`.toLowerCase();
+      const nameB = `${b.firstName} ${b.lastName}`.toLowerCase();
+      return order === "asc" ? nameA.localeCompare(nameB) : nameB.localeCompare(nameA);
+    }
+    return 0;
+  });
+
+  // Paginate data
+  const paginatedRows = sortedData.slice(
+    (page - 1) * rowsPerPage,
+    page * rowsPerPage
+  );
+
+  const handleChangePage = (newPage: number) => {
+    setPage(newPage);
+  };
+
+  const handleChangeRowsPerPage = (newRowsPerPage: number) => {
+    setRowsPerPage(newRowsPerPage);
+    setPage(1);
+  };
+
+  const handleSearchChange = (value: string) => {
+    setSearchQuery(value);
+    setPage(1);
+  };
+
+  const handleRequestSort = (property: string) => {
+    const isAsc = orderBy === property && order === "asc";
+    setOrder(isAsc ? "desc" : "asc");
+    setOrderBy(property);
+  };
+
+  const handleDelete = (id: string) => {
+    onDelete(id);
+    setModalDeleteOpen(false);
+    // Remove from selected if it was selected
+    setSelected(selected.filter(item => item !== id));
+  };
+
   return (
     <>
-      <Paper sx={{ width: '100%', mb: 2 }}>
-        <TableContainer>
-          <Table>
-            <TableHead>
-              <TableRow sx={{ bgcolor: 'grey.100' }}>
-                <TableCell padding="checkbox">
-                  <Checkbox
-                    indeterminate={selected.length > 0 && selected.length < data.length}
-                    checked={data.length > 0 && selected.length === data.length}
-                    onChange={handleSelectAllClick}
-                  />
-                </TableCell>
-                <TableCell>Employee</TableCell>
-                <TableCell>Contact</TableCell>
-                <TableCell>Job Details</TableCell>
-                <TableCell>Status</TableCell>
-                <TableCell>Joining Date</TableCell>
-                <TableCell>Actions</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {data.map((employee) => (
-                <TableRow
-                  key={employee.employeeId}
-                  hover
-                  selected={selected.includes(employee.employeeId)}
-                >
-                  <TableCell padding="checkbox">
-                    <Checkbox
-                      checked={selected.includes(employee.employeeId)}
-                      onChange={() => handleClick(employee.employeeId)}
-                    />
-                  </TableCell>
-                  <TableCell>
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                      <Avatar
-                        src={employee.profilePhoto}
-                        sx={{ bgcolor: 'primary.main' }}
-                      >
-                        {getInitials(employee.firstName, employee.lastName)}
-                      </Avatar>
-                      <Box>
-                        <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>
-                          {employee.preferredName || `${employee.firstName} ${employee.lastName}`}
-                        </Typography>
-                        <Typography variant="caption" color="text.secondary">
-                          {employee.employeeCode || employee.employeeId}
-                        </Typography>
-                      </Box>
-                    </Box>
-                  </TableCell>
-                  <TableCell>
-                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
-                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                        <Email fontSize="small" color="action" />
-                        <Typography variant="body2">{employee.email}</Typography>
-                      </Box>
-                      {employee.phoneNumber && (
-                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                          <Phone fontSize="small" color="action" />
-                          <Typography variant="body2">
-                            {formatPhone(employee.phoneNumber)}
-                          </Typography>
-                        </Box>
-                      )}
-                    </Box>
-                  </TableCell>
-                  <TableCell>
-                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
-                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                        <Business fontSize="small" color="action" />
-                        <Typography variant="body2">{employee.roleName}</Typography>
-                      </Box>
-                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                        <LocationOn fontSize="small" color="action" />
-                        <Typography variant="body2">{employee.departmentName}</Typography>
-                      </Box>
-                      {employee.shiftName && (
-                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                          <AccessTime fontSize="small" color="action" />
-                          <Typography variant="body2">{employee.shiftName}</Typography>
-                        </Box>
-                      )}
-                    </Box>
-                  </TableCell>
-                  <TableCell>
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                      <Chip
-                        label={employee.employmentStatus}
-                        size="small"
-                        color={getStatusColor(employee.employmentStatus) as any}
-                        variant="outlined"
-                      />
-                      {onStatusChange && (
-                        <Tooltip title="Toggle Active Status">
-                          <Switch
+      <div className="col-span-12">
+        <div className="card__wrapper">
+          <div className="manaz-common-mat-list w-full table__wrapper table-responsive">
+            <TableControls
+              rowsPerPage={rowsPerPage}
+              searchQuery={searchQuery}
+              handleChangeRowsPerPage={handleChangeRowsPerPage}
+              handleSearchChange={handleSearchChange}
+            />
+            
+            <Box sx={{ width: "100%" }} className="table-responsive">
+              <Paper sx={{ width: "100%", mb: 2 }}>
+                <TableContainer className="table mb-[20px] hover multiple_tables w-full">
+                  <Table aria-labelledby="tableTitle" className="whitespace-nowrap">
+                    <TableHead>
+                      <TableRow className="table__title">
+                        <TableCell padding="checkbox">
+                          <Checkbox
+                            className="custom-checkbox checkbox-small"
+                            color="primary"
+                            indeterminate={selected.length > 0 && selected.length < filteredData.length}
+                            checked={filteredData.length > 0 && selected.length === filteredData.length}
+                            onChange={handleSelectAllClick}
                             size="small"
-                            checked={employee.employmentStatus === 'Active'}
-                            onChange={(e) => {
-                              e.stopPropagation();
-                              onStatusChange(
-                                employee.employeeId,
-                                e.target.checked ? 'Active' : 'Inactive'
-                              );
-                            }}
-                            color="success"
                           />
-                        </Tooltip>
-                      )}
-                    </Box>
-                  </TableCell>
-                  <TableCell>
-                    <Typography variant="body2">
-                      {formatDate(employee.dateOfJoining)}
-                    </Typography>
-                  </TableCell>
-                  <TableCell>
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                      <Tooltip title="View Profile">
-                        <IconButton
-                          size="small"
-                          onClick={() => window.location.href = `/owner/employees/${employee.employeeId}`}
-                        >
-                          <Visibility fontSize="small" />
-                        </IconButton>
-                      </Tooltip>
-                      <Tooltip title="Edit">
-                        <IconButton
-                          size="small"
-                          onClick={() => onEdit(employee)}
-                        >
-                          <Edit fontSize="small" />
-                        </IconButton>
-                      </Tooltip>
-                      <Tooltip title="More Actions">
-                        <IconButton
-                          size="small"
-                          onClick={(e) => handleMenuOpen(e, employee)}
-                        >
-                          <MoreVert fontSize="small" />
-                        </IconButton>
-                      </Tooltip>
-                    </Box>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </TableContainer>
-      </Paper>
+                        </TableCell>
+                        {employeeHeadCells.map((headCell) => (
+                          <TableCell
+                            className="table__title"
+                            key={headCell.id}
+                            sortDirection={orderBy === headCell.id ? order : false}
+                          >
+                            <TableSortLabel
+                              active={orderBy === headCell.id}
+                              direction={orderBy === headCell.id ? order : "asc"}
+                              onClick={() => handleRequestSort(headCell.id)}
+                            >
+                              {headCell.label}
+                              {orderBy === headCell.id ? (
+                                <Box component="span" sx={visuallyHidden}>
+                                  {order === "desc" ? "sorted descending" : "sorted ascending"}
+                                </Box>
+                              ) : null}
+                            </TableSortLabel>
+                          </TableCell>
+                        ))}
+                        <TableCell>Actions</TableCell>
+                      </TableRow>
+                    </TableHead>
+                    
+                    <TableBody className="table__body">
+                      {paginatedRows.map((employee) => {
+                        const statusClass = getStatusColor(employee.employmentStatus);
+                        
+                        return (
+                          <TableRow
+                            key={employee.employeeId}
+                            hover
+                            selected={selected.includes(employee.employeeId)}
+                            onClick={() => handleClick(employee.employeeId)}
+                          >
+                            <TableCell padding="checkbox">
+                              <Checkbox
+                                className="custom-checkbox checkbox-small"
+                                checked={selected.includes(employee.employeeId)}
+                                onChange={() => handleClick(employee.employeeId)}
+                                size="small"
+                              />
+                            </TableCell>
+                            <TableCell>
+                              <div className="flex items-center">
+                                <Avatar
+                                  src={employee.profilePhoto}
+                                  sx={{ width: 32, height: 32, mr: 2, bgcolor: 'primary.main' }}
+                                >
+                                  {getInitials(employee.firstName, employee.lastName)}
+                                </Avatar>
+                                <div>
+                                  <div className="font-medium">
+                                    {employee.preferredName || `${employee.firstName} ${employee.lastName}`}
+                                  </div>
+                                  <div className="text-sm text-gray-500">
+                                    {employee.employeeCode || employee.employeeId}
+                                  </div>
+                                </div>
+                              </div>
+                            </TableCell>
+                            <TableCell>
+                              <div className="flex flex-col gap-1">
+                                <div className="flex items-center">
+                                  <Email className="mr-1 text-gray-500" fontSize="small" />
+                                  <span className="text-sm">{employee.email}</span>
+                                </div>
+                                {employee.phoneNumber && (
+                                  <div className="flex items-center">
+                                    <Phone className="mr-1 text-gray-500" fontSize="small" />
+                                    <span className="text-sm">{formatPhone(employee.phoneNumber)}</span>
+                                  </div>
+                                )}
+                              </div>
+                            </TableCell>
+                            <TableCell>
+                              <div className="flex flex-col gap-1">
+                                <div className="flex items-center">
+                                  <Business className="mr-1 text-gray-500" fontSize="small" />
+                                  <span className="text-sm">{employee.roleName || '-'}</span>
+                                </div>
+                                <div className="flex items-center">
+                                  <LocationOn className="mr-1 text-gray-500" fontSize="small" />
+                                  <span className="text-sm">{employee.departmentName || '-'}</span>
+                                </div>
+                                {employee.shiftName && (
+                                  <div className="flex items-center">
+                                    <AccessTime className="mr-1 text-gray-500" fontSize="small" />
+                                    <span className="text-sm">{employee.shiftName}</span>
+                                  </div>
+                                )}
+                              </div>
+                            </TableCell>
+                            <TableCell>
+                              <div className="flex items-center gap-2">
+                                <span className={`bd-badge ${statusClass}`}>
+                                  {employee.employmentStatus}
+                                </span>
+                                {onStatusChange && (
+                                  <Tooltip title="Toggle Active Status">
+                                    <Switch
+                                      size="small"
+                                      className="custom-switch"
+                                      checked={employee.employmentStatus === 'Active'}
+                                      onChange={(e) => {
+                                        e.stopPropagation();
+                                        onStatusChange(
+                                          employee.employeeId,
+                                          e.target.checked ? 'Active' : 'Inactive'
+                                        );
+                                      }}
+                                      color="success"
+                                    />
+                                  </Tooltip>
+                                )}
+                              </div>
+                            </TableCell>
+                            <TableCell>
+                              <span className="font-medium">{formatDate(employee.dateOfJoining)}</span>
+                            </TableCell>
+                            <TableCell className="table__icon-box">
+                              <div className="flex items-center justify-start gap-[10px]">
+                                <button
+                                  type="button"
+                                  className="table__icon edit"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    onEdit(employee);
+                                  }}
+                                  title="Edit Employee"
+                                >
+                                  <i className="fa-regular fa-pen-to-square"></i>
+                                </button>
+                                <button
+                                  type="button"
+                                  className="table__icon download"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    window.location.href = `/owner/employees/${employee.employeeId}`;
+                                  }}
+                                  title="View Profile"
+                                >
+                                  <i className="fa-regular fa-eye"></i>
+                                </button>
+                                <button
+                                  className="removeBtn table__icon delete"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    setDeleteId(employee.employeeId);
+                                    setModalDeleteOpen(true);
+                                  }}
+                                  title="Delete Employee"
+                                >
+                                  <i className="fa-regular fa-trash"></i>
+                                </button>
+                                <button
+                                  type="button"
+                                  className="table__icon"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleMenuOpen(e, employee);
+                                  }}
+                                  title="More Actions"
+                                >
+                                  <MoreVert fontSize="small" />
+                                </button>
+                              </div>
+                            </TableCell>
+                          </TableRow>
+                        );
+                      })}
+                    </TableBody>
+                  </Table>
+                </TableContainer>
+              </Paper>
+            </Box>
+            
+            <Box className="table-search-box mt-[30px]" sx={{ p: 2 }}>
+              <Box>
+                {`Showing ${(page - 1) * rowsPerPage + 1} to ${Math.min(
+                  page * rowsPerPage,
+                  filteredData.length
+                )} of ${filteredData.length} entries`}
+                {searchQuery && (
+                  <span className="ml-2 text-sm text-gray-600">
+                    (Filtered by: `{searchQuery}`)
+                  </span>
+                )}
+              </Box>
+              <Pagination
+                count={Math.ceil(filteredData.length / rowsPerPage)}
+                page={page}
+                onChange={(e, value) => handleChangePage(value)}
+                variant="outlined"
+                shape="rounded"
+                className="manaz-pagination-button"
+              />
+            </Box>
+          </div>
+        </div>
+      </div>
+
+      {/* Bulk Actions Bar */}
+      {selected.length > 0 && (
+        <div className="card__wrapper mb-4">
+          <div className="p-4 bg-primary-50 rounded-lg">
+            <div className="flex items-center justify-between">
+              <div className="text-primary-700 font-medium">
+                {selected.length} employee(s) selected
+              </div>
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  className="px-3 py-1.5 bg-primary-500 text-white rounded-md hover:bg-primary-600 flex items-center gap-1 text-sm"
+                  onClick={() => {
+                    const selectedEmployees = data.filter(emp => selected.includes(emp.employeeId));
+                    console.log('Bulk send onboarding:', selectedEmployees);
+                  }}
+                >
+                  <Send fontSize="small" />
+                  Send Onboarding
+                </button>
+                <button
+                  type="button"
+                  className="px-3 py-1.5 bg-gray-600 text-white rounded-md hover:bg-gray-700 flex items-center gap-1 text-sm"
+                  onClick={() => {
+                    console.log('Bulk export:', selected);
+                  }}
+                >
+                  <FileDownload fontSize="small" />
+                  Export Selected
+                </button>
+                <button
+                  type="button"
+                  className="px-3 py-1.5 bg-red-500 text-white rounded-md hover:bg-red-600 flex items-center gap-1 text-sm"
+                  onClick={() => {
+                    if (window.confirm(`Delete ${selected.length} employee(s)?`)) {
+                      selected.forEach(id => onDelete(id));
+                      setSelected([]);
+                    }
+                  }}
+                >
+                  <Delete fontSize="small" />
+                  Delete Selected
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Actions Menu */}
       <Menu
@@ -297,7 +505,7 @@ const EmployeeTable: React.FC<EmployeeTableProps> = ({
               }}>
                 <Send fontSize="small" sx={{ mr: 1 }} />
                 Send Onboarding Email
-              </MenuItem>
+            </MenuItem>
             )}
             
             <MenuItem onClick={() => {
@@ -320,9 +528,8 @@ const EmployeeTable: React.FC<EmployeeTableProps> = ({
             </MenuItem>
             
             <MenuItem onClick={() => {
-              if (window.confirm(`Are you sure you want to delete ${selectedEmployee.firstName} ${selectedEmployee.lastName}?`)) {
-                onDelete(selectedEmployee.employeeId);
-              }
+              setDeleteId(selectedEmployee.employeeId);
+              setModalDeleteOpen(true);
               handleMenuClose();
             }} sx={{ color: 'error.main' }}>
               <Delete fontSize="small" sx={{ mr: 1 }} />
@@ -332,64 +539,13 @@ const EmployeeTable: React.FC<EmployeeTableProps> = ({
         )}
       </Menu>
 
-      {/* Bulk Actions Bar */}
-      {selected.length > 0 && (
-        <Paper sx={{ 
-          p: 2, 
-          mb: 2, 
-          bgcolor: 'primary.light',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between'
-        }}>
-          <Typography variant="body2" color="primary.contrastText">
-            {selected.length} employee(s) selected
-          </Typography>
-          <Box sx={{ display: 'flex', gap: 1 }}>
-            <Button
-              variant="contained"
-              size="small"
-              color="primary"
-              className="!text-white"
-              onClick={() => {
-                // Bulk action: Send onboarding emails
-                const selectedEmployees = data.filter(emp => selected.includes(emp.employeeId));
-                console.log('Bulk send onboarding:', selectedEmployees);
-              }}
-            >
-              <Send fontSize="small" sx={{ mr: 1 }} />
-              Send Onboarding
-            </Button>
-            <Button
-              variant="contained"
-              size="small"
-              color="secondary"
-              className="!text-white"
-              onClick={() => {
-                // Bulk action: Export selected
-                console.log('Bulk export:', selected);
-              }}
-            >
-              <FileDownload fontSize="small" sx={{ mr: 1 }} />
-              Export Selected
-            </Button>
-            <Button
-              variant="contained"
-              size="small"
-              color="error"
-              className="!text-white"
-              onClick={() => {
-                if (window.confirm(`Delete ${selected.length} employee(s)?`)) {
-                  selected.forEach(id => onDelete(id));
-                  setSelected([]);
-                }
-              }}
-            >
-              <Delete fontSize="small" sx={{ mr: 1, color: 'white' }} />
-              Delete Selected
-            </Button>
-          </Box>
-        </Paper>
+      {modalDeleteOpen && (
+       <DeleteModal
+  open={modalDeleteOpen}
+  setOpen={setModalDeleteOpen}
+  onConfirm={() => handleDelete(deleteId)}
+/>
+
       )}
     </>
   );

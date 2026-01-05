@@ -4,23 +4,23 @@ import React, { useState } from "react";
 import HrManagersTable from "./HrManagersTable";
 import AllHrManagersSummary from "./AllHrManagersSummary";
 import HrManagerFilters from "./HrManagerFilters";
+// import AddHrManagerModal from "./AddHrManagerModal";
 import { useRouter } from "next/navigation";
 
 const HrManagersMainArea = () => {
-  const [selectedStatus, setSelectedStatus] = useState<string>("all");
-  const [selectedDepartment, setSelectedDepartment] = useState<string>("all");
-  const [selectedCompany, setSelectedCompany] = useState<string>("all");
-  const [dateRange, setDateRange] = useState<{ start: string; end: string }>({
-    start: "2024-01-01",
-    end: "2024-03-31"
+  const [modalOpen, setModalOpen] = useState(false);
+  const [selectedStatus, setSelectedStatus] = useState("all");
+  const [selectedDepartment, setSelectedDepartment] = useState("all");
+  const [selectedCompany, setSelectedCompany] = useState("all");
+  // REMOVE DEFAULT DATE RANGE - let it be empty
+  const [dateRange, setDateRange] = useState({
+    start: "",
+    end: "",
   });
 
   const router = useRouter();
 
-  const handleAddClick = () => {
-    router.push("/super-admin/hr-managers/add-hr-manager");
-  };
-
+  // Use the same pattern as StaffMainArea
   return (
     <>
       <div className="app__slide-wrapper">
@@ -36,7 +36,7 @@ const HrManagersMainArea = () => {
             <div className="breadcrumb__btn">
               <button
                 type="button"
-                onClick={handleAddClick}
+                onClick={() => setModalOpen(true)}
                 className="btn btn-primary"
               >
                 <i className="fa-regular fa-plus mr-2"></i>
@@ -45,10 +45,12 @@ const HrManagersMainArea = () => {
             </div>
           </div>
         </div>
-        <div className="grid grid-cols-12 gap-x-6 maxXs:gap-x-0">
+
+        <div className="grid grid-cols-12 gap-x-6">
           <AllHrManagersSummary />
         </div>
 
+        {/* Filters Section - Same pattern as StaffFilters */}
         <HrManagerFilters
           selectedStatus={selectedStatus}
           setSelectedStatus={setSelectedStatus}
@@ -59,6 +61,8 @@ const HrManagersMainArea = () => {
           dateRange={dateRange}
           setDateRange={setDateRange}
         />
+
+        {/* Table Section - Pass filters as props like StaffTable */}
         <HrManagersTable
           status={selectedStatus}
           department={selectedDepartment}
@@ -66,6 +70,8 @@ const HrManagersMainArea = () => {
           dateRange={dateRange}
         />
       </div>
+
+      {/* {modalOpen && <AddHrManagerModal open={modalOpen} setOpen={setModalOpen} />} */}
     </>
   );
 };

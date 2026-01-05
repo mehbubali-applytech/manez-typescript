@@ -10,13 +10,12 @@ import {
 } from "@mui/material";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
-
 import { IDepartment } from "./DepartmentTypes";
-import { statePropsType } from "@/interface/common.interface";
-import InputField from "@/components/elements/SharedInputs/InputField";
 
-interface Props extends statePropsType {
-  editData: IDepartment | null; // ✅ FIXED
+interface Props {
+  open: boolean;
+  setOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  editData: IDepartment | null;
   onSave: (payload: Partial<IDepartment>) => void;
 }
 
@@ -42,68 +41,55 @@ const UpdateDepartmentModal: React.FC<Props> = ({
     }
   }, [editData, reset]);
 
-      const departmentList = [
-        {
-            id: 1,
-            name: "HR",
-            departmentCode: "HR01",
-            subDepartments: [
-                { id: 3, name: "Recruitment", departmentCode: "HR01-1" },
-                { id: 4, name: "Employee Relations", departmentCode: "HR01-2" },
-            ],
-        },
-        {
-            id: 2,
-            name: "IT",
-            departmentCode: "IT01",
-            subDepartments: [
-                { id: 5, name: "Infrastructure", departmentCode: "IT01-1" },
-                { id: 6, name: "Software Development", departmentCode: "IT01-2" },
-            ],
-        },
-        {
-            id: 7,
-            name: "Finance",
-            departmentCode: "FIN01",
-            subDepartments: [
-                { id: 8, name: "Accounts Payable", departmentCode: "FIN01-1" },
-                { id: 9, name: "Accounts Receivable", departmentCode: "FIN01-2" },
-            ],
-        },
-        {
-            id: 10,
-            name: "Marketing",
-            departmentCode: "MKT01",
-            subDepartments: [
-                { id: 11, name: "Digital Marketing", departmentCode: "MKT01-1" },
-                { id: 12, name: "Content Creation", departmentCode: "MKT01-2" },
-            ],
-        },
-    ];
+  const departmentList = [
+    {
+      id: 1,
+      name: "HR",
+      departmentCode: "HR01",
+      subDepartments: [
+        { id: 3, name: "Recruitment", departmentCode: "HR01-1" },
+        { id: 4, name: "Employee Relations", departmentCode: "HR01-2" },
+      ],
+    },
+    {
+      id: 2,
+      name: "IT",
+      departmentCode: "IT01",
+      subDepartments: [
+        { id: 5, name: "Infrastructure", departmentCode: "IT01-1" },
+        { id: 6, name: "Software Development", departmentCode: "IT01-2" },
+      ],
+    },
+  ];
 
-    // Flatten departments + sub-departments for datalist
-    const datalistOptions = departmentList.map((dep) => ({
-        id: dep.id,
-        label: `${dep.name} (${dep.departmentCode})`,
-    }));
+  // Flatten departments + sub-departments for datalist
+  const datalistOptions = departmentList.flatMap((dep) => [
+    {
+      id: dep.id,
+      label: `${dep.name} (${dep.departmentCode})`,
+    },
+    ...dep.subDepartments.map((sub) => ({
+      id: sub.id,
+      label: `${sub.name} (${sub.departmentCode})`,
+    })),
+  ]);
 
-  const handleStatusChange = (
-    event: React.ChangeEvent<HTMLInputElement>
-  ) => {
+  const handleStatusChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setStatus(event.target.checked);
   };
 
   const onSubmit = (data: IDepartment) => {
-    if (!editData) return; 
+    if (!editData) return;
 
-    onSave({
+    const updatedData = {
       ...editData,
       ...data,
       status: status ? "Active" : "Inactive",
-    });
+    };
 
+    onSave(updatedData);
     toast.success("Department updated successfully!");
-    setTimeout(() => setOpen(false), 500);
+    setOpen(false);
   };
 
   return (
@@ -113,34 +99,93 @@ const UpdateDepartmentModal: React.FC<Props> = ({
         <form onSubmit={handleSubmit(onSubmit)}>
           <div className="grid grid-cols-12 gap-6">
             <div className="col-span-6">
-              <InputField
-                id="name"
-                label="Department Name"
-                register={register("name", { required: "Required" })}
-                error={errors.name}
-              />
+              <div className="mb-4">
+                <label className="form-label">Department Name</label>
+                <input
+                  className="form-control"
+                  {...register("departmentName", { required: "Required" })}
+                />
+                {errors.departmentName && (
+                  <span className="text-red-500 text-sm">
+                    {errors.departmentName.message}
+                  </span>
+                )}
+              </div>
             </div>
 
             <div className="col-span-6">
-              <InputField
-                id="departmentCode"
-                label="Department Code"
-                register={register("departmentCode", { required: "Required" })}
-                error={errors.departmentCode}
-              />
+              <div className="mb-4">
+                <label className="form-label">Department Code</label>
+                <input
+                  className="form-control"
+                  {...register("departmentCode", { required: "Required" })}
+                />
+                {errors.departmentCode && (
+                  <span className="text-red-500 text-sm">
+                    {errors.departmentCode.message}
+                  </span>
+                )}
+              </div>
             </div>
 
             <div className="col-span-6">
-              <InputField
-                id="head"
-                label="Department Head"
-                register={register("head")}
-              />
+              <div className="mb-4">
+                <label className="form-label">Manager Name</label>
+                <input
+                  className="form-control"
+                  {...register("managerName")}
+                />
+              </div>
             </div>
 
-            <div className="col-span-2 items-center mt-5">
+            <div className="col-span-6">
+              <div className="mb-4">
+                <label className="form-label">Department Type</label>
+                <select
+                  className="form-control"
+                  {...register("departmentType")}
+                >
+                  <option value="Technical">Technical</option>
+                  <option value="Administrative">Administrative</option>
+                  <option value="Support">Support</option>
+                  <option value="Operations">Operations</option>
+                </select>
+              </div>
+            </div>
+
+            <div className="col-span-6">
+              <div className="mb-4">
+                <label className="form-label">Manager Email</label>
+                <input
+                  className="form-control"
+                  type="email"
+                  {...register("managerEmail")}
+                />
+              </div>
+            </div>
+
+            <div className="col-span-6">
+              <div className="mb-4">
+                <label className="form-label">Manager Phone</label>
+                <input
+                  className="form-control"
+                  {...register("managerPhone")}
+                />
+              </div>
+            </div>
+
+            <div className="col-span-6">
+              <div className="mb-4">
+                <label className="form-label">Location</label>
+                <input
+                  className="form-control"
+                  {...register("location")}
+                />
+              </div>
+            </div>
+
+            <div className="col-span-6 flex items-center">
               <FormControlLabel
-                label="Status"
                 control={
                   <Switch
                     checked={status}
@@ -149,56 +194,52 @@ const UpdateDepartmentModal: React.FC<Props> = ({
                     color="primary"
                   />
                 }
-              />
-            </div>
-
-            <div className="col-span-4">
-              <InputField
-                id="phone"
-                label="Phone"
-                register={register("phone")}
+                label={status ? "Active" : "Inactive"}
               />
             </div>
 
             <div className="col-span-6">
-              <InputField
-                id="email"
-                label="Email"
-                register={register("email")}
-              />
+              <div className="mb-4">
+                <label className="form-label">Budget</label>
+                <input
+                  className="form-control"
+                  type="number"
+                  {...register("budget")}
+                />
+              </div>
             </div>
 
-            {/* Parent Department (Datalist) */}
             <div className="col-span-6">
-              <label className="form-label">Parent Department</label>
-              <input
-                className="form-control"
-                list="departmentOptions"
-                placeholder="Type to search department"
-                {...register("parentDepartmentId")}
-              />
-
-              <datalist id="departmentOptions">
-                {datalistOptions.map((opt) => (
-                  <option key={opt.id}>
-                    {opt.label}
-                  </option>
-                ))}
-              </datalist>
-
+              <div className="mb-4">
+                <label className="form-label">Employee Count</label>
+                <input
+                  className="form-control"
+                  type="number"
+                  {...register("employeeCount")}
+                />
+              </div>
             </div>
 
             <div className="col-span-12">
-              <InputField
-                id="description"
-                label="Description"
-                register={register("description")}
-                isTextArea
-              />
+              <div className="mb-4">
+                <label className="form-label">Description</label>
+                <textarea
+                  className="form-control"
+                  rows={3}
+                  {...register("description")}
+                />
+              </div>
             </div>
           </div>
 
-          <div className="text-center mt-6">
+          <div className="flex justify-end gap-3 mt-6">
+            <button
+              type="button"
+              className="btn btn-secondary"
+              onClick={() => setOpen(false)}
+            >
+              Cancel
+            </button>
             <button className="btn btn-primary" type="submit">
               Update
             </button>

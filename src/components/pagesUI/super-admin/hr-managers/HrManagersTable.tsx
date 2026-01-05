@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import Box from "@mui/material/Box";
 import Table from "@mui/material/Table";
 import TableBody from "@mui/material/TableBody";
@@ -11,7 +11,6 @@ import TableRow from "@mui/material/TableRow";
 import TableSortLabel from "@mui/material/TableSortLabel";
 import Paper from "@mui/material/Paper";
 import { visuallyHidden } from "@mui/utils";
-import useMaterialTableHook from "@/hooks/useMaterialTableHook";
 import { Checkbox, Avatar, Rating, Typography, Chip } from "@mui/material";
 import TableControls from "@/components/elements/SharedInputs/TableControls";
 import DeleteModal from "@/components/common/DeleteModal";
@@ -20,14 +19,14 @@ import PersonIcon from "@mui/icons-material/Person";
 import EmailIcon from "@mui/icons-material/Email";
 import PhoneIcon from "@mui/icons-material/Phone";
 import BusinessIcon from "@mui/icons-material/Business";
-import ApartmentIcon from "@mui/icons-material/Apartment";
 import CalendarTodayIcon from "@mui/icons-material/CalendarToday";
 import EditIcon from "@mui/icons-material/Edit";
 import VisibilityIcon from "@mui/icons-material/Visibility";
+import WorkIcon from "@mui/icons-material/Work";
 import { IHrManager } from "./hr-managers.interface";
-import { useRouter } from "next/navigation";
 
-const hrManagersData: IHrManager[] = [
+// Mock data - Ensure this is properly structured
+const allHrManagersData: IHrManager[] = [
   {
     id: 1,
     hrName: "John Smith",
@@ -71,6 +70,7 @@ const hrManagersData: IHrManager[] = [
     company: "Global Finance Group",
     email: "sarah.j@globalfinance.com",
     phone: "+1 (555) 234-5678",
+    mobile: "+1 (555) 876-5432",
     jobTitle: "HR Manager",
     location: "New York, NY",
     status: "Active",
@@ -92,6 +92,7 @@ const hrManagersData: IHrManager[] = [
     company: "MediCare Innovations",
     email: "michael.chen@medicareinnovations.com",
     phone: "+1 (555) 345-6789",
+    mobile: "+1 (555) 765-4321",
     jobTitle: "Recruitment Manager",
     location: "Boston, MA",
     status: "Active",
@@ -112,9 +113,10 @@ const hrManagersData: IHrManager[] = [
     company: "RetailMax Corporation",
     email: "emma.w@retailmax.co.uk",
     phone: "+44 20 7123 4567",
+    mobile: "+44 20 7123 4568",
     jobTitle: "Employee Relations Specialist",
     location: "London, UK",
-    status: "Active",
+    status: "Inactive",
     hireDate: "2022-01-15",
     yearsOfExperience: 6,
     qualifications: ["LLB", "MA in Industrial Relations"],
@@ -126,128 +128,49 @@ const hrManagersData: IHrManager[] = [
   },
   {
     id: 5,
-    hrName: "David Brown",
+    hrName: "David Miller",
     hrCode: "HR-005",
-    department: "Learning & Development",
-    company: "EduTech Solutions",
-    email: "david.b@edutechsolutions.au",
-    phone: "+61 2 8765 4321",
-    jobTitle: "L&D Manager",
-    location: "Sydney, NSW",
-    status: "Pending",
-    hireDate: "2023-03-01",
-    yearsOfExperience: 7,
-    qualifications: ["M.Ed", "Certified Trainer"],
-    certifications: ["CPLP", "ATD Master Trainer"],
-    specializations: ["Leadership Development", "e-Learning"],
-    managedEmployees: 180,
-    reportingTo: "HR Director",
-    rating: 4.4,
-    tag: "Training"
-  },
-  {
-    id: 6,
-    hrName: "Robert Williams",
-    hrCode: "HR-006",
     department: "Compensation & Benefits",
-    company: "EcoManufacture Inc",
-    email: "robert.w@ecomanufacture.ca",
-    phone: "+1 (416) 555-7890",
+    company: "Alpha Industries",
+    email: "david.m@alphaind.com",
+    phone: "+1 (555) 567-8901",
+    mobile: "+1 (555) 678-9012",
     jobTitle: "Compensation Analyst",
-    location: "Toronto, ON",
+    location: "Chicago, IL",
     status: "Active",
-    hireDate: "2018-09-12",
-    yearsOfExperience: 9,
-    qualifications: ["MBA Finance", "CPA"],
-    specializations: ["Salary Benchmarking", "Benefits Design"],
-    managedEmployees: 420,
+    hireDate: "2023-03-01",
+    yearsOfExperience: 4,
+    qualifications: ["BA in Finance", "CCP"],
+    specializations: ["Salary Surveys", "Bonus Plans"],
+    managedEmployees: 0,
     reportingTo: "HR Manager",
     rating: 4.3,
     tag: "Compensation"
   },
   {
-    id: 7,
-    hrName: "Ahmed Al-Mansoori",
-    hrCode: "HR-007",
-    department: "HR Compliance",
-    company: "RealEstate Pro",
-    email: "ahmed@realestatepro.ae",
-    phone: "+971 4 123 4567",
-    jobTitle: "Compliance Officer",
-    location: "Dubai, UAE",
-    status: "Active",
-    hireDate: "2020-08-05",
-    yearsOfExperience: 11,
-    qualifications: ["LLM", "Certified Compliance Professional"],
-    specializations: ["Legal Compliance", "Audit"],
-    managedEmployees: 320,
-    reportingTo: "HR Director",
-    rating: 4.2,
-    tag: "Compliance"
-  },
-  {
-    id: 8,
-    hrName: "Klaus Schmidt",
-    hrCode: "HR-008",
-    department: "HR Information Systems",
-    company: "LogiTrans Global",
-    email: "klaus.s@logitrans.de",
-    phone: "+49 69 12345678",
-    jobTitle: "HRIS Manager",
-    location: "Frankfurt, DE",
-    status: "Inactive",
-    hireDate: "2017-05-20",
-    yearsOfExperience: 13,
-    qualifications: ["MS IT", "MBA"],
-    certifications: ["HRIP", "PMP"],
-    specializations: ["HR Software", "Data Analytics"],
-    managedEmployees: 280,
-    reportingTo: "CIO",
-    rating: 4.1,
-    tag: "HRIS"
-  },
-  {
-    id: 9,
-    hrName: "Mark Thompson",
-    hrCode: "HR-009",
-    department: "Wellness & Engagement",
-    company: "EnergyPlus Corp",
-    email: "mark.t@energyplus.com",
-    phone: "+1 (713) 555-9012",
-    jobTitle: "Wellness Coordinator",
-    location: "Houston, TX",
-    status: "Active",
-    hireDate: "2021-02-14",
-    yearsOfExperience: 5,
-    qualifications: ["MS Psychology", "Wellness Coach"],
-    specializations: ["Employee Wellness", "Engagement Surveys"],
-    managedEmployees: 190,
-    reportingTo: "HR Manager",
-    rating: 4.0,
-    tag: "Wellness"
-  },
-  {
-    id: 10,
-    hrName: "Yuki Tanaka",
-    hrCode: "HR-010",
-    department: "International HR",
-    company: "TeleConnect Ltd",
-    email: "yuki.t@teleconnect.co.jp",
-    phone: "+81 3 1234 5678",
-    jobTitle: "International HR Manager",
-    location: "Tokyo, Japan",
+    id: 6,
+    hrName: "Lisa Wang",
+    hrCode: "HR-006",
+    department: "Learning & Development",
+    company: "Beta Technologies",
+    email: "lisa.w@betatech.com",
+    phone: "+1 (555) 678-9012",
+    mobile: "+1 (555) 789-0123",
+    jobTitle: "Training Manager",
+    location: "Seattle, WA",
     status: "On Leave",
-    hireDate: "2019-07-30",
-    yearsOfExperience: 14,
-    qualifications: ["MBA International Business", "BA Languages"],
-    specializations: ["Expat Management", "Cross-cultural Training"],
-    managedEmployees: 150,
-    reportingTo: "Global HR Director",
-    rating: 4.3,
-    tag: "International"
+    hireDate: "2020-08-15",
+    yearsOfExperience: 7,
+    qualifications: ["MA in Education", "CPLP"],
+    specializations: ["Leadership Development", "E-Learning"],
+    managedEmployees: 420,
+    reportingTo: "HR Director",
+    rating: 4.9,
+    tag: "Training"
   }
 ];
 
+// Table head cells
 const hrManagerHeadCells = [
   { id: "hrName", label: "HR Manager" },
   { id: "hrCode", label: "HR Code" },
@@ -258,7 +181,7 @@ const hrManagerHeadCells = [
   { id: "jobTitle", label: "Job Title" },
   { id: "status", label: "Status" },
   { id: "managedEmployees", label: "Managed Employees" },
-  { id: "yearsOfExperience", label: "Experience (Years)" },
+  { id: "yearsOfExperience", label: "Experience" },
   { id: "hireDate", label: "Hire Date" },
   { id: "rating", label: "Rating" },
 ];
@@ -268,98 +191,308 @@ interface HrManagersTableProps {
   department?: string;
   company?: string;
   dateRange?: { start: string; end: string };
+  onEdit?: (manager: IHrManager) => void;
+  onDelete?: (id: number) => void;
 }
 
-const HrManagersTable: React.FC<HrManagersTableProps> = ({
+const HrManagersTable: React.FC<HrManagersTableProps> = ({ 
   status = "all",
   department = "all",
   company = "all",
-  dateRange
+  dateRange = { start: "", end: "" },
+  onEdit,
+  onDelete
 }) => {
   const [detailsModalOpen, setDetailsModalOpen] = useState(false);
   const [selectedHrManager, setSelectedHrManager] = useState<IHrManager | null>(null);
   const [modalDeleteOpen, setModalDeleteOpen] = useState(false);
   const [deleteId, setDeleteId] = useState<number>(0);
-  const router = useRouter();
+  
+  // State for table controls
+  const [selected, setSelected] = useState<number[]>([]);
+  const [page, setPage] = useState(1);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [order, setOrder] = useState<"asc" | "desc">("asc");
+  const [orderBy, setOrderBy] = useState<string>("hrName");
 
-  const filteredData = hrManagersData.filter(manager => {
-    if (status !== "all" && manager.status !== status) return false;
-    if (department !== "all" && manager.department !== department) return false;
-    if (company !== "all" && manager.company !== company) return false;
+  // DEBUG: Log the props to see what's being passed
+  useEffect(() => {
+    console.log("=== HR MANAGERS TABLE DEBUG ===");
+    console.log("Props received:", { 
+      status, 
+      department, 
+      company, 
+      dateRange,
+      hasStartDate: !!dateRange?.start,
+      hasEndDate: !!dateRange?.end
+    });
+    console.log("Total data items:", allHrManagersData.length);
+    console.log("Sample hire dates:", allHrManagersData.map(m => ({ name: m.hrName, hireDate: m.hireDate })));
+  }, [status, department, company, dateRange]);
+
+  // SIMPLIFIED FILTERING - FIXED VERSION
+  const filteredData = useMemo(() => {
+    console.log("=== FILTERING DATA ===");
+    console.log("Filters:", { status, department, company, dateRange });
     
-    if (dateRange) {
-      const hireDate = new Date(manager.hireDate);
-      const start = new Date(dateRange.start);
-      const end = new Date(dateRange.end);
-      if (hireDate < start || hireDate > end) return false;
+    let result = [...allHrManagersData];
+    
+    // Filter by status
+    if (status && status !== "all") {
+      console.log(`Filtering status: looking for "${status}"`);
+      result = result.filter(manager => {
+        const managerStatus = manager.status?.toLowerCase() || '';
+        const filterStatus = status.toLowerCase();
+        const matches = managerStatus === filterStatus;
+        console.log(`  ${manager.hrName}: ${managerStatus} === ${filterStatus} ? ${matches}`);
+        return matches;
+      });
     }
     
-    return true;
-  });
+    // Filter by department
+    if (department && department !== "all") {
+      console.log(`Filtering department: looking for "${department}"`);
+      result = result.filter(manager => {
+        const managerDept = manager.department?.toLowerCase() || '';
+        const filterDept = department.toLowerCase();
+        const matches = managerDept === filterDept;
+        console.log(`  ${manager.hrName}: ${managerDept} === ${filterDept} ? ${matches}`);
+        return matches;
+      });
+    }
+    
+    // Filter by company
+    if (company && company !== "all") {
+      console.log(`Filtering company: looking for "${company}"`);
+      result = result.filter(manager => {
+        const managerCompany = manager.company?.toLowerCase() || '';
+        const filterCompany = company.toLowerCase();
+        const matches = managerCompany === filterCompany;
+        console.log(`  ${manager.hrName}: ${managerCompany} === ${filterCompany} ? ${matches}`);
+        return matches;
+      });
+    }
+    
+    // Filter by date range (only if both dates are provided)
+    if (dateRange?.start && dateRange?.end) {
+      console.log(`Filtering date range: ${dateRange.start} to ${dateRange.end}`);
+      try {
+        const startDate = new Date(dateRange.start);
+        const endDate = new Date(dateRange.end);
+        
+        // Add one day to end date to make it inclusive
+        endDate.setDate(endDate.getDate() + 1);
+        
+        result = result.filter(manager => {
+          if (!manager.hireDate) return false;
+          try {
+            const hireDate = new Date(manager.hireDate);
+            const isInRange = hireDate >= startDate && hireDate <= endDate;
+            console.log(`  ${manager.hrName}: ${manager.hireDate} (${hireDate.toISOString()}) in range? ${isInRange}`);
+            return isInRange;
+          } catch (error) {
+            console.log(`  ${manager.hrName}: Error parsing hire date ${manager.hireDate}`);
+            return true; // Keep if date parsing fails
+          }
+        });
+      } catch (error) {
+        console.log("Error parsing date range:", error);
+        // If date parsing fails, don't filter by date
+      }
+    }
+    
+    console.log(`After filtering: ${result.length} items remaining`);
+    console.log("Filtered items:", result.map(m => ({ 
+      name: m.hrName, 
+      status: m.status, 
+      dept: m.department, 
+      company: m.company,
+      hireDate: m.hireDate 
+    })));
+    return result;
+  }, [status, department, company, dateRange]);
 
-  const {
-    order,
-    orderBy,
-    selected,
-    page,
-    rowsPerPage,
-    searchQuery,
-    paginatedRows,
-    filteredRows,
-    handleDelete,
-    handleRequestSort,
-    handleSelectAllClick,
-    handleClick,
-    handleChangePage,
-    handleChangeRowsPerPage,
-    handleSearchChange,
-  } = useMaterialTableHook<IHrManager>(filteredData, 10);
+  // Filter by search query
+  const searchedData = useMemo(() => {
+    if (!searchQuery.trim()) {
+      return filteredData;
+    }
+    
+    const query = searchQuery.toLowerCase();
+    console.log(`Searching with query: "${query}"`);
+    
+    return filteredData.filter(manager => {
+      const searchFields = [
+        manager.hrName,
+        manager.hrCode,
+        manager.email,
+        manager.jobTitle,
+        manager.department,
+        manager.company,
+        manager.phone,
+        manager.location,
+        manager.status
+      ].filter(Boolean).map(field => field?.toString().toLowerCase());
+      
+      const matches = searchFields.some(field => field.includes(query));
+      if (matches) {
+        console.log(`  Match found: ${manager.hrName}`);
+      }
+      return matches;
+    });
+  }, [filteredData, searchQuery]);
 
-  const getStatusClass = (status?: string) => {
-    if (!status) return "default";
-    switch (status.toLowerCase()) {
-      case "active":
-        return "success";
-      case "inactive":
-        return "error";
-      case "on leave":
-        return "warning";
-      case "pending":
-        return "info";
-      default:
-        return "default";
+  // Sort data
+  const sortedData = useMemo(() => {
+    if (searchedData.length === 0) return [];
+    
+    return [...searchedData].sort((a, b) => {
+      let aValue: any = '';
+      let bValue: any = '';
+      
+      // Get values for sorting
+      switch (orderBy) {
+        case "hrName":
+        case "hrCode":
+        case "company":
+        case "department":
+        case "email":
+        case "phone":
+        case "jobTitle":
+        case "status":
+        case "hireDate":
+          aValue = (a[orderBy as keyof IHrManager] || '').toString().toLowerCase();
+          bValue = (b[orderBy as keyof IHrManager] || '').toString().toLowerCase();
+          break;
+        case "managedEmployees":
+        case "yearsOfExperience":
+        case "rating":
+          aValue = Number(a[orderBy as keyof IHrManager] || 0);
+          bValue = Number(b[orderBy as keyof IHrManager] || 0);
+          break;
+        default:
+          aValue = '';
+          bValue = '';
+      }
+      
+      // Sort based on order
+      if (typeof aValue === 'string' && typeof bValue === 'string') {
+        return order === "asc" ? aValue.localeCompare(bValue) : bValue.localeCompare(aValue);
+      } else {
+        return order === "asc" ? aValue - bValue : bValue - aValue;
+      }
+    });
+  }, [searchedData, order, orderBy]);
+
+  // Paginate data
+  const paginatedRows = useMemo(() => {
+    const startIndex = (page - 1) * rowsPerPage;
+    const endIndex = startIndex + rowsPerPage;
+    return sortedData.slice(startIndex, endIndex);
+  }, [sortedData, page, rowsPerPage]);
+
+  // Reset to page 1 when filters change
+  useEffect(() => {
+    setPage(1);
+  }, [status, department, company, dateRange, searchQuery]);
+
+  const handleSelectAllClick = (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (event.target.checked && sortedData.length > 0) {
+      setSelected(sortedData.map(manager => manager.id));
+    } else {
+      setSelected([]);
     }
   };
 
-  const getDepartmentClass = (department?: string) => {
-    if (!department) return "default";
+  const handleClick = (id: number) => {
+    const selectedIndex = selected.indexOf(id);
+    let newSelected: number[] = [];
+
+    if (selectedIndex === -1) {
+      newSelected = [...selected, id];
+    } else if (selectedIndex === 0) {
+      newSelected = selected.slice(1);
+    } else if (selectedIndex === selected.length - 1) {
+      newSelected = selected.slice(0, -1);
+    } else if (selectedIndex > 0) {
+      newSelected = [
+        ...selected.slice(0, selectedIndex),
+        ...selected.slice(selectedIndex + 1)
+      ];
+    }
+
+    setSelected(newSelected);
+  };
+
+  const handleRequestSort = (property: string) => {
+    const isAsc = orderBy === property && order === "asc";
+    setOrder(isAsc ? "desc" : "asc");
+    setOrderBy(property);
+  };
+
+  const handleChangePage = (newPage: number) => {
+    setPage(newPage);
+  };
+
+  const handleChangeRowsPerPage = (newRowsPerPage: number) => {
+    setRowsPerPage(newRowsPerPage);
+    setPage(1);
+  };
+
+  const handleSearchChange = (value: string) => {
+    setSearchQuery(value);
+    setPage(1);
+  };
+
+  const getStatusClass = (status: string = "Active") => {
+    const statusLower = status.toLowerCase();
+    if (statusLower.includes("active")) return "success";
+    if (statusLower.includes("inactive")) return "error";
+    if (statusLower.includes("leave")) return "warning";
+    if (statusLower.includes("pending")) return "info";
+    return "default";
+  };
+
+  const getDepartmentClass = (department: string = "") => {
     const deptLower = department.toLowerCase();
-    if (deptLower.includes("human resources") || deptLower.includes("hr")) return "primary";
-    if (deptLower.includes("talent")) return "info";
-    if (deptLower.includes("recruitment")) return "secondary";
+    if (deptLower.includes("human resources")) return "primary";
+    if (deptLower.includes("operations")) return "info";
+    if (deptLower.includes("talent") || deptLower.includes("recruitment")) return "secondary";
     if (deptLower.includes("employee")) return "success";
     if (deptLower.includes("compensation")) return "warning";
-    if (deptLower.includes("compliance")) return "error";
     if (deptLower.includes("learning") || deptLower.includes("training")) return "info";
-    if (deptLower.includes("wellness")) return "success";
-    if (deptLower.includes("international")) return "primary";
     return "default";
   };
 
   const handleViewHrManager = (manager: IHrManager) => {
-    router.push(`/super-admin/hr-managers/${manager.id}`);
+    setSelectedHrManager(manager);
+    setDetailsModalOpen(true);
   };
 
-  const formatDate = (dateString?: string) => {
+  const handleDelete = (id: number) => {
+    if (onDelete) {
+      onDelete(id);
+    }
+    setModalDeleteOpen(false);
+    setSelected(selected.filter(item => item !== id));
+  };
+
+  const formatDate = (dateString: string = "") => {
     if (!dateString) return "N/A";
-    return new Date(dateString).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric'
-    });
+    try {
+      return new Date(dateString).toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric'
+      });
+    } catch (error) {
+      return dateString;
+    }
   };
 
-  const getInitials = (name: string) => {
+  const getInitials = (name: string = "") => {
+    if (!name.trim()) return "HR";
     return name
       .split(' ')
       .map(part => part[0])
@@ -367,6 +500,10 @@ const HrManagersTable: React.FC<HrManagersTableProps> = ({
       .toUpperCase()
       .slice(0, 2);
   };
+
+  // Check if we should show data or empty state
+  const shouldShowEmptyState = paginatedRows.length === 0;
+  const hasDateFilter = dateRange?.start && dateRange?.end;
 
   return (
     <>
@@ -390,9 +527,9 @@ const HrManagersTable: React.FC<HrManagersTableProps> = ({
                           <Checkbox
                             className="custom-checkbox checkbox-small"
                             color="primary"
-                            indeterminate={selected.length > 0 && selected.length < filteredRows.length}
-                            checked={filteredRows.length > 0 && selected.length === filteredRows.length}
-                            onChange={(e) => handleSelectAllClick(e.target.checked, filteredRows)}
+                            indeterminate={selected.length > 0 && selected.length < sortedData.length}
+                            checked={sortedData.length > 0 && selected.length === sortedData.length}
+                            onChange={handleSelectAllClick}
                             size="small"
                           />
                         </TableCell>
@@ -421,73 +558,169 @@ const HrManagersTable: React.FC<HrManagersTableProps> = ({
                     </TableHead>
 
                     <TableBody className="table__body">
-                      {paginatedRows.length === 0 ? (
+                      {shouldShowEmptyState ? (
                         <TableRow>
                           <TableCell colSpan={hrManagerHeadCells.length + 2} className="text-center py-8">
                             <div className="flex flex-col items-center justify-center">
                               <PersonIcon className="text-gray-400 mb-2" fontSize="large" />
-                              <Typography variant="body1" className="text-gray-600">
-                                No HR managers found
-                              </Typography>
-                              <Typography variant="body2" color="text.secondary">
+                              <Typography variant="body1" className="text-gray-600 mb-2">
                                 {filteredData.length === 0
-                                  ? "Try adjusting your filters to see more results"
-                                  : "Check your search query or try different keywords"}
+                                  ? "No HR managers match your filters"
+                                  : "No HR managers found with current search"}
                               </Typography>
+                              <Typography variant="body2" color="text.secondary" className="mb-4">
+                                {searchQuery.trim() 
+                                  ? `Try adjusting your search query: "${searchQuery}"`
+                                  : "Try adjusting your filters to see more results"}
+                              </Typography>
+                              
+                              {/* Enhanced Debug info */}
+                              <div className="mt-4 p-4 bg-gray-50 rounded-lg text-left max-w-md">
+                                <Typography variant="caption" className="text-gray-700 block mb-2 font-medium">
+                                  <strong>Debug Information:</strong>
+                                </Typography>
+                                <div className="text-sm text-gray-600 space-y-2">
+                                  <div className="flex justify-between">
+                                    <span>Status filter:</span>
+                                    <code className="bg-gray-200 px-2 py-1 rounded">{status}</code>
+                                  </div>
+                                  <div className="flex justify-between">
+                                    <span>Department filter:</span>
+                                    <code className="bg-gray-200 px-2 py-1 rounded">{department}</code>
+                                  </div>
+                                  <div className="flex justify-between">
+                                    <span>Company filter:</span>
+                                    <code className="bg-gray-200 px-2 py-1 rounded">{company}</code>
+                                  </div>
+                                  <div className="flex justify-between">
+                                    <span>Date range:</span>
+                                    <code className="bg-gray-200 px-2 py-1 rounded">
+                                      {dateRange?.start || "N/A"} to {dateRange?.end || "N/A"}
+                                    </code>
+                                  </div>
+                                  <div className="flex justify-between">
+                                    <span>Total data items:</span>
+                                    <code className="bg-gray-200 px-2 py-1 rounded">{allHrManagersData.length}</code>
+                                  </div>
+                                  <div className="flex justify-between">
+                                    <span>After filtering:</span>
+                                    <code className="bg-gray-200 px-2 py-1 rounded">{filteredData.length}</code>
+                                  </div>
+                                  
+                                  {/* Date Range Issue Warning */}
+                                  {hasDateFilter && filteredData.length === 0 && (
+                                    <div className="mt-3 p-2 bg-yellow-50 border border-yellow-200 rounded">
+                                      <Typography variant="caption" className="text-yellow-700 block">
+                                        <strong>⚠️ Date Range Issue:</strong> Your hire dates are: 2020-2023, 
+                                        but you are filtering for 2024. Try changing the date range to include earlier years.
+                                      </Typography>
+                                    </div>
+                                  )}
+                                </div>
+                                
+                                {/* Quick filter test buttons */}
+                                <div className="mt-4 flex flex-wrap gap-2">
+                                  <button
+                                    type="button"
+                                    className="px-3 py-1.5 text-sm bg-blue-100 text-blue-700 rounded hover:bg-blue-200"
+                                    onClick={() => {
+                                      // Show all data in console
+                                      console.log("All HR Managers Data:", allHrManagersData);
+                                      alert(
+                                        `All HR Managers (${allHrManagersData.length}):\n\n` +
+                                        allHrManagersData.map(m => 
+                                          `• ${m.hrName} (${m.status})\n  Hire Date: ${m.hireDate}\n  Company: ${m.company}`
+                                        ).join('\n\n')
+                                      );
+                                    }}
+                                  >
+                                    Show All Data
+                                  </button>
+                                  <button
+                                    type="button"
+                                    className="px-3 py-1.5 text-sm bg-green-100 text-green-700 rounded hover:bg-green-200"
+                                    onClick={() => {
+                                      // Clear date range
+                                      if (hasDateFilter) {
+                                        console.log("Clearing date range filter");
+                                        // This would require passing a callback up to parent
+                                        // For now, just show message
+                                        alert("To clear date filter, remove the dates from the date range inputs above.");
+                                      } else {
+                                        window.location.reload();
+                                      }
+                                    }}
+                                  >
+                                    {hasDateFilter ? "Clear Date Filter" : "Reset All Filters"}
+                                  </button>
+                                  <button
+                                    type="button"
+                                    className="px-3 py-1.5 text-sm bg-purple-100 text-purple-700 rounded hover:bg-purple-200"
+                                    onClick={() => {
+                                      // Show sample data that should match
+                                      const sampleData = allHrManagersData.slice(0, 3);
+                                      console.log("Sample data:", sampleData);
+                                      alert(
+                                        `Sample HR Managers:\n\n` +
+                                        sampleData.map(m => 
+                                          `• ${m.hrName}\n  Status: ${m.status}\n  Department: ${m.department}\n  Hire Date: ${m.hireDate}`
+                                        ).join('\n\n')
+                                      );
+                                    }}
+                                  >
+                                    Show Sample Data
+                                  </button>
+                                </div>
+                              </div>
                             </div>
                           </TableCell>
                         </TableRow>
                       ) : (
-                        paginatedRows.map((row, index) => {
+                        paginatedRows.map((row) => {
+                          const isSelected = selected.includes(row.id);
                           const statusClass = getStatusClass(row.status);
-                          const departmentClass = getDepartmentClass(row.department);
-                          const isRowSelected = selected.includes(index);
-                          const initials = getInitials(row.hrName);
+                          const deptClass = getDepartmentClass(row.department);
 
                           return (
                             <TableRow
                               key={row.id}
-                              selected={isRowSelected}
-                              onClick={() => handleClick(index)}
-                              className={`hover:bg-blue-50 ${isRowSelected ? 'bg-blue-50' : ''}`}
+                              hover
+                              selected={isSelected}
+                              onClick={() => handleClick(row.id)}
                             >
                               <TableCell padding="checkbox">
                                 <Checkbox
                                   className="custom-checkbox checkbox-small"
-                                  checked={isRowSelected}
+                                  checked={isSelected}
+                                  onChange={() => handleClick(row.id)}
                                   size="small"
-                                  onChange={() => handleClick(index)}
                                 />
                               </TableCell>
                               <TableCell>
                                 <div className="flex items-center">
-                                  <Avatar className="mr-3 bg-primary" sx={{ bgcolor: getStatusColor(row.status) }}>
-                                    {initials}
+                                  <Avatar className="mr-3 bg-primary">
+                                    {getInitials(row.hrName)}
                                   </Avatar>
                                   <div>
                                     <Typography variant="body2" className="font-medium">
                                       {row.hrName}
                                     </Typography>
                                     <Typography variant="caption" color="text.secondary">
-                                      ID: {row.hrCode}
+                                      {row.jobTitle}
                                     </Typography>
                                   </div>
                                 </div>
                               </TableCell>
                               <TableCell>
-                                <Chip
-                                  label={row.hrCode}
-                                  size="small"
-                                  variant="outlined"
-                                  color="primary"
-                                  className="font-medium"
-                                />
+                                <code className="bg-gray-100 px-2 py-1 rounded text-sm">
+                                  {row.hrCode}
+                                </code>
                               </TableCell>
                               <TableCell>
                                 <Chip
                                   label={row.department}
                                   size="small"
-                                  color={departmentClass as any}
+                                  color={deptClass as any}
                                   variant="filled"
                                   className="font-medium"
                                 />
@@ -495,9 +728,14 @@ const HrManagersTable: React.FC<HrManagersTableProps> = ({
                               <TableCell>
                                 <div className="flex items-center">
                                   <BusinessIcon className="mr-1 text-gray-500" fontSize="small" />
-                                  <Typography variant="body2" className="truncate max-w-[150px]">
-                                    {row.company}
-                                  </Typography>
+                                  <div>
+                                    <Typography variant="body2">
+                                      {row.company}
+                                    </Typography>
+                                    <Typography variant="caption" color="text.secondary">
+                                      {row.location}
+                                    </Typography>
+                                  </div>
                                 </div>
                               </TableCell>
                               <TableCell>
@@ -517,9 +755,12 @@ const HrManagersTable: React.FC<HrManagersTableProps> = ({
                                 </div>
                               </TableCell>
                               <TableCell>
-                                <Typography variant="body2" className="font-medium">
-                                  {row.jobTitle}
-                                </Typography>
+                                <div className="flex items-center">
+                                  <WorkIcon className="mr-1 text-gray-500" fontSize="small" />
+                                  <Typography variant="body2">
+                                    {row.jobTitle}
+                                  </Typography>
+                                </div>
                               </TableCell>
                               <TableCell>
                                 <Chip
@@ -534,13 +775,13 @@ const HrManagersTable: React.FC<HrManagersTableProps> = ({
                                 <div className="flex items-center">
                                   <PersonIcon className="mr-1 text-gray-500" fontSize="small" />
                                   <Typography variant="body2" className="font-semibold">
-                                    {row.managedEmployees?.toLocaleString() || "0"}
+                                    {(row.managedEmployees || 0).toLocaleString()}
                                   </Typography>
                                 </div>
                               </TableCell>
                               <TableCell>
                                 <Typography variant="body2" className="font-semibold">
-                                  {row.yearsOfExperience || "0"} yrs
+                                  {row.yearsOfExperience} yrs
                                 </Typography>
                               </TableCell>
                               <TableCell>
@@ -554,13 +795,13 @@ const HrManagersTable: React.FC<HrManagersTableProps> = ({
                               <TableCell>
                                 <div className="flex items-center">
                                   <Rating
-                                    value={row.rating}
+                                    value={row.rating || 0}
                                     readOnly
                                     size="small"
                                     precision={0.1}
                                   />
                                   <Typography variant="body2" className="ml-2 font-semibold">
-                                    {row.rating.toFixed(1)}
+                                    {(row.rating || 0).toFixed(1)}
                                   </Typography>
                                 </div>
                               </TableCell>
@@ -582,7 +823,9 @@ const HrManagersTable: React.FC<HrManagersTableProps> = ({
                                     className="table__icon edit p-1.5 hover:bg-green-100 rounded"
                                     onClick={(e) => {
                                       e.stopPropagation();
-                                      router.push(`/super-admin/hr-managers/edit/${row.id}`);
+                                      if (onEdit) {
+                                        onEdit(row);
+                                      }
                                     }}
                                     title="Edit HR Manager"
                                   >
@@ -612,68 +855,120 @@ const HrManagersTable: React.FC<HrManagersTableProps> = ({
               </Paper>
             </Box>
 
-            <Box className="table-search-box mt-[30px]" sx={{ p: 2 }}>
-              <Box>
-                <Typography variant="body2">
-                  {`Showing ${(page - 1) * rowsPerPage + 1} to ${Math.min(
-                    page * rowsPerPage,
-                    filteredRows.length
-                  )} of ${filteredRows.length} entries`}
-                </Typography>
-                {(status !== "all" || department !== "all" || company !== "all") && (
-                  <Typography variant="caption" className="ml-2 text-gray-600">
-                    (Filtered: {status !== "all" ? `Status: ${status}` : ""}
-                    {department !== "all" ? ` • Department: ${department}` : ""}
-                    {company !== "all" ? ` • Company: ${company}` : ""})
-                  </Typography>
-                )}
-              </Box>
-              <Pagination
-                count={Math.ceil(filteredRows.length / rowsPerPage)}
-                page={page}
-                onChange={(e, value) => handleChangePage(value)}
-                variant="outlined"
-                shape="rounded"
-                className="manaz-pagination-button"
-              />
-            </Box>
-
-            {selected.length > 0 && (
-              <div className="fixed bottom-4 left-1/2 transform -translate-x-1/2 bg-blue-600 text-white px-4 py-2 rounded-lg shadow-lg flex items-center gap-4 z-50">
-                <Typography variant="body2">
-                  {selected.length} HR manager{selected.length > 1 ? 's' : ''} selected
-                </Typography>
-                <div className="flex gap-2">
-                  <button
-                    className="px-3 py-1 bg-white text-blue-600 rounded text-sm font-medium hover:bg-blue-50"
-                    onClick={() => {
-                      const selectedManagers = selected.map(index => filteredRows[index]);
-                      alert(`Exporting ${selected.length} HR managers...`);
-                    }}
-                  >
-                    <i className="fa-regular fa-download mr-1"></i>
-                    Export Selected
-                  </button>
-                  <button
-                    className="px-3 py-1 bg-red-500 text-white rounded text-sm font-medium hover:bg-red-600"
-                    onClick={() => {
-                      if (confirm(`Are you sure you want to delete ${selected.length} HR manager${selected.length > 1 ? 's' : ''}?`)) {
-                        selected.forEach(index => {
-                          const manager = filteredRows[index];
-                          if (manager) handleDelete(manager.id);
-                        });
-                      }
-                    }}
-                  >
-                    <i className="fa-regular fa-trash mr-1"></i>
-                    Delete Selected
-                  </button>
+            {/* HR Manager Summary */}
+            {sortedData.length > 0 && (
+              <>
+                <div className="card__wrapper mb-4">
+                  <div className="p-4 bg-gray-50 rounded-lg">
+                    <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                      <div className="text-center">
+                        <div className="text-sm text-gray-600">Total HR Managers</div>
+                        <div className="text-xl font-semibold">{sortedData.length}</div>
+                      </div>
+                      <div className="text-center">
+                        <div className="text-sm text-gray-600">Active</div>
+                        <div className="text-xl font-semibold text-green-600">
+                          {sortedData.filter(m => m.status === "Active").length}
+                        </div>
+                      </div>
+                      <div className="text-center">
+                        <div className="text-sm text-gray-600">Total Managed Employees</div>
+                        <div className="text-xl font-semibold text-blue-600">
+                          {sortedData.reduce((sum, m) => sum + (m.managedEmployees || 0), 0).toLocaleString()}
+                        </div>
+                      </div>
+                      <div className="text-center">
+                        <div className="text-sm text-gray-600">Avg. Rating</div>
+                        <div className="text-xl font-semibold">
+                          {(sortedData.reduce((sum, m) => sum + (m.rating || 0), 0) / sortedData.length).toFixed(1)}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
                 </div>
-              </div>
+
+                <Box className="table-search-box mt-[30px]" sx={{ p: 2 }}>
+                  <Box>
+                    <Typography variant="body2">
+                      {`Showing ${(page - 1) * rowsPerPage + 1} to ${Math.min(
+                        page * rowsPerPage,
+                        sortedData.length
+                      )} of ${sortedData.length} entries`}
+                    </Typography>
+                    {searchQuery && (
+                      <Typography variant="caption" className="ml-2 text-gray-600">
+                        (Filtered by: `{searchQuery}`)
+                      </Typography>
+                    )}
+                  </Box>
+                  <Pagination
+                    count={Math.ceil(sortedData.length / rowsPerPage)}
+                    page={page}
+                    onChange={(e, value) => handleChangePage(value)}
+                    variant="outlined"
+                    shape="rounded"
+                    className="manaz-pagination-button"
+                  />
+                </Box>
+              </>
             )}
           </div>
         </div>
       </div>
+
+      {/* Bulk Actions Bar */}
+      {selected.length > 0 && (
+        <div className="card__wrapper mb-4">
+          <div className="p-4 bg-primary-50 rounded-lg">
+            <div className="flex items-center justify-between">
+              <div className="text-primary-700 font-medium">
+                {selected.length} HR manager(s) selected
+              </div>
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  className="px-3 py-1.5 bg-primary-500 text-white rounded-md hover:bg-primary-600 flex items-center gap-1 text-sm"
+                  onClick={() => {
+                    const selectedManagers = sortedData.filter(manager => selected.includes(manager.id));
+                    console.log('Bulk action on HR managers:', selectedManagers);
+                  }}
+                >
+                  <i className="fa-solid fa-toggle-on mr-1"></i>
+                  Toggle Status
+                </button>
+                <button
+                  type="button"
+                  className="px-3 py-1.5 bg-gray-600 text-white rounded-md hover:bg-gray-700 flex items-center gap-1 text-sm"
+                  onClick={() => {
+                    const selectedManagers = sortedData.filter(manager => selected.includes(manager.id));
+                    console.log('Bulk export HR managers:', selectedManagers);
+                  }}
+                >
+                  <i className="fa-solid fa-download mr-1"></i>
+                  Export Selected
+                </button>
+                <button
+                  type="button"
+                  className="px-3 py-1.5 bg-red-500 text-white rounded-md hover:bg-red-600 flex items-center gap-1 text-sm"
+                  onClick={() => {
+                    if (window.confirm(`Delete ${selected.length} HR manager(s)?`)) {
+                      selected.forEach(id => {
+                        if (onDelete) {
+                          onDelete(id);
+                        }
+                      });
+                      setSelected([]);
+                    }
+                  }}
+                >
+                  <i className="fa-regular fa-trash mr-1"></i>
+                  Delete Selected
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {detailsModalOpen && selectedHrManager && (
         <HrManagerDetailsModal
@@ -684,30 +979,14 @@ const HrManagersTable: React.FC<HrManagersTableProps> = ({
       )}
 
       {modalDeleteOpen && (
-        <DeleteModal
-          open={modalDeleteOpen}
-          setOpen={setModalDeleteOpen}
-          handleDeleteFunc={() => handleDelete(deleteId)}
-          deleteId={deleteId}
-        />
+           <DeleteModal
+  open={modalDeleteOpen}
+  setOpen={setModalDeleteOpen}
+  onConfirm={() => handleDelete(deleteId)}
+/>
       )}
     </>
   );
 };
-
-function getStatusColor(status: string) {
-  switch (status.toLowerCase()) {
-    case "active":
-      return "#4caf50";
-    case "inactive":
-      return "#f44336";
-    case "on leave":
-      return "#ff9800";
-    case "pending":
-      return "#2196f3";
-    default:
-      return "#9e9e9e";
-  }
-}
 
 export default HrManagersTable;

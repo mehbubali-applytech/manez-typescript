@@ -159,11 +159,8 @@ const AddDeptMainArea: React.FC = () => {
                                     register={register("name", {
                                         required: "Department name is required"
                                     })}
-                                    error={errors.name}
                                 />
-                                {errors.name && (
-                                    <p className="text-red-500 text-sm mt-1 ml-1">{errors.name.message}</p>
-                                )}
+                              
                             </div>
 
                             {/* Department Code */}
@@ -175,11 +172,8 @@ const AddDeptMainArea: React.FC = () => {
                                     register={register("departmentCode", {
                                         required: "Department code is required",
                                     })}
-                                    error={errors.departmentCode}
                                 />
-                                {errors.departmentCode && (
-                                    <p className="text-red-500 text-sm mt-1 ml-1">{errors.departmentCode.message}</p>
-                                )}
+                            
                             </div>
 
                             {/* Department Head */}

@@ -3,28 +3,26 @@ import React from "react";
 import { Dialog, DialogContent } from "@mui/material";
 import ModalWarningSvg from "@/svg/ModalWarningSvg";
 
-interface statePropsType {
+interface StatePropsType {
   open: boolean;
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
-  handleDeleteFunc: (id: number) => void;
-  deleteId: number;
+  onConfirm: () => void;
 }
 
-const DeleteModal = ({
+const DeleteModal: React.FC<StatePropsType> = ({
   open,
   setOpen,
-  handleDeleteFunc,
-  deleteId,
-}: statePropsType) => {
-  const handleToggle = () => setOpen(!open);
+  onConfirm,
+}) => {
+  const handleToggle = () => setOpen((prev) => !prev);
 
   const handleDelete = () => {
-    handleDeleteFunc(deleteId); // Trigger delete function with deleteId
-    setOpen(false); // Close the modal after confirming
+    onConfirm();     // ✅ parent decides WHAT to delete
+    setOpen(false);  // ✅ modal only controls UI
   };
 
   const handleCancel = () => {
-    setOpen(false); // Close the modal without deleting
+    setOpen(false);
   };
 
   return (
@@ -44,16 +42,25 @@ const DeleteModal = ({
           <div className="bg-orange-100 text-orange-500 rounded-full p-4 mb-4">
             <ModalWarningSvg />
           </div>
-          <h2 className="text-lg font-semibold text-gray-800">Are you sure?</h2>
+
+          <h2 className="text-lg font-semibold text-gray-800">
+            Are you sure?
+          </h2>
+
           <p className="text-sm text-gray-600">
-            You {`won't`} be able to revert this!
+            You won&apos;t be able to revert this!
           </p>
         </div>
-        <div className="mt-6 flex flex-wrap justify-center gap-4">
+
+        <div className="mt-6 flex justify-center gap-4 mt-6">
           <button onClick={handleCancel} className="btn bg-gray-200">
             Cancel
           </button>
-          <button onClick={handleDelete} className="btn btn-primary !m-0">
+
+          <button
+            onClick={handleDelete}
+            className="btn btn-primary !m-0"
+          >
             Yes, delete it!
           </button>
         </div>

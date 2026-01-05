@@ -7,7 +7,7 @@ import React from "react";
 const page = () => {
   return (
     <>
-      <MetaData pageTitle="HR Reports">
+      <MetaData pageTitle="Business Owner &#8211; HR Reports">
         <Wrapper role="owner">
           <HrReportsMainArea />
         </Wrapper>

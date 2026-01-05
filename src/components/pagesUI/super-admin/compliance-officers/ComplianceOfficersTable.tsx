@@ -194,12 +194,12 @@ const ComplianceOfficersTable: React.FC<Props> = ({ data }) => {
 
       {/* Delete Modal */}
       {modalDeleteOpen && (
-        <DeleteModal
-          open={modalDeleteOpen}
-          setOpen={setModalDeleteOpen}
-          deleteId={deleteId}
-          handleDeleteFunc={handleDelete}
-        />
+       <DeleteModal
+  open={modalDeleteOpen}
+  setOpen={setModalDeleteOpen}
+  onConfirm={() => handleDelete(deleteId)}
+/>
+
       )}
     </>
   );

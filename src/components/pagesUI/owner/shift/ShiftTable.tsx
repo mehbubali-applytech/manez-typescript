@@ -53,7 +53,7 @@ const ShiftTable: React.FC<ShiftTableProps> = ({
 }) => {
   const [modalDeleteOpen, setModalDeleteOpen] = useState(false);
   const [deleteId, setDeleteId] = useState<number>(0);
-  
+
   const {
     order,
     orderBy,
@@ -88,11 +88,11 @@ const ShiftTable: React.FC<ShiftTableProps> = ({
     if (!shift.breakTimeSlots || shift.breakTimeSlots.length === 0) {
       return "No breaks";
     }
-    
+
     const totalMinutes = calculateTotalBreakTime(shift.breakTimeSlots);
     const hours = Math.floor(totalMinutes / 60);
     const minutes = totalMinutes % 60;
-    
+
     return hours > 0 ? `${hours}h ${minutes}m` : `${minutes}m`;
   };
 
@@ -115,7 +115,7 @@ const ShiftTable: React.FC<ShiftTableProps> = ({
               handleChangeRowsPerPage={handleChangeRowsPerPage}
               handleSearchChange={handleSearchChange}
             />
-            
+
             <Box sx={{ width: "100%" }} className="table-responsive">
               <Paper sx={{ width: "100%", mb: 2 }}>
                 <TableContainer className="table mb-[20px] hover multiple_tables w-full">
@@ -155,11 +155,11 @@ const ShiftTable: React.FC<ShiftTableProps> = ({
                         <TableCell>Actions</TableCell>
                       </TableRow>
                     </TableHead>
-                    
+
                     <TableBody className="table__body">
                       {paginatedRows.map((row, index) => {
                         const statusClass = getStatusClass(row.activeStatus);
-                        
+
                         return (
                           <TableRow
                             key={row.shiftId}
@@ -191,7 +191,7 @@ const ShiftTable: React.FC<ShiftTableProps> = ({
                               </span>
                             </TableCell>
                             <TableCell>
-                              <Tooltip 
+                              <Tooltip
                                 title={
                                   row.breakTimeSlots && row.breakTimeSlots.length > 0 ? (
                                     <div>
@@ -213,7 +213,7 @@ const ShiftTable: React.FC<ShiftTableProps> = ({
                               </Tooltip>
                             </TableCell>
                             <TableCell>
-                              <Tooltip 
+                              <Tooltip
                                 title={
                                   row.applicableLocations && row.applicableLocations.length > 0 ? (
                                     <div>
@@ -319,7 +319,7 @@ const ShiftTable: React.FC<ShiftTableProps> = ({
                 </TableContainer>
               </Paper>
             </Box>
-            
+
             <Box className="table-search-box mt-[30px]" sx={{ p: 2 }}>
               <Box>
                 {`Showing ${(page - 1) * rowsPerPage + 1} to ${Math.min(
@@ -344,12 +344,9 @@ const ShiftTable: React.FC<ShiftTableProps> = ({
         <DeleteModal
           open={modalDeleteOpen}
           setOpen={setModalDeleteOpen}
-          handleDeleteFunc={() => {
-            handleDelete(deleteId);
-            onDelete(deleteId);
-          }}
-          deleteId={deleteId}
+          onConfirm={() => handleDelete(deleteId)}
         />
+
       )}
     </>
   );
