@@ -5,7 +5,7 @@ import { useForm } from "react-hook-form";
 import InputField from "@/components/elements/SharedInputs/InputField";
 import { toast } from "sonner";
 import { statePropsType } from "@/interface/common.interface";
-import { IComplianceOfficer } from "./ComplianceOfficersMainArea";
+import { IComplianceOfficer } from "../compliance-officers/compliance-officers.interface";
 
 const AddNewComplianceOfficerModal = ({ open, setOpen }: statePropsType) => {
   const {
@@ -48,7 +48,6 @@ const AddNewComplianceOfficerModal = ({ open, setOpen }: statePropsType) => {
                 register={register("compName", {
                   required: "Name is required",
                 })}
-                error={errors.compName}
               />
             </div>
 
@@ -60,7 +59,6 @@ const AddNewComplianceOfficerModal = ({ open, setOpen }: statePropsType) => {
                 register={register("compCode", {
                   required: "Code is required",
                 })}
-                error={errors.compCode}
               />
             </div>
 

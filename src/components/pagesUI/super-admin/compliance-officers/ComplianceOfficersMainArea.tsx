@@ -2,60 +2,75 @@
 import Link from "next/link";
 import React, { useState } from "react";
 import ComplianceOfficersTable from "./ComplianceOfficersTable";
-import AddNewComplianceOfficerModal from "./AddNewComplianceOfficer";
-
-export interface IComplianceOfficer {
-  [key: string]: any;
-  id: number;
-  compName: string;
-  compCode: string;
-  department: string;
-  company: string;
-}
-
-const dummyComplianceData: IComplianceOfficer[] = [
-  { id: 1, compName: "Sanjay Gupta", compCode: "COMP001", department: "Legal", company: "Google" },
-  { id: 2, compName: "Nisha Reddy", compCode: "COMP002", department: "Regulatory", company: "Microsoft" },
-  { id: 3, compName: "Rohan Desai", compCode: "COMP003", department: "Risk Management", company: "Amazon" },
-  { id: 4, compName: "Anjali Iyer", compCode: "COMP004", department: "Data Protection", company: "Meta" },
-];
+import AllComplianceOfficersSummary from "./AllComplianceOfficersSummary";
+import ComplianceOfficerFilters from "./ComplianceOfficerFilters";
+// import AddComplianceOfficerModal from "./AddComplianceOfficerModal";
+import { useRouter } from "next/navigation";
 
 const ComplianceOfficersMainArea = () => {
   const [modalOpen, setModalOpen] = useState(false);
-  const [complianceOfficers, setComplianceOfficers] = useState<IComplianceOfficer[]>(dummyComplianceData);
+  const [selectedStatus, setSelectedStatus] = useState("all");
+  const [selectedDepartment, setSelectedDepartment] = useState("all");
+  const [selectedCompany, setSelectedCompany] = useState("all");
+  const [dateRange, setDateRange] = useState({
+    start: "",
+    end: "",
+  });
+
+  const router = useRouter();
 
   return (
-    <div className="app__slide-wrapper">
-      <div className="breadcrumb__wrapper mb-[25px]">
-        <nav>
-          <ol className="breadcrumb flex items-center mb-0">
-            <li className="breadcrumb-item">
-              <Link href="/">Home</Link>
-            </li>
-            <li className="breadcrumb-item">
-              <Link href="/super-admin">Admin</Link>
-            </li>
-            <li className="breadcrumb-item active">Compliance Officers</li>
-          </ol>
-        </nav>
-
-        <div className="breadcrumb__btn">
-          <button
-            type="button"
-            className="btn btn-primary"
-            onClick={() => setModalOpen(true)}
-          >
-            Add Compliance Officer
-          </button>
+    <>
+      <div className="app__slide-wrapper">
+        <div className="breadcrumb__area">
+          <div className="breadcrumb__wrapper mb-[25px]">
+            <nav>
+              <ol className="breadcrumb flex items-center mb-0">
+                <li className="breadcrumb-item"><Link href="/">Home</Link></li>
+                <li className="breadcrumb-item"><Link href="/super-admin">Super Admin</Link></li>
+                <li className="breadcrumb-item active">Compliance Officers</li>
+              </ol>
+            </nav>
+            <div className="breadcrumb__btn">
+              <button
+                type="button"
+                onClick={() => router.push('/super-admin/compliance-officers/add-compliance-office')}
+                className="btn btn-primary"
+              >
+                <i className="fa-regular fa-plus mr-2"></i>
+                Add New Compliance Officer
+              </button>
+            </div>
+          </div>
         </div>
+
+        <div className="grid grid-cols-12 gap-x-6">
+          <AllComplianceOfficersSummary />
+        </div>
+
+        {/* Filters Section */}
+        <ComplianceOfficerFilters
+          selectedStatus={selectedStatus}
+          setSelectedStatus={setSelectedStatus}
+          selectedDepartment={selectedDepartment}
+          setSelectedDepartment={setSelectedDepartment}
+          selectedCompany={selectedCompany}
+          setSelectedCompany={setSelectedCompany}
+          dateRange={dateRange}
+          setDateRange={setDateRange}
+        />
+
+        {/* Table Section */}
+        <ComplianceOfficersTable
+          status={selectedStatus}
+          department={selectedDepartment}
+          company={selectedCompany}
+          dateRange={dateRange}
+        />
       </div>
 
-      <ComplianceOfficersTable key={complianceOfficers.length} data={complianceOfficers} />
-
-      {modalOpen && (
-        <AddNewComplianceOfficerModal open={modalOpen} setOpen={setModalOpen} />
-      )}
-    </div>
+      {/* {modalOpen && <AddComplianceOfficerModal open={modalOpen} setOpen={setModalOpen} />} */}
+    </>
   );
 };
 

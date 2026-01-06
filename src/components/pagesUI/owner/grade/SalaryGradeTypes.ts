@@ -15,6 +15,59 @@ export interface ISalaryComponent {
 }
 
 
+export interface IPayrollRun {
+  id: string;
+  name: string;
+  month: string;
+  year: number;
+  status: 'Draft' | 'Processing' | 'Completed' | 'Failed';
+  totalEmployees: number;
+  totalAmount: number;
+  processedAt?: string;
+  processedBy?: string;
+  notes?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+
+export interface IPayrollRunItem {
+  id: string;
+  payrollRunId: string;
+  employeeId: string;
+  employeeName: string;
+  department: string;
+  salaryGrade: string;
+  basic: number;
+  hra: number;
+  allowances: number;
+  deductions: number;
+  netSalary: number;
+  status: 'Pending' | 'Paid' | 'Failed' | 'Verified';
+  bankAccount: string;
+  paymentMethod: string;
+  processedAt?: string;
+  notes?: string;
+}
+
+export interface IPayrollVerification {
+  id: string;
+  payrollItemId: string;
+  verifiedBy: string;
+  verificationDate: string;
+  status: 'Approved' | 'Rejected' | 'Needs Review';
+  notes?: string;
+  corrections?: {
+    basic?: number;
+    hra?: number;
+    allowances?: number;
+    deductions?: number;
+    notes: string;
+  };
+  createdAt: string;
+  updatedAt: string;
+}
+
 export interface ISalaryGrade {
   id: string;
   name: string;

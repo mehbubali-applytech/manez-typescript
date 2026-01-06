@@ -11,6 +11,7 @@ import superAdminSidebarData from "@/data/sidebar-data-super-admin";
 import { usePathname } from "next/navigation";
 import businessOwnerSidebarData from "@/data/sidebar-data-owner";
 import { SidebarCategory } from "@/interface/dashboardSidebar.interface";
+import financeExecutiveSidebarData from "@/data/sidebar-data-finance-executive";
 
 interface DashBoardSidebarProps {
   role: string;
@@ -32,6 +33,8 @@ const DashBoardSidebar: React.FC<DashBoardSidebarProps> = ({ role }) => {
     currentSidebarData = businessOwnerSidebarData;
   } else if (role === "hrm") {
     currentSidebarData = sidebarData;
+  } else if (role === "finance-executive") {
+    currentSidebarData = financeExecutiveSidebarData;
   }
 
   // Utility function to handle collapse behavior for screens with max-width: 1199px
