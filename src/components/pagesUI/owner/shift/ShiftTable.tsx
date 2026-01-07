@@ -1,7 +1,7 @@
 // ShiftTable.tsx
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import Box from "@mui/material/Box";
 import Table from "@mui/material/Table";
 import TableBody from "@mui/material/TableBody";
@@ -14,8 +14,14 @@ import TableSortLabel from "@mui/material/TableSortLabel";
 import Paper from "@mui/material/Paper";
 import { visuallyHidden } from "@mui/utils";
 import useMaterialTableHook from "@/hooks/useMaterialTableHook";
-import { Checkbox } from "@mui/material";
-import TableControls from "@/components/elements/SharedInputs/TableControls";
+import { 
+  Checkbox,
+  Grid,
+  TextField,
+  Select,
+  MenuItem,
+  Typography 
+} from "@mui/material";
 import DeleteModal from "@/components/common/DeleteModal";
 import { IShift, calculateDuration, calculateTotalBreakTime } from "./ShiftTypes";
 import Chip from "@mui/material/Chip";
@@ -25,6 +31,7 @@ import AccessTimeIcon from "@mui/icons-material/AccessTime";
 import NightsStayIcon from "@mui/icons-material/NightsStay";
 import PersonIcon from "@mui/icons-material/Person";
 import LocationOnIcon from "@mui/icons-material/LocationOn";
+import { DownloadButtonGroup, TableData } from "@/app/helpers/downloader";
 
 interface ShiftTableProps {
   data: IShift[];
@@ -33,7 +40,7 @@ interface ShiftTableProps {
   onStatusChange?: (id: number, status: boolean) => void;
 }
 
-// Table head cells
+// Table head cells (keeping original)
 const shiftHeadCells = [
   { id: "shiftName", label: "Shift Name" },
   { id: "timing", label: "Timing" },
@@ -101,21 +108,83 @@ const ShiftTable: React.FC<ShiftTableProps> = ({
   };
 
   const getStatusClass = (status: boolean) => {
-    return status ? "bg-success" : "bg-secondary";
+    return status ? "bg-success" : "bg-danger";
   };
+
+  // Prepare table data for export
+  const exportData = useMemo((): TableData => {
+    const headers = shiftHeadCells.map(cell => cell.label);
+    
+    const rows = filteredRows.map(shift => {
+      const breakDetails = shift.breakTimeSlots?.map(b => 
+        `${b.breakStart}-${b.breakEnd}`
+      ).join(", ") || "No breaks";
+      
+      return [
+        shift.shiftName,
+        formatTiming(shift),
+        calculateDuration(shift.startTime, shift.endTime, shift.isNightShift),
+        `${calculateTotalBreakTimeDisplay(shift)} (${breakDetails})`,
+        shift.applicableLocations?.join(", ") || "All locations",
+        (shift.assignedEmployees || 0).toString(),
+        shift.isNightShift ? "Night Shift" : "Day Shift",
+        getStatusBadge(shift.activeStatus),
+      ];
+    });
+    
+    return {
+      headers,
+      rows,
+      title: `Shifts Export - ${filteredRows.length} records`
+    };
+  }, [filteredRows]);
 
   return (
     <>
       <div className="col-span-12">
         <div className="card__wrapper">
           <div className="manaz-common-mat-list w-full table__wrapper table-responsive">
-            <TableControls
-              rowsPerPage={rowsPerPage}
-              searchQuery={searchQuery}
-              handleChangeRowsPerPage={handleChangeRowsPerPage}
-              handleSearchChange={handleSearchChange}
-            />
-
+            
+            {/* Top Controls Row - Only added export button */}
+            <Grid container spacing={2} alignItems="center" className="mb-4">
+              {/* Search Bar - Top Left */}
+              <Grid item xs={12} md={6}>
+                <Box className="flex items-center gap-4">
+                  <Typography variant="body2" className="whitespace-nowrap">
+                    Search:
+                  </Typography>
+                  <TextField
+                    id="outlined-search"
+                    type="search"
+                    value={searchQuery}
+                    onChange={(e) => handleSearchChange(e.target.value)}
+                    size="small"
+                    className="manaz-table-search-input"
+                    sx={{ width: '100%', maxWidth: 300 }}
+                    placeholder="Search shifts..."
+                  />
+                </Box>
+              </Grid>
+              
+              {/* Export Options - Top Right (Only new addition) */}
+              <Grid item xs={12} md={6}>
+                <Box className="flex justify-end">
+                  <DownloadButtonGroup
+                    data={exportData}
+                    options={{
+                      fileName: `shifts_${new Date().toISOString().split('T')[0]}`,
+                      includeHeaders: true,
+                      pdfTitle: `Shifts Report - ${new Date().toLocaleDateString()}`
+                    }}
+                    variant="outlined"
+                    size="small"
+                    color="primary"
+                  />
+                </Box>
+              </Grid>
+            </Grid>
+            
+            {/* Main Table - Keeping original structure */}
             <Box sx={{ width: "100%" }} className="table-responsive">
               <Paper sx={{ width: "100%", mb: 2 }}>
                 <TableContainer className="table mb-[20px] hover multiple_tables w-full">
@@ -269,7 +338,7 @@ const ShiftTable: React.FC<ShiftTableProps> = ({
                                   }}
                                   color="success"
                                 />
-                                <span className={`bd-badge ${statusClass}`}>
+                                <span className={`bd-badge ${getStatusClass(row.activeStatus)}`}>
                                   {getStatusBadge(row.activeStatus)}
                                 </span>
                               </div>
@@ -320,6 +389,7 @@ const ShiftTable: React.FC<ShiftTableProps> = ({
               </Paper>
             </Box>
 
+            {/* Bottom Controls - Keeping original structure */}
             <Box className="table-search-box mt-[30px]" sx={{ p: 2 }}>
               <Box>
                 {`Showing ${(page - 1) * rowsPerPage + 1} to ${Math.min(
@@ -346,7 +416,6 @@ const ShiftTable: React.FC<ShiftTableProps> = ({
           setOpen={setModalDeleteOpen}
           onConfirm={() => handleDelete(deleteId)}
         />
-
       )}
     </>
   );

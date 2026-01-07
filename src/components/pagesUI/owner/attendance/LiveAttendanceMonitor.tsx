@@ -11,10 +11,6 @@ import {
   Grid,
   TextField,
   InputAdornment,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
   Table,
   TableBody,
   TableCell,
@@ -36,7 +32,6 @@ import {
   CheckCircle,
   Error,
   Schedule,
-  Person,
   FilterList,
   Edit,
   Visibility,
@@ -44,7 +39,8 @@ import {
   Stop,
   Timer
 } from "@mui/icons-material";
-import { IAttendanceRecord, ATTENDANCE_STATUS, DEPARTMENTS, SHIFTS, calculateTotalHours } from "./AttendanceTypes";
+import { IAttendanceRecord, DEPARTMENTS, SHIFTS } from "./AttendanceTypes";
+import { DownloadButtonGroup, TableData } from "@/app/helpers/downloader";
 
 interface LiveAttendanceMonitorProps {
   attendanceData?: IAttendanceRecord[];
@@ -163,30 +159,26 @@ const LiveAttendanceMonitor: React.FC<LiveAttendanceMonitorProps> = ({
     return shifts.map(shift => ({ label: shift, value: shift }));
   }, []);
 
-  
-const handleRefresh = useCallback(() => {
-  setIsRefreshing(true);
-  if (onRefresh) {
-    onRefresh();
-  }
-  setTimeout(() => {
-    setIsRefreshing(false);
-    setLastUpdated(new Date());
-  }, 1000);
-}, [onRefresh]);
+  const handleRefresh = useCallback(() => {
+    setIsRefreshing(true);
+    if (onRefresh) {
+      onRefresh();
+    }
+    setTimeout(() => {
+      setIsRefreshing(false);
+      setLastUpdated(new Date());
+    }, 1000);
+  }, [onRefresh]);
 
-useEffect(() => {
-  if (!autoRefresh) return;
+  useEffect(() => {
+    if (!autoRefresh) return;
 
-  const interval = setInterval(() => {
-    handleRefresh();
-  }, 30000);
+    const interval = setInterval(() => {
+      handleRefresh();
+    }, 30000);
 
-  return () => clearInterval(interval);
-}, [autoRefresh, handleRefresh]);
-
-
-
+    return () => clearInterval(interval);
+  }, [autoRefresh, handleRefresh]);
 
   const filteredData = useMemo(() => {
     return data.filter(record => {
@@ -239,6 +231,47 @@ useEffect(() => {
 
   const summary = getAttendanceSummary();
 
+  // Prepare table data for export
+  const exportData = useMemo((): TableData => {
+    const headers = [
+      "Employee Name",
+      "Employee ID",
+      "Department",
+      "Role",
+      "Shift",
+      "Shift Timing",
+      "Check-In Time",
+      "Check-Out Time",
+      "Total Hours",
+      "Attendance Status",
+      "Location",
+      "Late Minutes"
+    ];
+    
+    const rows = filteredData.map(record => {
+      return [
+        record.employeeName,
+        record.employeeId,
+        record.department,
+        record.role,
+        record.shiftName,
+        `${record.shiftStartTime} - ${record.shiftEndTime}`,
+        record.checkInTime || "Not checked in",
+        record.checkOutTime || "Not checked out",
+        record.totalHours ? `${record.totalHours.toFixed(2)}h` : "0h",
+        record.attendanceStatus,
+        record.checkInLocation || "-",
+        record.lateMinutes ? `${record.lateMinutes}m` : "-"
+      ];
+    });
+    
+    return {
+      headers,
+      rows,
+      title: `Attendance Report - ${new Date().toLocaleDateString()}`
+    };
+  }, [filteredData]);
+
   return (
     <Box>
       {/* Header */}
@@ -262,6 +295,7 @@ useEffect(() => {
                 <Timer />
               </IconButton>
             </Tooltip>
+
             
             <Button
               variant="outlined"
@@ -371,14 +405,13 @@ useEffect(() => {
               }}
               renderInput={(params) => (
                 <TextField
-                className="text-xl"
                   {...params}
                   label="Shift"
                   placeholder="Select shift"
                 />
               )}
               renderOption={(props, option) => (
-                <li {...props} key={option.value} >
+                <li {...props} key={option.value}>
                   {option.label}
                 </li>
               )}
@@ -402,8 +435,24 @@ useEffect(() => {
         </Grid>
       </Paper>
 
+<div className="flex justify-end mb-5">
+              
+            {/* Export Button - Only new addition */}
+            <DownloadButtonGroup
+              data={exportData}
+              options={{
+                fileName: `attendance_${new Date().toISOString().split('T')[0]}`,
+                includeHeaders: true,
+                pdfTitle: `Attendance Report - ${new Date().toLocaleDateString()}`
+              }}
+              variant="outlined"
+              size="small"
+              color="primary"
+              
+            />
+</div>
       {/* Attendance Table */}
-      <TableContainer component={Paper}>
+      <TableContainer component={Paper} >
         <Table>
           <TableHead>
             <TableRow sx={{ bgcolor: 'grey.100' }}>

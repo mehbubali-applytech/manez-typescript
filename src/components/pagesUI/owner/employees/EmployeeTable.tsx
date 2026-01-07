@@ -1,7 +1,7 @@
 // EmployeeTable.tsx
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import {
   Box,
   Table,
@@ -20,7 +20,9 @@ import {
   Menu,
   MenuItem,
   Switch,
-  Button,
+  Grid,
+  TextField,
+  Select,
   Pagination,
   TableSortLabel
 } from "@mui/material";
@@ -35,16 +37,12 @@ import {
   AccessTime,
   PersonOff,
   FileDownload,
-  Send,
-  Visibility,
-  Download,
-  PictureAsPdf,
-  Description
+  Send
 } from "@mui/icons-material";
 import { IEmployee } from "./EmployeeTypes";
 import { visuallyHidden } from "@mui/utils";
-import TableControls from "@/components/elements/SharedInputs/TableControls";
 import DeleteModal from "@/components/common/DeleteModal";
+import { DownloadButtonGroup, TableData } from "@/app/helpers/downloader";
 
 interface EmployeeTableProps {
   data: IEmployee[];
@@ -74,7 +72,7 @@ const EmployeeTable: React.FC<EmployeeTableProps> = ({
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [selectedEmployee, setSelectedEmployee] = useState<IEmployee | null>(null);
   const [modalDeleteOpen, setModalDeleteOpen] = useState(false);
-  const [deleteId, setDeleteId] = useState<string>(""); // Changed to string
+  const [deleteId, setDeleteId] = useState<string>("");
   const [page, setPage] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [searchQuery, setSearchQuery] = useState("");
@@ -199,22 +197,92 @@ const EmployeeTable: React.FC<EmployeeTableProps> = ({
   const handleDelete = (id: string) => {
     onDelete(id);
     setModalDeleteOpen(false);
-    // Remove from selected if it was selected
     setSelected(selected.filter(item => item !== id));
   };
+
+  // Prepare table data for export
+  const exportData = useMemo((): TableData => {
+    const headers = [
+      "Employee Name",
+      "Employee ID",
+      "Email",
+      "Phone",
+      "Role",
+      "Department",
+      "Shift",
+      "Employment Status",
+      "Joining Date",
+      "Location"
+    ];
+    
+    const rows = sortedData.map(employee => {
+      return [
+        `${employee.firstName} ${employee.lastName}`,
+        employee.employeeCode || employee.employeeId,
+        employee.email,
+        formatPhone(employee.phoneNumber),
+        employee.roleName || "-",
+        employee.departmentName || "-",
+        employee.shiftName || "-",
+        employee.employmentStatus,
+        formatDate(employee.dateOfJoining),
+        employee.workLocation || "-"
+      ];
+    });
+    
+    return {
+      headers,
+      rows,
+      title: `Employees Export - ${sortedData.length} records`
+    };
+  }, [sortedData]);
 
   return (
     <>
       <div className="col-span-12">
         <div className="card__wrapper">
           <div className="manaz-common-mat-list w-full table__wrapper table-responsive">
-            <TableControls
-              rowsPerPage={rowsPerPage}
-              searchQuery={searchQuery}
-              handleChangeRowsPerPage={handleChangeRowsPerPage}
-              handleSearchChange={handleSearchChange}
-            />
             
+            {/* Top Controls Row - Only added export button */}
+            <Grid container spacing={2} alignItems="center" className="mb-4">
+              {/* Search Bar - Top Left */}
+              <Grid item xs={12} md={6}>
+                <Box className="flex items-center gap-4">
+                  <Typography variant="body2" className="whitespace-nowrap">
+                    Search:
+                  </Typography>
+                  <TextField
+                    id="outlined-search"
+                    type="search"
+                    value={searchQuery}
+                    onChange={(e) => handleSearchChange(e.target.value)}
+                    size="small"
+                    className="manaz-table-search-input"
+                    sx={{ width: '100%', maxWidth: 300 }}
+                    placeholder="Search employees..."
+                  />
+                </Box>
+              </Grid>
+              
+              {/* Export Options - Top Right (Only new addition) */}
+              <Grid item xs={12} md={6}>
+                <Box className="flex justify-end">
+                  <DownloadButtonGroup
+                    data={exportData}
+                    options={{
+                      fileName: `employees_${new Date().toISOString().split('T')[0]}`,
+                      includeHeaders: true,
+                      pdfTitle: `Employees Report - ${new Date().toLocaleDateString()}`
+                    }}
+                    variant="outlined"
+                    size="small"
+                    color="primary"
+                  />
+                </Box>
+              </Grid>
+            </Grid>
+            
+            {/* Main Table - Keeping original structure */}
             <Box sx={{ width: "100%" }} className="table-responsive">
               <Paper sx={{ width: "100%", mb: 2 }}>
                 <TableContainer className="table mb-[20px] hover multiple_tables w-full">
@@ -326,10 +394,7 @@ const EmployeeTable: React.FC<EmployeeTableProps> = ({
                             </TableCell>
                             <TableCell>
                               <div className="flex items-center gap-2">
-                                <span className={`bd-badge ${statusClass}`}>
-                                  {employee.employmentStatus}
-                                </span>
-                                {onStatusChange && (
+                                 {onStatusChange && (
                                   <Tooltip title="Toggle Active Status">
                                     <Switch
                                       size="small"
@@ -346,6 +411,10 @@ const EmployeeTable: React.FC<EmployeeTableProps> = ({
                                     />
                                   </Tooltip>
                                 )}
+                                <span className={`bd-badge ${statusClass}`}>
+                                  {employee.employmentStatus}
+                                </span>
+                               
                               </div>
                             </TableCell>
                             <TableCell>
@@ -408,6 +477,7 @@ const EmployeeTable: React.FC<EmployeeTableProps> = ({
               </Paper>
             </Box>
             
+            {/* Bottom Controls - Keeping original structure */}
             <Box className="table-search-box mt-[30px]" sx={{ p: 2 }}>
               <Box>
                 {`Showing ${(page - 1) * rowsPerPage + 1} to ${Math.min(
@@ -433,7 +503,7 @@ const EmployeeTable: React.FC<EmployeeTableProps> = ({
         </div>
       </div>
 
-      {/* Bulk Actions Bar */}
+      {/* Bulk Actions Bar - Keeping original */}
       {selected.length > 0 && (
         <div className="card__wrapper mb-4">
           <div className="p-4 bg-primary-50 rounded-lg">
@@ -482,7 +552,7 @@ const EmployeeTable: React.FC<EmployeeTableProps> = ({
         </div>
       )}
 
-      {/* Actions Menu */}
+      {/* Actions Menu - Keeping original */}
       <Menu
         anchorEl={anchorEl}
         open={Boolean(anchorEl)}
@@ -509,7 +579,6 @@ const EmployeeTable: React.FC<EmployeeTableProps> = ({
             )}
             
             <MenuItem onClick={() => {
-              // Handle export employee data
               handleMenuClose();
             }}>
               <FileDownload fontSize="small" sx={{ mr: 1 }} />
@@ -541,14 +610,13 @@ const EmployeeTable: React.FC<EmployeeTableProps> = ({
 
       {modalDeleteOpen && (
        <DeleteModal
-  open={modalDeleteOpen}
-  setOpen={setModalDeleteOpen}
-  onConfirm={() => handleDelete(deleteId)}
-/>
-
+          open={modalDeleteOpen}
+          setOpen={setModalDeleteOpen}
+          onConfirm={() => handleDelete(deleteId)}
+        />
       )}
     </>
   );
 };
 
-export default EmployeeTable;
+export default EmployeeTable; 

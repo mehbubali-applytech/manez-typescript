@@ -4,7 +4,7 @@ import { Dialog, DialogTitle, DialogContent } from "@mui/material";
 import { useForm } from "react-hook-form";
 import InputField from "@/components/elements/SharedInputs/InputField";
 import { toast } from "sonner";
-import { IComplianceOfficer } from "./ComplianceOfficersMainArea";
+import { IComplianceOfficer } from "./compliance-officers.interface";
 
 interface Props {
   open: boolean;
@@ -67,7 +67,6 @@ const UpdateComplianceOfficerModal: React.FC<Props> = ({
                 register={register("compName", {
                   required: "Name is required",
                 })}
-                error={errors.compName}
               />
             </div>
 
@@ -79,7 +78,6 @@ const UpdateComplianceOfficerModal: React.FC<Props> = ({
                 register={register("compCode", {
                   required: "Code is required",
                 })}
-                error={errors.compCode}
               />
             </div>
 

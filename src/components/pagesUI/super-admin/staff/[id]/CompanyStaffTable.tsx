@@ -11,9 +11,18 @@ import TableRow from "@mui/material/TableRow";
 import TableSortLabel from "@mui/material/TableSortLabel";
 import Paper from "@mui/material/Paper";
 import { visuallyHidden } from "@mui/utils";
-import { Checkbox, Avatar, Typography, Chip, LinearProgress, Grid, TextField, Select, MenuItem } from "@mui/material";
+import { 
+  Checkbox, 
+  Avatar, 
+  Typography, 
+  Chip,
+  Grid,
+  TextField,
+  Select,
+  MenuItem 
+} from "@mui/material";
 import DeleteModal from "@/components/common/DeleteModal";
-import ComplianceOfficerDetailsModal from "../ComplianceOfficerDetailsModal";
+import StaffDetailsModal from "../StaffDetailsModal";
 import EmailIcon from "@mui/icons-material/Email";
 import PhoneIcon from "@mui/icons-material/Phone";
 import BusinessIcon from "@mui/icons-material/Business";
@@ -21,212 +30,290 @@ import CalendarTodayIcon from "@mui/icons-material/CalendarToday";
 import EditIcon from "@mui/icons-material/Edit";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import WorkIcon from "@mui/icons-material/Work";
-import GavelIcon from "@mui/icons-material/Gavel";
-import AssessmentIcon from "@mui/icons-material/Assessment";
-import TrendingUpIcon from "@mui/icons-material/TrendingUp";
-import { IComplianceOfficer } from "../compliance-officers.interface";
+import GroupsIcon from "@mui/icons-material/Groups";
+import AttachMoneyIcon from "@mui/icons-material/AttachMoney";
+import DownloadIcon from "@mui/icons-material/Download";
+import { IStaff } from "../staff.interface";
 import { DownloadButtonGroup, TableData } from "@/app/helpers/downloader";
 
 // Mock data - Filtered by company
-const allComplianceOfficersData: IComplianceOfficer[] = [
+const allStaffData: IStaff[] = [
   {
     id: 1,
-    officerName: "Michael Rodriguez",
-    officerCode: "CO-001",
-    department: "Compliance & Risk",
-    company: "TechNova Solutions",
-    companyId: "1",
-    email: "michael.rodriguez@technova.com",
+    employeeId: "EMP-001",
+    firstName: "John",
+    lastName: "Smith",
+    fullName: "John Smith",
+    email: "john.smith@technova.com",
     phone: "+1 (555) 123-4567",
     mobile: "+1 (555) 987-6543",
-    extension: "201",
-    jobTitle: "Chief Compliance Officer",
-    role: "Chief Compliance Officer",
-    location: "New York, NY",
+    position: "Senior Software Engineer",
+    department: "Engineering",
+    company: "TechNova Solutions",
+    companyId: 1,
+    location: "San Francisco, CA",
+    joinDate: "2020-03-15",
     status: "Active",
-    hireDate: "2018-06-10",
-    yearsOfExperience: 15,
-    qualifications: ["JD Law", "MBA Risk Management"],
-    certifications: ["CCEP", "CRCM", "CAMS"],
-    specializations: ["Regulatory Compliance", "Risk Assessment", "Anti-Money Laundering"],
-    managedAudits: 45,
-    reportingTo: "CEO",
-    address: "456 Compliance St, New York, NY 10001",
-    city: "New York",
-    state: "New York",
-    country: "USA",
-    zipCode: "10001",
-    dateOfBirth: "1978-09-15",
+    employmentType: "Full-time",
+    salary: 125000,
+    currency: "USD",
+    supervisor: "Sarah Johnson",
     gender: "Male",
-    maritalStatus: "Married",
-    emergencyContact: "Sarah Rodriguez",
-    emergencyPhone: "+1 (555) 555-1212",
-    profileImage: "",
-    complianceScore: 98,
-    tag: "Executive",
-    notes: "Excellent compliance track record"
+    dateOfBirth: "1990-05-20",
+    address: "123 Tech Street, San Francisco, CA",
+    city: "San Francisco",
+    country: "USA",
+    zipCode: "94105",
+    emergencyContact: "Jane Smith",
+    skills: ["JavaScript", "React", "Node.js", "AWS"],
+    education: "MS Computer Science",
+    experience: 8,
+    performanceRating: 4.8,
+    attendanceRate: 98,
+    projectsCompleted: 12,
+    lastLogin: "2024-01-15",
+    notes: "Top performer"
   },
   {
     id: 2,
-    officerName: "Jennifer Chen",
-    officerCode: "CO-002",
-    department: "Legal & Regulatory",
-    company: "Global Finance Group",
-    companyId: "2",
-    email: "jennifer.chen@globalfinance.com",
+    employeeId: "EMP-002",
+    firstName: "Emily",
+    lastName: "Chen",
+    fullName: "Emily Chen",
+    email: "emily.chen@globalfinance.com",
     phone: "+1 (555) 234-5678",
-    mobile: "+1 (555) 876-5432",
-    jobTitle: "Compliance Manager",
-    role: "Compliance Manager",
-    location: "San Francisco, CA",
+    position: "Financial Analyst",
+    department: "Finance",
+    company: "Global Finance Group",
+    companyId: 2,
+    location: "New York, NY",
+    joinDate: "2021-08-10",
     status: "Active",
-    hireDate: "2020-03-22",
-    yearsOfExperience: 9,
-    qualifications: ["LLM Corporate Law", "MS Compliance"],
-    certifications: ["CRCP", "Series 24"],
-    specializations: ["SEC Regulations", "FINRA Compliance", "Investment Advisory"],
-    managedAudits: 32,
-    reportingTo: "Chief Compliance Officer",
-    complianceScore: 95,
-    tag: "Financial"
+    employmentType: "Full-time",
+    salary: 85000,
+    currency: "USD",
+    supervisor: "Robert Wilson",
+    gender: "Female",
+    dateOfBirth: "1992-11-15",
+    skills: ["Excel", "Financial Modeling", "SQL", "Tableau"],
+    education: "MBA Finance",
+    experience: 5,
+    performanceRating: 4.6,
+    attendanceRate: 96,
+    projectsCompleted: 8
   },
   {
     id: 3,
-    officerName: "David Kim",
-    officerCode: "CO-003",
-    department: "Internal Audit",
-    company: "TechNova Solutions",
-    companyId: "1",
-    email: "david.kim@technova.com",
+    employeeId: "EMP-003",
+    firstName: "Michael",
+    lastName: "Rodriguez",
+    fullName: "Michael Rodriguez",
+    email: "michael.rodriguez@technova.com",
     phone: "+1 (555) 345-6789",
-    mobile: "+1 (555) 765-4321",
-    jobTitle: "Senior Internal Auditor",
-    role: "Internal Auditor",
-    location: "Boston, MA",
+    position: "DevOps Engineer",
+    department: "Engineering",
+    company: "TechNova Solutions",
+    companyId: 1,
+    location: "Remote",
+    joinDate: "2022-01-22",
     status: "Active",
-    hireDate: "2021-01-15",
-    yearsOfExperience: 7,
-    qualifications: ["CPA", "CIA"],
-    certifications: ["CISA", "CFE"],
-    specializations: ["IT Audits", "SOX Compliance", "Financial Controls"],
-    managedAudits: 28,
-    reportingTo: "Audit Director",
-    complianceScore: 92,
-    tag: "Audit"
+    employmentType: "Contract",
+    salary: 110000,
+    currency: "USD",
+    supervisor: "John Smith",
+    gender: "Male",
+    dateOfBirth: "1988-07-30",
+    skills: ["Docker", "Kubernetes", "AWS", "CI/CD"],
+    education: "BS Computer Engineering",
+    experience: 6,
+    performanceRating: 4.7,
+    attendanceRate: 95,
+    projectsCompleted: 6
   },
   {
     id: 4,
-    officerName: "Sarah Williams",
-    officerCode: "CO-004",
-    department: "Quality Assurance",
-    company: "TechNova Solutions",
-    companyId: "1",
+    employeeId: "EMP-004",
+    firstName: "Sarah",
+    lastName: "Williams",
+    fullName: "Sarah Williams",
     email: "sarah.williams@technova.com",
-    phone: "+44 20 7123 4567",
-    mobile: "+44 20 7123 4568",
-    jobTitle: "Quality Assurance Specialist",
-    role: "Quality Assurance",
-    location: "London, UK",
-    status: "Inactive",
-    hireDate: "2021-11-05",
-    yearsOfExperience: 6,
-    qualifications: ["MS Quality Management", "Six Sigma Black Belt"],
-    certifications: ["CQA", "CSQE"],
-    specializations: ["Process Improvement", "ISO Standards", "Quality Control"],
-    managedAudits: 24,
-    reportingTo: "QA Manager",
-    complianceScore: 90,
-    tag: "QA"
+    phone: "+1 (555) 456-7890",
+    position: "Marketing Manager",
+    department: "Marketing",
+    company: "TechNova Solutions",
+    companyId: 1,
+    location: "Boston, MA",
+    joinDate: "2019-11-15",
+    status: "On Leave",
+    employmentType: "Full-time",
+    salary: 95000,
+    currency: "USD",
+    supervisor: "David Brown",
+    gender: "Female",
+    dateOfBirth: "1985-03-12",
+    skills: ["Digital Marketing", "SEO", "Content Strategy", "Analytics"],
+    education: "BA Marketing",
+    experience: 10,
+    performanceRating: 4.9,
+    attendanceRate: 97,
+    projectsCompleted: 15
   },
   {
     id: 5,
-    officerName: "Robert Johnson",
-    officerCode: "CO-005",
-    department: "Financial Compliance",
-    company: "Global Finance Group",
-    companyId: "2",
-    email: "robert.johnson@globalfinance.com",
+    employeeId: "EMP-005",
+    firstName: "David",
+    lastName: "Kim",
+    fullName: "David Kim",
+    email: "david.kim@globalfinance.com",
     phone: "+1 (555) 567-8901",
-    mobile: "+1 (555) 678-9012",
-    jobTitle: "Compliance Analyst",
-    role: "Compliance Analyst",
+    position: "Sales Executive",
+    department: "Sales",
+    company: "Global Finance Group",
+    companyId: 2,
     location: "Chicago, IL",
+    joinDate: "2020-06-05",
     status: "Active",
-    hireDate: "2022-02-18",
-    yearsOfExperience: 5,
-    qualifications: ["BS Finance", "MS Regulatory Affairs"],
-    certifications: ["Series 7", "Series 63"],
-    specializations: ["Banking Regulations", "Anti-Fraud", "Compliance Monitoring"],
-    managedAudits: 38,
-    reportingTo: "Compliance Manager",
-    complianceScore: 97,
-    tag: "Analyst"
+    employmentType: "Full-time",
+    salary: 75000,
+    currency: "USD",
+    supervisor: "Lisa Thompson",
+    gender: "Male",
+    dateOfBirth: "1991-09-22",
+    skills: ["Sales", "CRM", "Negotiation", "Client Relations"],
+    education: "BS Business",
+    experience: 4,
+    performanceRating: 4.5,
+    attendanceRate: 99,
+    projectsCompleted: 20
   },
   {
     id: 6,
-    officerName: "Lisa Martinez",
-    officerCode: "CO-006",
-    department: "Corporate Governance",
-    company: "TechNova Solutions",
-    companyId: "1",
-    email: "lisa.martinez@technova.com",
+    employeeId: "EMP-006",
+    firstName: "Jennifer",
+    lastName: "Miller",
+    fullName: "Jennifer Miller",
+    email: "jennifer.miller@technova.com",
     phone: "+1 (555) 678-9012",
-    mobile: "+1 (555) 789-0123",
-    jobTitle: "Governance Officer",
-    role: "Corporate Governance",
+    position: "UX Designer",
+    department: "Product",
+    company: "TechNova Solutions",
+    companyId: 1,
     location: "Seattle, WA",
-    status: "On Leave",
-    hireDate: "2020-09-30",
-    yearsOfExperience: 8,
-    qualifications: ["JD", "MBA Corporate Governance"],
-    certifications: ["CGAP", "CCSA"],
-    specializations: ["Board Governance", "Policy Development", "Ethics Compliance"],
-    managedAudits: 31,
-    reportingTo: "Corporate Secretary",
-    complianceScore: 94,
-    tag: "Governance"
+    joinDate: "2021-09-20",
+    status: "Active",
+    employmentType: "Full-time",
+    salary: 105000,
+    currency: "USD",
+    supervisor: "Mark Davis",
+    gender: "Female",
+    dateOfBirth: "1993-02-18",
+    skills: ["Figma", "UI/UX", "Prototyping", "User Research"],
+    education: "MS Human-Computer Interaction",
+    experience: 4,
+    performanceRating: 4.8,
+    attendanceRate: 98,
+    projectsCompleted: 9
+  },
+  {
+    id: 7,
+    employeeId: "EMP-007",
+    firstName: "Robert",
+    lastName: "Taylor",
+    fullName: "Robert Taylor",
+    email: "robert.taylor@technova.com",
+    phone: "+1 (555) 789-0123",
+    position: "QA Engineer",
+    department: "Engineering",
+    company: "TechNova Solutions",
+    companyId: 1,
+    location: "Austin, TX",
+    joinDate: "2022-03-10",
+    status: "Active",
+    employmentType: "Part-time",
+    salary: 60000,
+    currency: "USD",
+    supervisor: "John Smith",
+    gender: "Male",
+    dateOfBirth: "1994-08-05",
+    skills: ["Testing", "Automation", "Selenium", "Jest"],
+    education: "BS Software Engineering",
+    experience: 3,
+    performanceRating: 4.4,
+    attendanceRate: 94,
+    projectsCompleted: 5
+  },
+  {
+    id: 8,
+    employeeId: "EMP-008",
+    firstName: "Lisa",
+    lastName: "Anderson",
+    fullName: "Lisa Anderson",
+    email: "lisa.anderson@technova.com",
+    phone: "+1 (555) 890-1234",
+    position: "HR Coordinator",
+    department: "Human Resources",
+    company: "TechNova Solutions",
+    companyId: 1,
+    location: "Remote",
+    joinDate: "2020-12-01",
+    status: "Inactive",
+    employmentType: "Full-time",
+    salary: 65000,
+    currency: "USD",
+    supervisor: "Maria Garcia",
+    gender: "Female",
+    dateOfBirth: "1990-11-30",
+    skills: ["Recruitment", "Onboarding", "HRIS", "Employee Relations"],
+    education: "BA Human Resources",
+    experience: 5,
+    performanceRating: 4.3,
+    attendanceRate: 90,
+    projectsCompleted: 8
   }
 ];
 
 // Table head cells
-const complianceOfficerHeadCells = [
-  { id: "officerName", label: "Compliance Officer" },
-  { id: "officerCode", label: "Officer Code" },
+const staffHeadCells = [
+  { id: "fullName", label: "Employee" },
+  { id: "employeeId", label: "Employee ID" },
   { id: "department", label: "Department" },
+  { id: "position", label: "Position" },
   { id: "email", label: "Email" },
   { id: "phone", label: "Phone" },
-  { id: "jobTitle", label: "Job Title" },
   { id: "location", label: "Location" },
   { id: "status", label: "Status" },
-  { id: "managedAudits", label: "Audits Managed" },
-  { id: "yearsOfExperience", label: "Experience" },
-  { id: "complianceScore", label: "Compliance Score" },
-  { id: "hireDate", label: "Hire Date" },
+  { id: "employmentType", label: "Type" },
+  { id: "salary", label: "Salary" },
+  { id: "joinDate", label: "Join Date" },
+  { id: "experience", label: "Experience" },
+  { id: "performanceRating", label: "Rating" },
 ];
 
-interface CompanyComplianceOfficersTableProps {
+interface CompanyStaffTableProps {
   companyId: string;
   companyName?: string;
   status?: string;
   department?: string;
-  role?: string;
+  position?: string;
+  employmentType?: string;
   dateRange?: { start: string; end: string };
-  onEdit?: (officer: IComplianceOfficer) => void;
+  onEdit?: (staff: IStaff) => void;
   onDelete?: (id: number) => void;
 }
 
-const CompanyComplianceOfficersTable: React.FC<CompanyComplianceOfficersTableProps> = ({ 
+const CompanyStaffTable: React.FC<CompanyStaffTableProps> = ({ 
   companyId,
   companyName = "Company",
   status = "all",
   department = "all",
-  role = "all",
+  position = "all",
+  employmentType = "all",
   dateRange = { start: "", end: "" },
   onEdit,
   onDelete
 }) => {
   const [detailsModalOpen, setDetailsModalOpen] = useState(false);
-  const [selectedComplianceOfficer, setSelectedComplianceOfficer] = useState<IComplianceOfficer | null>(null);
+  const [selectedStaff, setSelectedStaff] = useState<IStaff | null>(null);
   const [modalDeleteOpen, setModalDeleteOpen] = useState(false);
   const [deleteId, setDeleteId] = useState<number>(0);
   
@@ -236,37 +323,45 @@ const CompanyComplianceOfficersTable: React.FC<CompanyComplianceOfficersTablePro
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [searchQuery, setSearchQuery] = useState("");
   const [order, setOrder] = useState<"asc" | "desc">("asc");
-  const [orderBy, setOrderBy] = useState<string>("officerName");
+  const [orderBy, setOrderBy] = useState<string>("fullName");
 
   // Filter by company first, then apply other filters
   const filteredData = useMemo(() => {
     // First filter by company ID
-    let result = allComplianceOfficersData.filter(officer => 
-      officer.companyId === companyId
+    let result = allStaffData.filter(staff => 
+      staff.companyId.toString() === companyId
     );
     
     // Apply other filters
     if (status && status !== "all") {
-      result = result.filter(officer => {
-        const officerStatus = officer.status?.toLowerCase() || '';
+      result = result.filter(staff => {
+        const staffStatus = staff.status?.toLowerCase() || '';
         const filterStatus = status.toLowerCase();
-        return officerStatus === filterStatus;
+        return staffStatus === filterStatus;
       });
     }
     
     if (department && department !== "all") {
-      result = result.filter(officer => {
-        const officerDept = officer.department?.toLowerCase() || '';
+      result = result.filter(staff => {
+        const staffDept = staff.department?.toLowerCase() || '';
         const filterDept = department.toLowerCase();
-        return officerDept === filterDept;
+        return staffDept === filterDept;
       });
     }
     
-    if (role && role !== "all") {
-      result = result.filter(officer => {
-        const officerRole = officer.role?.toLowerCase() || '';
-        const filterRole = role.toLowerCase();
-        return officerRole.includes(filterRole);
+    if (position && position !== "all") {
+      result = result.filter(staff => {
+        const staffPosition = staff.position?.toLowerCase() || '';
+        const filterPosition = position.toLowerCase();
+        return staffPosition.includes(filterPosition);
+      });
+    }
+    
+    if (employmentType && employmentType !== "all") {
+      result = result.filter(staff => {
+        const staffType = staff.employmentType?.toLowerCase() || '';
+        const filterType = employmentType.toLowerCase();
+        return staffType === filterType;
       });
     }
     
@@ -277,11 +372,11 @@ const CompanyComplianceOfficersTable: React.FC<CompanyComplianceOfficersTablePro
         const endDate = new Date(dateRange.end);
         endDate.setDate(endDate.getDate() + 1);
         
-        result = result.filter(officer => {
-          if (!officer.hireDate) return false;
+        result = result.filter(staff => {
+          if (!staff.joinDate) return false;
           try {
-            const hireDate = new Date(officer.hireDate);
-            return hireDate >= startDate && hireDate <= endDate;
+            const joinDate = new Date(staff.joinDate);
+            return joinDate >= startDate && joinDate <= endDate;
           } catch (error) {
             return true;
           }
@@ -292,7 +387,7 @@ const CompanyComplianceOfficersTable: React.FC<CompanyComplianceOfficersTablePro
     }
     
     return result;
-  }, [companyId, status, department, role, dateRange]);
+  }, [companyId, status, department, position, employmentType, dateRange]);
 
   // Search filter
   const searchedData = useMemo(() => {
@@ -301,17 +396,18 @@ const CompanyComplianceOfficersTable: React.FC<CompanyComplianceOfficersTablePro
     }
     
     const query = searchQuery.toLowerCase();
-    return filteredData.filter(officer => {
+    return filteredData.filter(staff => {
       const searchFields = [
-        officer.officerName,
-        officer.officerCode,
-        officer.email,
-        officer.jobTitle,
-        officer.department,
-        officer.company,
-        officer.phone,
-        officer.location,
-        officer.status
+        staff.fullName,
+        staff.employeeId,
+        staff.email,
+        staff.position,
+        staff.department,
+        staff.company,
+        staff.phone,
+        staff.location,
+        staff.status,
+        staff.employmentType
       ].filter(Boolean).map(field => field?.toString().toLowerCase());
       
       return searchFields.some(field => field.includes(query));
@@ -327,23 +423,24 @@ const CompanyComplianceOfficersTable: React.FC<CompanyComplianceOfficersTablePro
       let bValue: any = '';
       
       switch (orderBy) {
-        case "officerName":
-        case "officerCode":
+        case "fullName":
+        case "employeeId":
         case "department":
+        case "position":
         case "email":
         case "phone":
-        case "jobTitle":
         case "location":
         case "status":
-        case "hireDate":
-          aValue = (a[orderBy as keyof IComplianceOfficer] || '').toString().toLowerCase();
-          bValue = (b[orderBy as keyof IComplianceOfficer] || '').toString().toLowerCase();
+        case "employmentType":
+        case "joinDate":
+          aValue = (a[orderBy as keyof IStaff] || '').toString().toLowerCase();
+          bValue = (b[orderBy as keyof IStaff] || '').toString().toLowerCase();
           break;
-        case "managedAudits":
-        case "yearsOfExperience":
-        case "complianceScore":
-          aValue = Number(a[orderBy as keyof IComplianceOfficer] || 0);
-          bValue = Number(b[orderBy as keyof IComplianceOfficer] || 0);
+        case "salary":
+        case "experience":
+        case "performanceRating":
+          aValue = Number(a[orderBy as keyof IStaff] || 0);
+          bValue = Number(b[orderBy as keyof IStaff] || 0);
           break;
         default:
           aValue = '';
@@ -368,11 +465,11 @@ const CompanyComplianceOfficersTable: React.FC<CompanyComplianceOfficersTablePro
   // Reset to page 1 when filters change
   useEffect(() => {
     setPage(1);
-  }, [companyId, status, department, role, dateRange, searchQuery]);
+  }, [companyId, status, department, position, employmentType, dateRange, searchQuery]);
 
   const handleSelectAllClick = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.checked && sortedData.length > 0) {
-      setSelected(sortedData.map(officer => officer.id));
+      setSelected(sortedData.map(staff => staff.id));
     } else {
       setSelected([]);
     }
@@ -423,32 +520,34 @@ const CompanyComplianceOfficersTable: React.FC<CompanyComplianceOfficersTablePro
     if (statusLower.includes("active")) return "success";
     if (statusLower.includes("inactive")) return "error";
     if (statusLower.includes("leave")) return "warning";
-    if (statusLower.includes("pending")) return "info";
+    if (statusLower.includes("terminated")) return "error";
     return "default";
   };
 
   const getDepartmentClass = (department: string = "") => {
     const deptLower = department.toLowerCase();
-    if (deptLower.includes("compliance") || deptLower.includes("risk")) return "primary";
-    if (deptLower.includes("legal") || deptLower.includes("regulatory")) return "info";
-    if (deptLower.includes("audit")) return "secondary";
-    if (deptLower.includes("quality")) return "success";
-    if (deptLower.includes("governance")) return "warning";
-    if (deptLower.includes("ethics")) return "error";
-    if (deptLower.includes("financial")) return "primary";
-    if (deptLower.includes("data")) return "info";
+    if (deptLower.includes("engineering") || deptLower.includes("tech")) return "primary";
+    if (deptLower.includes("sales")) return "info";
+    if (deptLower.includes("marketing")) return "secondary";
+    if (deptLower.includes("finance")) return "success";
+    if (deptLower.includes("human resources") || deptLower.includes("hr")) return "warning";
+    if (deptLower.includes("operations")) return "error";
+    if (deptLower.includes("product")) return "default";
+    if (deptLower.includes("customer")) return "info";
     return "default";
   };
 
-  const getScoreColor = (score: number) => {
-    if (score >= 90) return "success";
-    if (score >= 80) return "info";
-    if (score >= 70) return "warning";
-    return "error";
+  const getEmploymentTypeClass = (type: string = "") => {
+    const typeLower = type.toLowerCase();
+    if (typeLower.includes("full-time")) return "success";
+    if (typeLower.includes("part-time")) return "warning";
+    if (typeLower.includes("contract")) return "info";
+    if (typeLower.includes("intern")) return "secondary";
+    return "default";
   };
 
-  const handleViewComplianceOfficer = (officer: IComplianceOfficer) => {
-    setSelectedComplianceOfficer(officer);
+  const handleViewStaff = (staff: IStaff) => {
+    setSelectedStaff(staff);
     setDetailsModalOpen(true);
   };
 
@@ -473,12 +572,17 @@ const CompanyComplianceOfficersTable: React.FC<CompanyComplianceOfficersTablePro
     }
   };
 
-  const formatNumber = (num: number = 0) => {
-    return new Intl.NumberFormat('en-US').format(num);
+  const formatCurrency = (amount: number = 0, currency: string = "USD") => {
+    return new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: currency,
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0
+    }).format(amount);
   };
 
   const getInitials = (name: string = "") => {
-    if (!name.trim()) return "CO";
+    if (!name.trim()) return "EMP";
     return name
       .split(' ')
       .map(part => part[0])
@@ -489,27 +593,33 @@ const CompanyComplianceOfficersTable: React.FC<CompanyComplianceOfficersTablePro
 
   // Prepare table data for export
   const exportData = useMemo((): TableData => {
-    const headers = complianceOfficerHeadCells.map(cell => cell.label);
+    const headers = staffHeadCells.map(cell => cell.label);
     
-    const rows = sortedData.map(officer => [
-      officer.officerName,
-      officer.officerCode,
-      officer.department,
-      officer.email,
-      officer.phone,
-      officer.jobTitle,
-      officer.location,
-      officer.status,
-      formatNumber(officer.managedAudits),
-      `${officer.yearsOfExperience} yrs`,
-      `${officer.complianceScore}%`,
-      formatDate(officer.hireDate)
+    const rows = sortedData.map(staff => [
+      staff.fullName,
+      staff.employeeId,
+      staff.department,
+      staff.position,
+      staff.email,
+      staff.phone,
+      staff.location,
+      staff.status,
+      staff.employmentType,
+      formatCurrency(staff.salary, staff.currency),
+      formatDate(staff.joinDate),
+      `${staff.experience} yrs`,
+      staff.performanceRating?.toFixed(1) || 'N/A',
+      staff.gender || '',
+      staff.supervisor || 'N/A',
+      staff.skills?.join(', ') || '',
+      staff.education || '',
+      staff.attendanceRate ? `${staff.attendanceRate}%` : 'N/A'
     ]);
     
     return {
-      headers,
+      headers: [...headers, 'Gender', 'Supervisor', 'Skills', 'Education', 'Attendance'],
       rows,
-      title: `${companyName} Compliance Officers Export - ${sortedData.length} records`
+      title: `${companyName} - Staff Export (${sortedData.length} records)`
     };
   }, [sortedData, companyName]);
 
@@ -524,27 +634,27 @@ const CompanyComplianceOfficersTable: React.FC<CompanyComplianceOfficersTablePro
           <div className="p-4 bg-white border-b border-gray-200">
             <div className="flex items-center justify-between">
               <div className="flex items-center">
-                <GavelIcon className="mr-2 text-gray-600" />
+                <GroupsIcon className="mr-2 text-gray-600" />
                 <div>
-                  <h3 className="font-semibold text-lg text-gray-800">{companyName} Compliance Team</h3>
+                  <h3 className="font-semibold text-lg text-gray-800">{companyName} Staff Team</h3>
                   <p className="text-gray-600 text-sm">
-                    {sortedData.length} compliance officer(s) found for this company
+                    {sortedData.length} staff member(s) found for this company
                   </p>
                 </div>
               </div>
               <div className="text-right">
-                <div className="text-sm text-gray-500">Total Audits Managed</div>
-                <div className="text-xl font-bold text-purple-600">
-                  {formatNumber(sortedData.reduce((sum, m) => sum + (m.managedAudits || 0), 0))}
+                <div className="text-sm text-gray-500">Total Annual Salary</div>
+                <div className="text-xl font-bold text-green-600">
+                  {formatCurrency(sortedData.reduce((sum, s) => sum + (s.salary || 0), 0), "USD")}
                 </div>
               </div>
             </div>
           </div>
 
           <div className="manaz-common-mat-list w-full table__wrapper table-responsive">
-
+            
             {/* Top Controls Row */}
-            <Grid container spacing={2} alignItems="center" className="mb-4 p-4">
+            <Grid container spacing={2} alignItems="center" className="mb-4">
               {/* Search Bar - Top Left */}
               <Grid item xs={12} md={6}>
                 <Box className="flex items-center gap-4">
@@ -559,7 +669,7 @@ const CompanyComplianceOfficersTable: React.FC<CompanyComplianceOfficersTablePro
                     size="small"
                     className="manaz-table-search-input"
                     sx={{ width: '100%', maxWidth: 300 }}
-                    placeholder="Search compliance officers..."
+                    placeholder={`Search ${companyName} staff...`}
                   />
                 </Box>
               </Grid>
@@ -570,9 +680,9 @@ const CompanyComplianceOfficersTable: React.FC<CompanyComplianceOfficersTablePro
                   <DownloadButtonGroup
                     data={exportData}
                     options={{
-                      fileName: `${companyName.replace(/\s+/g, '_')}_compliance_officers_${new Date().toISOString().split('T')[0]}`,
+                      fileName: `${companyName.replace(/\s+/g, '_')}_staff_${new Date().toISOString().split('T')[0]}`,
                       includeHeaders: true,
-                      pdfTitle: `${companyName} Compliance Officers Report - ${new Date().toLocaleDateString()}`
+                      pdfTitle: `${companyName} - Staff Report (${new Date().toLocaleDateString()})`
                     }}
                     variant="outlined"
                     size="small"
@@ -582,8 +692,7 @@ const CompanyComplianceOfficersTable: React.FC<CompanyComplianceOfficersTablePro
               </Grid>
             </Grid>
 
-            {/* Main Table */}
-            <Box sx={{ width: "100%" }} className="table-responsive px-4">
+            <Box sx={{ width: "100%" }} className="table-responsive">
               <Paper sx={{ width: "100%", mb: 2 }}>
                 <TableContainer className="table mb-[20px] hover multiple_tables w-full">
                   <Table aria-labelledby="tableTitle" className="whitespace-nowrap">
@@ -599,7 +708,7 @@ const CompanyComplianceOfficersTable: React.FC<CompanyComplianceOfficersTablePro
                             size="small"
                           />
                         </TableCell>
-                        {complianceOfficerHeadCells.map((headCell) => (
+                        {staffHeadCells.map((headCell) => (
                           <TableCell
                             className="table__title !font-semibold"
                             key={headCell.id}
@@ -626,18 +735,18 @@ const CompanyComplianceOfficersTable: React.FC<CompanyComplianceOfficersTablePro
                     <TableBody className="table__body">
                       {shouldShowEmptyState ? (
                         <TableRow>
-                          <TableCell colSpan={complianceOfficerHeadCells.length + 2} className="text-center py-8">
+                          <TableCell colSpan={staffHeadCells.length + 2} className="text-center py-8">
                             <div className="flex flex-col items-center justify-center">
-                              <GavelIcon className="text-gray-400 mb-2" fontSize="large" />
+                              <GroupsIcon className="text-gray-400 mb-2" fontSize="large" />
                               <Typography variant="body1" className="text-gray-600 mb-2">
                                 {filteredData.length === 0
-                                  ? `No compliance officers found for ${companyName}`
-                                  : "No compliance officers found with current filters"}
+                                  ? `No staff members found for ${companyName}`
+                                  : "No staff members found with current filters"}
                               </Typography>
                               <Typography variant="body2" color="text.secondary" className="mb-4">
                                 {searchQuery.trim() 
                                   ? `Try adjusting your search query: "${searchQuery}"`
-                                  : `Try adjusting your filters to see ${companyName}'s compliance officers`}
+                                  : `Try adjusting your filters to see ${companyName}'s staff members`}
                               </Typography>
                             </div>
                           </TableCell>
@@ -647,7 +756,7 @@ const CompanyComplianceOfficersTable: React.FC<CompanyComplianceOfficersTablePro
                           const isSelected = selected.includes(row.id);
                           const statusClass = getStatusClass(row.status);
                           const deptClass = getDepartmentClass(row.department);
-                          const scoreColor = getScoreColor(row.complianceScore);
+                          const typeClass = getEmploymentTypeClass(row.employmentType);
 
                           return (
                             <TableRow
@@ -655,6 +764,7 @@ const CompanyComplianceOfficersTable: React.FC<CompanyComplianceOfficersTablePro
                               hover
                               selected={isSelected}
                               onClick={() => handleClick(row.id)}
+                              className={`hover:bg-blue-50 ${isSelected ? 'bg-blue-50' : ''}`}
                             >
                               <TableCell padding="checkbox">
                                 <Checkbox
@@ -666,22 +776,22 @@ const CompanyComplianceOfficersTable: React.FC<CompanyComplianceOfficersTablePro
                               </TableCell>
                               <TableCell>
                                 <div className="flex items-center">
-                                  <Avatar className="mr-3 bg-purple-500">
-                                    {getInitials(row.officerName)}
+                                  <Avatar className="mr-3 bg-blue-500">
+                                    {getInitials(row.fullName)}
                                   </Avatar>
                                   <div>
                                     <Typography variant="body2" className="font-medium">
-                                      {row.officerName}
+                                      {row.fullName}
                                     </Typography>
                                     <Typography variant="caption" color="text.secondary">
-                                      {row.jobTitle}
+                                      {row.position}
                                     </Typography>
                                   </div>
                                 </div>
                               </TableCell>
                               <TableCell>
                                 <code className="bg-gray-100 px-2 py-1 rounded text-sm">
-                                  {row.officerCode}
+                                  {row.employeeId}
                                 </code>
                               </TableCell>
                               <TableCell>
@@ -692,6 +802,11 @@ const CompanyComplianceOfficersTable: React.FC<CompanyComplianceOfficersTablePro
                                   variant="filled"
                                   className="font-medium"
                                 />
+                              </TableCell>
+                              <TableCell>
+                                <Typography variant="body2">
+                                  {row.position}
+                                </Typography>
                               </TableCell>
                               <TableCell>
                                 <div className="flex items-center">
@@ -710,14 +825,6 @@ const CompanyComplianceOfficersTable: React.FC<CompanyComplianceOfficersTablePro
                                 </div>
                               </TableCell>
                               <TableCell>
-                                <div className="flex items-center">
-                                  <WorkIcon className="mr-1 text-gray-500" fontSize="small" />
-                                  <Typography variant="body2">
-                                    {row.jobTitle}
-                                  </Typography>
-                                </div>
-                              </TableCell>
-                              <TableCell>
                                 <Typography variant="body2">
                                   {row.location}
                                 </Typography>
@@ -732,40 +839,52 @@ const CompanyComplianceOfficersTable: React.FC<CompanyComplianceOfficersTablePro
                                 />
                               </TableCell>
                               <TableCell>
+                                <Chip
+                                  label={row.employmentType}
+                                  size="small"
+                                  color={typeClass as any}
+                                  variant="filled"
+                                  className="font-medium"
+                                />
+                              </TableCell>
+                              <TableCell>
                                 <div className="flex items-center">
-                                  <AssessmentIcon className="mr-1 text-gray-500" fontSize="small" />
-                                  <Typography variant="body2" className="font-semibold">
-                                    {formatNumber(row.managedAudits)}
+                                  <AttachMoneyIcon className="mr-1 text-gray-500" fontSize="small" />
+                                  <Typography variant="body2" className="font-semibold text-green-600">
+                                    {formatCurrency(row.salary, row.currency)}
                                   </Typography>
-                                </div>
-                              </TableCell>
-                              <TableCell>
-                                <Typography variant="body2" className="font-semibold">
-                                  {row.yearsOfExperience} yrs
-                                </Typography>
-                              </TableCell>
-                              <TableCell>
-                                <div className="flex flex-col gap-1">
-                                  <div className="flex items-center justify-between">
-                                    <Typography variant="body2" className="font-semibold">
-                                      {row.complianceScore}%
-                                    </Typography>
-                                    <TrendingUpIcon className="text-green-500" fontSize="small" />
-                                  </div>
-                                  <LinearProgress 
-                                    variant="determinate" 
-                                    value={row.complianceScore} 
-                                    color={scoreColor as any}
-                                    className="h-2 rounded"
-                                  />
                                 </div>
                               </TableCell>
                               <TableCell>
                                 <div className="flex items-center">
                                   <CalendarTodayIcon className="mr-1 text-gray-500" fontSize="small" />
                                   <Typography variant="body2">
-                                    {formatDate(row.hireDate)}
+                                    {formatDate(row.joinDate)}
                                   </Typography>
+                                </div>
+                              </TableCell>
+                              <TableCell>
+                                <Typography variant="body2" className="font-semibold">
+                                  {row.experience} yrs
+                                </Typography>
+                              </TableCell>
+                              <TableCell>
+                                <div className="flex items-center">
+                                  <Typography variant="body2" className="font-semibold mr-2">
+                                    {(row.performanceRating || 0).toFixed(1)}
+                                  </Typography>
+                                  <div className="flex">
+                                    {[...Array(5)].map((_, i) => (
+                                      <svg
+                                        key={i}
+                                        className={`w-4 h-4 ${i < Math.floor(row.performanceRating || 0) ? 'text-yellow-400' : 'text-gray-300'}`}
+                                        fill="currentColor"
+                                        viewBox="0 0 20 20"
+                                      >
+                                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                                      </svg>
+                                    ))}
+                                  </div>
                                 </div>
                               </TableCell>
                               <TableCell className="table__icon-box">
@@ -775,9 +894,9 @@ const CompanyComplianceOfficersTable: React.FC<CompanyComplianceOfficersTablePro
                                     className="table__icon view p-1.5 hover:bg-blue-100 rounded"
                                     onClick={(e) => {
                                       e.stopPropagation();
-                                      handleViewComplianceOfficer(row);
+                                      handleViewStaff(row);
                                     }}
-                                    title="View Compliance Officer Details"
+                                    title="View Staff Details"
                                   >
                                     <VisibilityIcon fontSize="small" className="text-blue-600" />
                                   </button>
@@ -790,7 +909,7 @@ const CompanyComplianceOfficersTable: React.FC<CompanyComplianceOfficersTablePro
                                         onEdit(row);
                                       }
                                     }}
-                                    title="Edit Compliance Officer"
+                                    title="Edit Staff"
                                   >
                                     <EditIcon fontSize="small" className="text-green-600" />
                                   </button>
@@ -802,7 +921,7 @@ const CompanyComplianceOfficersTable: React.FC<CompanyComplianceOfficersTablePro
                                       setDeleteId(row.id);
                                       setModalDeleteOpen(true);
                                     }}
-                                    title="Delete Compliance Officer"
+                                    title="Delete Staff"
                                   >
                                     <i className="fa-regular fa-trash text-red-600"></i>
                                   </button>
@@ -818,32 +937,32 @@ const CompanyComplianceOfficersTable: React.FC<CompanyComplianceOfficersTablePro
               </Paper>
             </Box>
 
-            {/* Compliance Officer Summary */}
+            {/* Staff Summary */}
             {sortedData.length > 0 && (
               <>
-                <div className="card__wrapper mb-4 mx-4">
+                <div className="card__wrapper mb-4">
                   <div className="p-4 bg-gray-50 rounded-lg">
                     <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                       <div className="text-center">
-                        <div className="text-sm text-gray-600">Total Officers</div>
+                        <div className="text-sm text-gray-600">Total Staff</div>
                         <div className="text-xl font-semibold">{sortedData.length}</div>
                       </div>
                       <div className="text-center">
                         <div className="text-sm text-gray-600">Active</div>
                         <div className="text-xl font-semibold text-green-600">
-                          {sortedData.filter(m => m.status === "Active").length}
+                          {sortedData.filter(s => s.status === "Active").length}
                         </div>
                       </div>
                       <div className="text-center">
-                        <div className="text-sm text-gray-600">Total Audits Managed</div>
-                        <div className="text-xl font-semibold text-purple-600">
-                          {formatNumber(sortedData.reduce((sum, m) => sum + (m.managedAudits || 0), 0))}
+                        <div className="text-sm text-gray-600">Total Salary</div>
+                        <div className="text-xl font-semibold text-green-600">
+                          {formatCurrency(sortedData.reduce((sum, s) => sum + (s.salary || 0), 0), "USD")}
                         </div>
                       </div>
                       <div className="text-center">
-                        <div className="text-sm text-gray-600">Avg. Compliance Score</div>
+                        <div className="text-sm text-gray-600">Avg. Rating</div>
                         <div className="text-xl font-semibold">
-                          {(sortedData.reduce((sum, m) => sum + (m.complianceScore || 0), 0) / sortedData.length).toFixed(0)}%
+                          {(sortedData.reduce((sum, s) => sum + (s.performanceRating || 0), 0) / sortedData.length).toFixed(1)}
                         </div>
                       </div>
                     </div>
@@ -851,7 +970,7 @@ const CompanyComplianceOfficersTable: React.FC<CompanyComplianceOfficersTablePro
                 </div>
 
                 {/* Bottom Controls Row */}
-                <Grid container spacing={2} alignItems="center" className="mt-4 px-4 pb-4">
+                <Grid container spacing={2} alignItems="center" className="mt-4">
                   {/* Number of Entries Dropdown - Bottom Left */}
                   <Grid item xs={12} md={3}>
                     <Box className="flex items-center gap-2">
@@ -886,9 +1005,13 @@ const CompanyComplianceOfficersTable: React.FC<CompanyComplianceOfficersTablePro
                           sortedData.length
                         )} of ${sortedData.length} entries for ${companyName}`}
                       </Typography>
-                      {searchQuery && (
+                      {(searchQuery || status !== "all" || department !== "all" || position !== "all" || employmentType !== "all") && (
                         <Typography variant="caption" className="text-gray-600">
-                          (Filtered by: `{searchQuery}`)
+                          {searchQuery && `(Search: "${searchQuery}") `}
+                          {status !== "all" && `• Status: ${status} `}
+                          {department !== "all" && `• Department: ${department} `}
+                          {position !== "all" && `• Position: ${position} `}
+                          {employmentType !== "all" && `• Type: ${employmentType}`}
                         </Typography>
                       )}
                     </Box>
@@ -917,63 +1040,82 @@ const CompanyComplianceOfficersTable: React.FC<CompanyComplianceOfficersTablePro
 
       {/* Bulk Actions Bar */}
       {selected.length > 0 && (
-        <div className="card__wrapper mb-4">
-          <div className="p-4 bg-purple-50 rounded-lg">
-            <div className="flex items-center justify-between">
-              <div className="text-purple-700 font-medium">
-                {selected.length} compliance officer(s) selected
-              </div>
-              <div className="flex items-center gap-2">
-                <button
-                  type="button"
-                  className="px-3 py-1.5 bg-purple-500 text-white rounded-md hover:bg-purple-600 flex items-center gap-1 text-sm"
-                  onClick={() => {
-                    const selectedOfficers = sortedData.filter(officer => selected.includes(officer.id));
-                    console.log('Bulk action on compliance officers:', selectedOfficers);
-                  }}
-                >
-                  <i className="fa-solid fa-toggle-on mr-1"></i>
-                  Toggle Status
-                </button>
-                <button
-                  type="button"
-                  className="px-3 py-1.5 bg-gray-600 text-white rounded-md hover:bg-gray-700 flex items-center gap-1 text-sm"
-                  onClick={() => {
-                    const selectedOfficers = sortedData.filter(officer => selected.includes(officer.id));
-                    console.log('Bulk export compliance officers:', selectedOfficers);
-                  }}
-                >
-                  <i className="fa-solid fa-download mr-1"></i>
-                  Export Selected
-                </button>
-                <button
-                  type="button"
-                  className="px-3 py-1.5 bg-red-500 text-white rounded-md hover:bg-red-600 flex items-center gap-1 text-sm"
-                  onClick={() => {
-                    if (window.confirm(`Delete ${selected.length} compliance officer(s)?`)) {
-                      selected.forEach(id => {
-                        if (onDelete) {
-                          onDelete(id);
-                        }
-                      });
-                      setSelected([]);
+        <div className="fixed bottom-4 left-1/2 transform -translate-x-1/2 bg-blue-600 text-white px-4 py-2 rounded-lg shadow-lg flex items-center gap-4 z-50">
+          <Typography variant="body2">
+            {selected.length} staff member{selected.length > 1 ? 's' : ''} selected
+          </Typography>
+          <div className="flex gap-2">
+            <button
+              className="px-3 py-1 bg-white text-blue-600 rounded text-sm font-medium hover:bg-blue-50"
+              onClick={() => {
+                const selectedStaffMembers = selected.map(id => sortedData.find(staff => staff.id === id)).filter(Boolean);
+                const exportData = {
+                  headers: staffHeadCells.map(cell => cell.label),
+                  rows: selectedStaffMembers.map(staff => [
+                    staff!.fullName,
+                    staff!.employeeId,
+                    staff!.department,
+                    staff!.position,
+                    staff!.email,
+                    staff!.phone,
+                    staff!.location,
+                    staff!.status,
+                    staff!.employmentType,
+                    formatCurrency(staff!.salary, staff!.currency),
+                    formatDate(staff!.joinDate),
+                    `${staff!.experience} yrs`,
+                    staff!.performanceRating?.toFixed(1) || 'N/A'
+                  ]),
+                  title: `${companyName} - Selected Staff (${selected.length} records)`
+                };
+                console.log('Exporting selected staff members:', selectedStaffMembers);
+              }}
+            >
+              <i className="fa-regular fa-download mr-1"></i>
+              Export Selected
+            </button>
+            <button
+              className="px-3 py-1 bg-yellow-500 text-white rounded text-sm font-medium hover:bg-yellow-600"
+              onClick={() => {
+                const selectedStaffMembers = paginatedRows.filter((staff) => selected.includes(staff.id));
+                console.log('Bulk update status on staff members:', selectedStaffMembers);
+                alert(`Updating status for ${selected.length} staff member${selected.length > 1 ? 's' : ''}...`);
+              }}
+            >
+              <i className="fa-solid fa-toggle-on mr-1"></i>
+              Update Status
+            </button>
+            <button
+              className="px-3 py-1 bg-red-500 text-white rounded text-sm font-medium hover:bg-red-600"
+              onClick={() => {
+                if (confirm(`Are you sure you want to delete ${selected.length} staff member${selected.length > 1 ? 's' : ''}?`)) {
+                  selected.forEach(id => {
+                    if (onDelete) {
+                      onDelete(id);
                     }
-                  }}
-                >
-                  <i className="fa-regular fa-trash mr-1"></i>
-                  Delete Selected
-                </button>
-              </div>
-            </div>
+                  });
+                  setSelected([]);
+                }
+              }}
+            >
+              <i className="fa-regular fa-trash mr-1"></i>
+              Delete Selected
+            </button>
+            <button
+              className="px-3 py-1 bg-gray-200 text-gray-700 rounded text-sm font-medium hover:bg-gray-300"
+              onClick={() => setSelected([])}
+            >
+              Clear Selection
+            </button>
           </div>
         </div>
       )}
 
-      {detailsModalOpen && selectedComplianceOfficer && (
-        <ComplianceOfficerDetailsModal
+      {detailsModalOpen && selectedStaff && (
+        <StaffDetailsModal
           open={detailsModalOpen}
           setOpen={setDetailsModalOpen}
-          complianceOfficerData={selectedComplianceOfficer}
+          staffData={selectedStaff}
         />
       )}
 
@@ -988,4 +1130,4 @@ const CompanyComplianceOfficersTable: React.FC<CompanyComplianceOfficersTablePro
   );
 };
 
-export default CompanyComplianceOfficersTable;
+export default CompanyStaffTable;

@@ -11,8 +11,17 @@ import TableRow from "@mui/material/TableRow";
 import TableSortLabel from "@mui/material/TableSortLabel";
 import Paper from "@mui/material/Paper";
 import { visuallyHidden } from "@mui/utils";
-import { Checkbox, Avatar, Rating, Typography, Chip } from "@mui/material";
-import TableControls from "@/components/elements/SharedInputs/TableControls";
+import { 
+  Checkbox, 
+  Avatar, 
+  Rating, 
+  Typography, 
+  Chip,
+  Grid,
+  TextField,
+  Select,
+  MenuItem 
+} from "@mui/material";
 import DeleteModal from "@/components/common/DeleteModal";
 import StaffDetailsModal from "./StaffDetailsModal";
 import PersonIcon from "@mui/icons-material/Person";
@@ -22,6 +31,7 @@ import VisibilityIcon from "@mui/icons-material/Visibility";
 import WorkIcon from "@mui/icons-material/Work";
 import CalendarTodayIcon from "@mui/icons-material/CalendarToday";
 import { IStaff } from "./staff.interface";
+import { DownloadButtonGroup, TableData } from "@/app/helpers/downloader";
 
 // Mock data for all staff across companies
 const allStaffData: IStaff[] = [
@@ -339,13 +349,13 @@ const StaffTable: React.FC<AllStaffTableProps> = ({
   const getStatusClass = (status: string) => {
     switch (status.toLowerCase()) {
       case "active":
-        return "bg-success";
+        return "success";
       case "inactive":
-        return "bg-danger";
+        return "error";
       case "on leave":
-        return "bg-warning";
+        return "warning";
       case "terminated":
-        return "bg-error";
+        return "error";
       default:
         return "default";
     }
@@ -412,17 +422,93 @@ const StaffTable: React.FC<AllStaffTableProps> = ({
     }
   };
 
+  const formatDate = (dateString: string = "") => {
+    if (!dateString) return "N/A";
+    try {
+      return new Date(dateString).toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric'
+      });
+    } catch (error) {
+      return dateString;
+    }
+  };
+
+  // Prepare table data for export
+  const exportData = useMemo((): TableData => {
+    const headers = staffHeadCells.map(cell => cell.label);
+    
+    const rows = sortedData.map(staff => [
+      staff.fullName,
+      staff.employeeId,
+      staff.company,
+      staff.department,
+      staff.position,
+      staff.status,
+      staff.employmentType,
+      formatDate(staff.joinDate),
+      staff.performanceRating?.toFixed(1) || 'N/A',
+      formatCurrency(staff.salary, staff.currency),
+      staff.email,
+      staff.phone,
+      staff.location,
+      staff.experience?.toString() || '0',
+      staff.skills?.join(', ') || '',
+      staff.supervisor || 'N/A'
+    ]);
+    
+    return {
+      headers: [...headers, 'Email', 'Phone', 'Location', 'Experience (Years)', 'Skills', 'Supervisor'],
+      rows,
+      title: `Staff Export - ${sortedData.length} records`
+    };
+  }, [sortedData]);
+
   return (
     <>
       <div className="col-span-12">
         <div className="card__wrapper">
           <div className="manaz-common-mat-list w-full table__wrapper table-responsive">
-            <TableControls
-              rowsPerPage={rowsPerPage}
-              searchQuery={searchQuery}
-              handleChangeRowsPerPage={handleChangeRowsPerPage}
-              handleSearchChange={handleSearchChange}
-            />
+            
+            {/* Top Controls Row */}
+            <Grid container spacing={2} alignItems="center" className="mb-4">
+              {/* Search Bar - Top Left */}
+              <Grid item xs={12} md={6}>
+                <Box className="flex items-center gap-4">
+                  <Typography variant="body2" className="whitespace-nowrap">
+                    Search:
+                  </Typography>
+                  <TextField
+                    id="outlined-search"
+                    type="search"
+                    value={searchQuery}
+                    onChange={(e) => handleSearchChange(e.target.value)}
+                    size="small"
+                    className="manaz-table-search-input"
+                    sx={{ width: '100%', maxWidth: 300 }}
+                    placeholder="Search staff members..."
+                  />
+                </Box>
+              </Grid>
+              
+              {/* Export Options - Top Right */}
+              <Grid item xs={12} md={6}>
+                <Box className="flex justify-end">
+                  <DownloadButtonGroup
+                    data={exportData}
+                    options={{
+                      fileName: `staff_${new Date().toISOString().split('T')[0]}`,
+                      includeHeaders: true,
+                      pdfTitle: `Staff Report - ${new Date().toLocaleDateString()}`
+                    }}
+                    variant="outlined"
+                    size="small"
+                    color="primary"
+                  />
+                </Box>
+              </Grid>
+            </Grid>
 
             <Box sx={{ width: "100%" }} className="table-responsive">
               <Paper sx={{ width: "100%", mb: 2 }}>
@@ -494,6 +580,7 @@ const StaffTable: React.FC<AllStaffTableProps> = ({
                               hover
                               selected={isSelected}
                               onClick={() => handleClick(row.id)}
+                              className={`hover:bg-blue-50 ${isSelected ? 'bg-blue-50' : ''}`}
                             >
                               <TableCell padding="checkbox">
                                 <Checkbox
@@ -557,7 +644,7 @@ const StaffTable: React.FC<AllStaffTableProps> = ({
                                 <Chip
                                   label={row.status}
                                   size="small"
-                                  color={getStatusClass(row.status) as any}
+                                  color={statusClass as any}
                                   variant="filled"
                                   className="font-medium"
                                 />
@@ -575,7 +662,7 @@ const StaffTable: React.FC<AllStaffTableProps> = ({
                                 <div className="flex items-center">
                                   <CalendarTodayIcon className="mr-1 text-gray-500" fontSize="small" />
                                   <Typography variant="body2">
-                                    {row.joinDate}
+                                    {formatDate(row.joinDate)}
                                   </Typography>
                                 </div>
                               </TableCell>
@@ -682,88 +769,141 @@ const StaffTable: React.FC<AllStaffTableProps> = ({
               </div>
             )}
 
-            {sortedData.length > 0 && (
-              <Box className="table-search-box mt-[30px]" sx={{ p: 2 }}>
-                <Box>
+            {/* Bottom Controls Row */}
+            <Grid container spacing={2} alignItems="center" className="mt-4">
+              {/* Number of Entries Dropdown - Bottom Left */}
+              <Grid item xs={12} md={3}>
+                <Box className="flex items-center gap-2">
+                  <Typography variant="body2" className="whitespace-nowrap">
+                    Show
+                  </Typography>
+                  <Select
+                    value={rowsPerPage}
+                    onChange={(e) => handleChangeRowsPerPage(+e.target.value)}
+                    size="small"
+                    sx={{ width: 100 }}
+                    className="manaz-table-row-per-page"
+                  >
+                    {[5, 10, 15, 20, 25, 50].map((option) => (
+                      <MenuItem key={option} value={option} className="menu-item">
+                        {option}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                  <Typography variant="body2" className="whitespace-nowrap">
+                    entries
+                  </Typography>
+                </Box>
+              </Grid>
+              
+              {/* Showing Entries Info - Bottom Center */}
+              <Grid item xs={12} md={6}>
+                <Box className="flex flex-col items-center">
                   <Typography variant="body2">
                     {`Showing ${(page - 1) * rowsPerPage + 1} to ${Math.min(
                       page * rowsPerPage,
                       sortedData.length
                     )} of ${sortedData.length} entries`}
                   </Typography>
-                  {searchQuery && (
-                    <Typography variant="caption" className="ml-2 text-gray-600">
-                      (Filtered by: `{searchQuery}`)
+                  {(searchQuery || status !== "all" || department !== "all" || company !== "all") && (
+                    <Typography variant="caption" className="text-gray-600">
+                      {searchQuery && `(Search: "${searchQuery}") `}
+                      {status !== "all" && `• Status: ${status} `}
+                      {department !== "all" && `• Department: ${department} `}
+                      {company !== "all" && `• Company: ${company}`}
                     </Typography>
                   )}
                 </Box>
-                <Pagination
-                  count={Math.ceil(sortedData.length / rowsPerPage)}
-                  page={page}
-                  onChange={(e, value) => handleChangePage(value)}
-                  variant="outlined"
-                  shape="rounded"
-                  className="manaz-pagination-button"
-                />
-              </Box>
+              </Grid>
+              
+              {/* Pagination - Bottom Right */}
+              <Grid item xs={12} md={3}>
+                <Box className="flex justify-end">
+                  <Pagination
+                    count={Math.ceil(sortedData.length / rowsPerPage)}
+                    page={page}
+                    onChange={(e, value) => handleChangePage(value)}
+                    variant="outlined"
+                    shape="rounded"
+                    className="manaz-pagination-button"
+                    size="small"
+                  />
+                </Box>
+              </Grid>
+            </Grid>
+
+            {/* Bulk Actions Bar */}
+            {selected.length > 0 && (
+              <div className="fixed bottom-4 left-1/2 transform -translate-x-1/2 bg-blue-600 text-white px-4 py-2 rounded-lg shadow-lg flex items-center gap-4 z-50">
+                <Typography variant="body2">
+                  {selected.length} staff member{selected.length > 1 ? 's' : ''} selected
+                </Typography>
+                <div className="flex gap-2">
+                  <button
+                    className="px-3 py-1 bg-white text-blue-600 rounded text-sm font-medium hover:bg-blue-50"
+                    onClick={() => {
+                      const selectedStaff = selected.map(id => sortedData.find(staff => staff.id === id)).filter(Boolean);
+                      const exportData = {
+                        headers: staffHeadCells.map(cell => cell.label),
+                        rows: selectedStaff.map(staff => [
+                          staff!.fullName,
+                          staff!.employeeId,
+                          staff!.company,
+                          staff!.department,
+                          staff!.position,
+                          staff!.status,
+                          staff!.employmentType,
+                          formatDate(staff!.joinDate),
+                          staff!.performanceRating?.toFixed(1) || 'N/A',
+                          formatCurrency(staff!.salary, staff!.currency)
+                        ]),
+                        title: `Selected Staff Members - ${selected.length} records`
+                      };
+                      console.log('Exporting selected staff:', selectedStaff);
+                    }}
+                  >
+                    <i className="fa-regular fa-download mr-1"></i>
+                    Export Selected
+                  </button>
+                  <button
+                    className="px-3 py-1 bg-yellow-500 text-white rounded text-sm font-medium hover:bg-yellow-600"
+                    onClick={() => {
+                      const selectedStaff = paginatedRows.filter((staff) => selected.includes(staff.id));
+                      console.log('Bulk toggle status on staff:', selectedStaff);
+                      alert(`Toggling status for ${selected.length} staff member${selected.length > 1 ? 's' : ''}...`);
+                    }}
+                  >
+                    <i className="fa-solid fa-toggle-on mr-1"></i>
+                    Toggle Status
+                  </button>
+                  <button
+                    className="px-3 py-1 bg-red-500 text-white rounded text-sm font-medium hover:bg-red-600"
+                    onClick={() => {
+                      if (confirm(`Are you sure you want to delete ${selected.length} staff member${selected.length > 1 ? 's' : ''}?`)) {
+                        selected.forEach(id => {
+                          if (onDelete) {
+                            onDelete(id);
+                          }
+                        });
+                        setSelected([]);
+                      }
+                    }}
+                  >
+                    <i className="fa-regular fa-trash mr-1"></i>
+                    Delete Selected
+                  </button>
+                  <button
+                    className="px-3 py-1 bg-gray-200 text-gray-700 rounded text-sm font-medium hover:bg-gray-300"
+                    onClick={() => setSelected([])}
+                  >
+                    Clear Selection
+                  </button>
+                </div>
+              </div>
             )}
           </div>
         </div>
       </div>
-
-      {/* Bulk Actions Bar */}
-      {selected.length > 0 && (
-        <div className="card__wrapper mb-4">
-          <div className="p-4 bg-primary-50 rounded-lg">
-            <div className="flex items-center justify-between">
-              <div className="text-primary-700 font-medium">
-                {selected.length} staff member(s) selected
-              </div>
-              <div className="flex items-center gap-2">
-                <button
-                  type="button"
-                  className="px-3 py-1.5 bg-primary-500 text-white rounded-md hover:bg-primary-600 flex items-center gap-1 text-sm"
-                  onClick={() => {
-                    const selectedStaff = sortedData.filter(staff => selected.includes(staff.id));
-                    console.log('Bulk action on staff:', selectedStaff);
-                  }}
-                >
-                  <i className="fa-solid fa-toggle-on mr-1"></i>
-                  Toggle Status
-                </button>
-                <button
-                  type="button"
-                  className="px-3 py-1.5 bg-gray-600 text-white rounded-md hover:bg-gray-700 flex items-center gap-1 text-sm"
-                  onClick={() => {
-                    const selectedStaff = sortedData.filter(staff => selected.includes(staff.id));
-                    console.log('Bulk export staff:', selectedStaff);
-                  }}
-                >
-                  <i className="fa-solid fa-download mr-1"></i>
-                  Export Selected
-                </button>
-                <button
-                  type="button"
-                  className="px-3 py-1.5 bg-red-500 text-white rounded-md hover:bg-red-600 flex items-center gap-1 text-sm"
-                  onClick={() => {
-                    if (window.confirm(`Delete ${selected.length} staff member(s)?`)) {
-                      selected.forEach(id => {
-                        if (onDelete) {
-                          onDelete(id);
-                        }
-                      });
-                      setSelected([]);
-                    }
-                  }}
-                >
-                  <i className="fa-regular fa-trash mr-1"></i>
-                  Delete Selected
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
 
       {detailsModalOpen && selectedStaff && (
         <StaffDetailsModal
@@ -774,11 +914,11 @@ const StaffTable: React.FC<AllStaffTableProps> = ({
       )}
 
       {modalDeleteOpen && (
-           <DeleteModal
-  open={modalDeleteOpen}
-  setOpen={setModalDeleteOpen}
-  onConfirm={() => handleDelete(deleteId)}
-/>
+        <DeleteModal
+          open={modalDeleteOpen}
+          setOpen={setModalDeleteOpen}
+          onConfirm={() => handleDelete(deleteId)}
+        />
       )}
     </>
   );

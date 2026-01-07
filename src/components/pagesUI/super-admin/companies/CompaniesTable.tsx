@@ -12,7 +12,7 @@ import TableSortLabel from "@mui/material/TableSortLabel";
 import Paper from "@mui/material/Paper";
 import { visuallyHidden } from "@mui/utils";
 import useMaterialTableHook from "@/hooks/useMaterialTableHook";
-import { Checkbox, Avatar, Rating, Typography, Chip } from "@mui/material";
+import { Checkbox, Avatar, Rating, Typography, Chip, Select, MenuItem, TextField, Grid } from "@mui/material";
 import TableControls from "@/components/elements/SharedInputs/TableControls";
 import DeleteModal from "@/components/common/DeleteModal";
 import CompanyDetailsModal from "./CompanyDetailsModal";
@@ -25,6 +25,7 @@ import EditIcon from "@mui/icons-material/Edit";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import { ICompany } from "./companies.interface";
 import { useRouter } from "next/navigation";
+import { DownloadButtonGroup, TableData } from "@/app/helpers/downloader";
 
 const companiesData: ICompany[] = [
   {
@@ -390,7 +391,6 @@ const CompaniesTable: React.FC<AllCompaniesTableProps> = ({
     handleSearchChange,
   } = useMaterialTableHook<ICompany>(filteredData, 10);
 
-
   const getIndustryClass = (industry?: string) => {
     if (!industry) return "default";
 
@@ -473,19 +473,76 @@ const CompaniesTable: React.FC<AllCompaniesTableProps> = ({
     }
   };
 
+  // Prepare table data for export
+  const exportData = useMemo((): TableData => {
+    const headers = companyHeadCells.map(cell => cell.label);
+    
+    const rows = filteredData.map(company => [
+      company.name,
+      company.industry,
+      company.location,
+      company.owner,
+      company.email,
+      company.status,
+      company.rating?.toFixed(1) || 'N/A',
+      company.employees?.toLocaleString() || 'N/A',
+      formatCurrency(company.revenue, company.currencyType),
+      company.established || 'N/A'
+    ]);
+    
+    return {
+      headers,
+      rows,
+      title: `Companies Export - ${filteredData.length} records`
+    };
+  }, [filteredData]);
+
   return (
     <>
       <div className="col-span-12">
         <div className="card__wrapper">
           <div className="manaz-common-mat-list w-full table__wrapper table-responsive">
 
-            <TableControls
-              rowsPerPage={rowsPerPage}
-              searchQuery={searchQuery}
-              handleChangeRowsPerPage={handleChangeRowsPerPage}
-              handleSearchChange={handleSearchChange}
-            />
+            {/* Top Controls Row */}
+            <Grid container spacing={2} alignItems="center" className="mb-4">
+              {/* Search Bar - Top Left */}
+              <Grid item xs={12} md={6}>
+                <Box className="flex items-center gap-4">
+                  <Typography variant="body2" className="whitespace-nowrap">
+                    Search:
+                  </Typography>
+                  <TextField
+                    id="outlined-search"
+                    type="search"
+                    value={searchQuery}
+                    onChange={(e) => handleSearchChange(e.target.value)}
+                    size="small"
+                    className="manaz-table-search-input"
+                    sx={{ width: '100%', maxWidth: 300 }}
+                    placeholder="Search companies..."
+                  />
+                </Box>
+              </Grid>
+              
+              {/* Export Options - Top Right */}
+              <Grid item xs={12} md={6}>
+                <Box className="flex justify-end">
+                  <DownloadButtonGroup
+                    data={exportData}
+                    options={{
+                      fileName: `companies_${new Date().toISOString().split('T')[0]}`,
+                      includeHeaders: true,
+                      pdfTitle: `Companies Report - ${new Date().toLocaleDateString()}`
+                    }}
+                    variant="outlined"
+                    size="small"
+                    color="primary"
+                  />
+                </Box>
+              </Grid>
+            </Grid>
 
+            {/* Main Table */}
             <Box sx={{ width: "100%" }} className="table-responsive">
               <Paper sx={{ width: "100%", mb: 2 }}>
                 <TableContainer className="table mb-[20px] hover multiple_tables w-full">
@@ -615,7 +672,7 @@ const CompaniesTable: React.FC<AllCompaniesTableProps> = ({
                                 <div className="flex items-center">
                                   <PersonIcon className="mr-1 text-gray-500" fontSize="small" />
                                   <Typography variant="body2">
-                                    {row.owner}
+                                      {row.owner}
                                   </Typography>
                                 </div>
                               </TableCell>
@@ -712,31 +769,67 @@ const CompaniesTable: React.FC<AllCompaniesTableProps> = ({
               </Paper>
             </Box>
 
-            <Box className="table-search-box mt-[30px]" sx={{ p: 2 }}>
-              <Box>
-                <Typography variant="body2">
-                  {`Showing ${(page - 1) * rowsPerPage + 1} to ${Math.min(
-                    page * rowsPerPage,
-                    filteredRows.length
-                  )} of ${filteredRows.length} entries`}
-                </Typography>
-                {(status !== "all" || industry !== "all" || country !== "all") && (
-                  <Typography variant="caption" className="ml-2 text-gray-600">
-                    (Filtered: {status !== "all" ? `Status: ${status}` : ""}
-                    {industry !== "all" ? ` • Industry: ${industry}` : ""}
-                    {country !== "all" ? ` • Country: ${country}` : ""})
+            {/* Bottom Controls Row */}
+            <Grid container spacing={2} alignItems="center" className="mt-4">
+              {/* Number of Entries Dropdown - Bottom Left */}
+              <Grid item xs={12} md={3}>
+                <Box className="flex items-center gap-2">
+                  <Typography variant="body2" className="whitespace-nowrap">
+                    Show
                   </Typography>
-                )}
-              </Box>
-              <Pagination
-                count={Math.ceil(filteredRows.length / rowsPerPage)}
-                page={page}
-                onChange={(e, value) => handleChangePage(value)}
-                variant="outlined"
-                shape="rounded"
-                className="manaz-pagination-button"
-              />
-            </Box>
+                  <Select
+                    value={rowsPerPage}
+                    onChange={(e) => handleChangeRowsPerPage(+e.target.value)}
+                    size="small"
+                    sx={{ width: 100 }}
+                    className="manaz-table-row-per-page"
+                  >
+                    {[5, 10, 15, 20, 25, 50].map((option) => (
+                      <MenuItem key={option} value={option} className="menu-item">
+                        {option}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                  <Typography variant="body2" className="whitespace-nowrap">
+                    entries
+                  </Typography>
+                </Box>
+              </Grid>
+              
+              {/* Showing Entries Info - Bottom Center */}
+              <Grid item xs={12} md={6}>
+                <Box className="flex flex-col items-center">
+                  <Typography variant="body2">
+                    {`Showing ${(page - 1) * rowsPerPage + 1} to ${Math.min(
+                      page * rowsPerPage,
+                      filteredRows.length
+                    )} of ${filteredRows.length} entries`}
+                  </Typography>
+                  {(status !== "all" || industry !== "all" || country !== "all") && (
+                    <Typography variant="caption" className="text-gray-600">
+                      (Filtered: {status !== "all" ? `Status: ${status}` : ""}
+                      {industry !== "all" ? ` • Industry: ${industry}` : ""}
+                      {country !== "all" ? ` • Country: ${country}` : ""})
+                    </Typography>
+                  )}
+                </Box>
+              </Grid>
+              
+              {/* Pagination - Bottom Right */}
+              <Grid item xs={12} md={3}>
+                <Box className="flex justify-end">
+                  <Pagination
+                    count={Math.ceil(filteredRows.length / rowsPerPage)}
+                    page={page}
+                    onChange={(e, value) => handleChangePage(value)}
+                    variant="outlined"
+                    shape="rounded"
+                    className="manaz-pagination-button"
+                    size="small"
+                  />
+                </Box>
+              </Grid>
+            </Grid>
 
             {/* Bulk Actions Bar */}
             {selected.length > 0 && (
@@ -792,12 +885,11 @@ const CompaniesTable: React.FC<AllCompaniesTableProps> = ({
       )}
 
       {modalDeleteOpen && (
-       <DeleteModal
-  open={modalDeleteOpen}
-  setOpen={setModalDeleteOpen}
-  onConfirm={() => handleDelete(deleteId)}
-/>
-
+        <DeleteModal
+          open={modalDeleteOpen}
+          setOpen={setModalDeleteOpen}
+          onConfirm={() => handleDelete(deleteId)}
+        />
       )}
     </>
   );

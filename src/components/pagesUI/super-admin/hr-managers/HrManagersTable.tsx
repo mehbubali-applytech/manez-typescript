@@ -11,8 +11,17 @@ import TableRow from "@mui/material/TableRow";
 import TableSortLabel from "@mui/material/TableSortLabel";
 import Paper from "@mui/material/Paper";
 import { visuallyHidden } from "@mui/utils";
-import { Checkbox, Avatar, Rating, Typography, Chip } from "@mui/material";
-import TableControls from "@/components/elements/SharedInputs/TableControls";
+import { 
+  Checkbox, 
+  Avatar, 
+  Rating, 
+  Typography, 
+  Chip,
+  Grid,
+  TextField,
+  Select,
+  MenuItem 
+} from "@mui/material";
 import DeleteModal from "@/components/common/DeleteModal";
 import HrManagerDetailsModal from "./HrManagerDetailsModal";
 import PersonIcon from "@mui/icons-material/Person";
@@ -24,6 +33,7 @@ import EditIcon from "@mui/icons-material/Edit";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import WorkIcon from "@mui/icons-material/Work";
 import { IHrManager } from "./hr-managers.interface";
+import { DownloadButtonGroup, TableData } from "@/app/helpers/downloader";
 
 // Mock data - Ensure this is properly structured
 const allHrManagersData: IHrManager[] = [
@@ -501,6 +511,37 @@ const HrManagersTable: React.FC<HrManagersTableProps> = ({
       .slice(0, 2);
   };
 
+  // Prepare table data for export
+  const exportData = useMemo((): TableData => {
+    const headers = hrManagerHeadCells.map(cell => cell.label);
+    
+    const rows = sortedData.map(manager => [
+      manager.hrName,
+      manager.hrCode,
+      manager.department,
+      manager.company,
+      manager.email,
+      manager.phone,
+      manager.jobTitle,
+      manager.status,
+      (manager.managedEmployees || 0).toLocaleString(),
+      `${manager.yearsOfExperience} yrs`,
+      formatDate(manager.hireDate),
+      manager.rating?.toFixed(1) || 'N/A',
+      manager.location || '',
+      manager.mobile || '',
+      manager.reportingTo || 'N/A',
+      manager.qualifications?.join(', ') || '',
+      manager.certifications?.join(', ') || ''
+    ]);
+    
+    return {
+      headers: [...headers, 'Location', 'Mobile', 'Reporting To', 'Qualifications', 'Certifications'],
+      rows,
+      title: `HR Managers Export - ${sortedData.length} records`
+    };
+  }, [sortedData]);
+
   // Check if we should show data or empty state
   const shouldShowEmptyState = paginatedRows.length === 0;
   const hasDateFilter = dateRange?.start && dateRange?.end;
@@ -510,12 +551,45 @@ const HrManagersTable: React.FC<HrManagersTableProps> = ({
       <div className="col-span-12">
         <div className="card__wrapper">
           <div className="manaz-common-mat-list w-full table__wrapper table-responsive">
-            <TableControls
-              rowsPerPage={rowsPerPage}
-              searchQuery={searchQuery}
-              handleChangeRowsPerPage={handleChangeRowsPerPage}
-              handleSearchChange={handleSearchChange}
-            />
+            
+            {/* Top Controls Row */}
+            <Grid container spacing={2} alignItems="center" className="mb-4">
+              {/* Search Bar - Top Left */}
+              <Grid item xs={12} md={6}>
+                <Box className="flex items-center gap-4">
+                  <Typography variant="body2" className="whitespace-nowrap">
+                    Search:
+                  </Typography>
+                  <TextField
+                    id="outlined-search"
+                    type="search"
+                    value={searchQuery}
+                    onChange={(e) => handleSearchChange(e.target.value)}
+                    size="small"
+                    className="manaz-table-search-input"
+                    sx={{ width: '100%', maxWidth: 300 }}
+                    placeholder="Search HR managers..."
+                  />
+                </Box>
+              </Grid>
+              
+              {/* Export Options - Top Right */}
+              <Grid item xs={12} md={6}>
+                <Box className="flex justify-end">
+                  <DownloadButtonGroup
+                    data={exportData}
+                    options={{
+                      fileName: `hr_managers_${new Date().toISOString().split('T')[0]}`,
+                      includeHeaders: true,
+                      pdfTitle: `HR Managers Report - ${new Date().toLocaleDateString()}`
+                    }}
+                    variant="outlined"
+                    size="small"
+                    color="primary"
+                  />
+                </Box>
+              </Grid>
+            </Grid>
 
             <Box sx={{ width: "100%" }} className="table-responsive">
               <Paper sx={{ width: "100%", mb: 2 }}>
@@ -687,6 +761,7 @@ const HrManagersTable: React.FC<HrManagersTableProps> = ({
                               hover
                               selected={isSelected}
                               onClick={() => handleClick(row.id)}
+                              className={`hover:bg-blue-50 ${isSelected ? 'bg-blue-50' : ''}`}
                             >
                               <TableCell padding="checkbox">
                                 <Checkbox
@@ -887,29 +962,68 @@ const HrManagersTable: React.FC<HrManagersTableProps> = ({
                   </div>
                 </div>
 
-                <Box className="table-search-box mt-[30px]" sx={{ p: 2 }}>
-                  <Box>
-                    <Typography variant="body2">
-                      {`Showing ${(page - 1) * rowsPerPage + 1} to ${Math.min(
-                        page * rowsPerPage,
-                        sortedData.length
-                      )} of ${sortedData.length} entries`}
-                    </Typography>
-                    {searchQuery && (
-                      <Typography variant="caption" className="ml-2 text-gray-600">
-                        (Filtered by: `{searchQuery}`)
+                {/* Bottom Controls Row */}
+                <Grid container spacing={2} alignItems="center" className="mt-4">
+                  {/* Number of Entries Dropdown - Bottom Left */}
+                  <Grid item xs={12} md={3}>
+                    <Box className="flex items-center gap-2">
+                      <Typography variant="body2" className="whitespace-nowrap">
+                        Show
                       </Typography>
-                    )}
-                  </Box>
-                  <Pagination
-                    count={Math.ceil(sortedData.length / rowsPerPage)}
-                    page={page}
-                    onChange={(e, value) => handleChangePage(value)}
-                    variant="outlined"
-                    shape="rounded"
-                    className="manaz-pagination-button"
-                  />
-                </Box>
+                      <Select
+                        value={rowsPerPage}
+                        onChange={(e) => handleChangeRowsPerPage(+e.target.value)}
+                        size="small"
+                        sx={{ width: 100 }}
+                        className="manaz-table-row-per-page"
+                      >
+                        {[5, 10, 15, 20, 25, 50].map((option) => (
+                          <MenuItem key={option} value={option} className="menu-item">
+                            {option}
+                          </MenuItem>
+                        ))}
+                      </Select>
+                      <Typography variant="body2" className="whitespace-nowrap">
+                        entries
+                      </Typography>
+                    </Box>
+                  </Grid>
+                  
+                  {/* Showing Entries Info - Bottom Center */}
+                  <Grid item xs={12} md={6}>
+                    <Box className="flex flex-col items-center">
+                      <Typography variant="body2">
+                        {`Showing ${(page - 1) * rowsPerPage + 1} to ${Math.min(
+                          page * rowsPerPage,
+                          sortedData.length
+                        )} of ${sortedData.length} entries`}
+                      </Typography>
+                      {(searchQuery || status !== "all" || department !== "all" || company !== "all") && (
+                        <Typography variant="caption" className="text-gray-600">
+                          {searchQuery && `(Search: "${searchQuery}") `}
+                          {status !== "all" && `• Status: ${status} `}
+                          {department !== "all" && `• Department: ${department} `}
+                          {company !== "all" && `• Company: ${company}`}
+                        </Typography>
+                      )}
+                    </Box>
+                  </Grid>
+                  
+                  {/* Pagination - Bottom Right */}
+                  <Grid item xs={12} md={3}>
+                    <Box className="flex justify-end">
+                      <Pagination
+                        count={Math.ceil(sortedData.length / rowsPerPage)}
+                        page={page}
+                        onChange={(e, value) => handleChangePage(value)}
+                        variant="outlined"
+                        shape="rounded"
+                        className="manaz-pagination-button"
+                        size="small"
+                      />
+                    </Box>
+                  </Grid>
+                </Grid>
               </>
             )}
           </div>
@@ -918,54 +1032,72 @@ const HrManagersTable: React.FC<HrManagersTableProps> = ({
 
       {/* Bulk Actions Bar */}
       {selected.length > 0 && (
-        <div className="card__wrapper mb-4">
-          <div className="p-4 bg-primary-50 rounded-lg">
-            <div className="flex items-center justify-between">
-              <div className="text-primary-700 font-medium">
-                {selected.length} HR manager(s) selected
-              </div>
-              <div className="flex items-center gap-2">
-                <button
-                  type="button"
-                  className="px-3 py-1.5 bg-primary-500 text-white rounded-md hover:bg-primary-600 flex items-center gap-1 text-sm"
-                  onClick={() => {
-                    const selectedManagers = sortedData.filter(manager => selected.includes(manager.id));
-                    console.log('Bulk action on HR managers:', selectedManagers);
-                  }}
-                >
-                  <i className="fa-solid fa-toggle-on mr-1"></i>
-                  Toggle Status
-                </button>
-                <button
-                  type="button"
-                  className="px-3 py-1.5 bg-gray-600 text-white rounded-md hover:bg-gray-700 flex items-center gap-1 text-sm"
-                  onClick={() => {
-                    const selectedManagers = sortedData.filter(manager => selected.includes(manager.id));
-                    console.log('Bulk export HR managers:', selectedManagers);
-                  }}
-                >
-                  <i className="fa-solid fa-download mr-1"></i>
-                  Export Selected
-                </button>
-                <button
-                  type="button"
-                  className="px-3 py-1.5 bg-red-500 text-white rounded-md hover:bg-red-600 flex items-center gap-1 text-sm"
-                  onClick={() => {
-                    if (window.confirm(`Delete ${selected.length} HR manager(s)?`)) {
-                      selected.forEach(id => {
-                        if (onDelete) {
-                          onDelete(id);
-                        }
-                      });
-                      setSelected([]);
+        <div className="fixed bottom-4 left-1/2 transform -translate-x-1/2 bg-blue-600 text-white px-4 py-2 rounded-lg shadow-lg flex items-center gap-4 z-50">
+          <Typography variant="body2">
+            {selected.length} HR manager{selected.length > 1 ? 's' : ''} selected
+          </Typography>
+          <div className="flex gap-2">
+            <button
+              className="px-3 py-1 bg-white text-blue-600 rounded text-sm font-medium hover:bg-blue-50"
+              onClick={() => {
+                const selectedManagers = selected.map(id => sortedData.find(manager => manager.id === id)).filter(Boolean);
+                const exportData = {
+                  headers: hrManagerHeadCells.map(cell => cell.label),
+                  rows: selectedManagers.map(manager => [
+                    manager!.hrName,
+                    manager!.hrCode,
+                    manager!.department,
+                    manager!.company,
+                    manager!.email,
+                    manager!.phone,
+                    manager!.jobTitle,
+                    manager!.status,
+                    (manager!.managedEmployees || 0).toLocaleString(),
+                    `${manager!.yearsOfExperience} yrs`,
+                    formatDate(manager!.hireDate),
+                    manager!.rating?.toFixed(1) || 'N/A'
+                  ]),
+                  title: `Selected HR Managers - ${selected.length} records`
+                };
+                console.log('Exporting selected HR managers:', selectedManagers);
+              }}
+            >
+              <i className="fa-regular fa-download mr-1"></i>
+              Export Selected
+            </button>
+            <button
+              className="px-3 py-1 bg-yellow-500 text-white rounded text-sm font-medium hover:bg-yellow-600"
+              onClick={() => {
+                const selectedManagers = paginatedRows.filter((manager) => selected.includes(manager.id));
+                console.log('Bulk toggle status on HR managers:', selectedManagers);
+                alert(`Toggling status for ${selected.length} HR manager${selected.length > 1 ? 's' : ''}...`);
+              }}
+            >
+              <i className="fa-solid fa-toggle-on mr-1"></i>
+              Toggle Status
+            </button>
+            <button
+              className="px-3 py-1 bg-red-500 text-white rounded text-sm font-medium hover:bg-red-600"
+              onClick={() => {
+                if (confirm(`Are you sure you want to delete ${selected.length} HR manager${selected.length > 1 ? 's' : ''}?`)) {
+                  selected.forEach(id => {
+                    if (onDelete) {
+                      onDelete(id);
                     }
-                  }}
-                >
-                  <i className="fa-regular fa-trash mr-1"></i>
-                  Delete Selected
-                </button>
-              </div>
-            </div>
+                  });
+                  setSelected([]);
+                }
+              }}
+            >
+              <i className="fa-regular fa-trash mr-1"></i>
+              Delete Selected
+            </button>
+            <button
+              className="px-3 py-1 bg-gray-200 text-gray-700 rounded text-sm font-medium hover:bg-gray-300"
+              onClick={() => setSelected([])}
+            >
+              Clear Selection
+            </button>
           </div>
         </div>
       )}
@@ -979,11 +1111,11 @@ const HrManagersTable: React.FC<HrManagersTableProps> = ({
       )}
 
       {modalDeleteOpen && (
-           <DeleteModal
-  open={modalDeleteOpen}
-  setOpen={setModalDeleteOpen}
-  onConfirm={() => handleDelete(deleteId)}
-/>
+        <DeleteModal
+          open={modalDeleteOpen}
+          setOpen={setModalDeleteOpen}
+          onConfirm={() => handleDelete(deleteId)}
+        />
       )}
     </>
   );

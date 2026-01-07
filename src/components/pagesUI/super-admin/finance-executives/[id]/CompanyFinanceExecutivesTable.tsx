@@ -11,8 +11,7 @@ import TableRow from "@mui/material/TableRow";
 import TableSortLabel from "@mui/material/TableSortLabel";
 import Paper from "@mui/material/Paper";
 import { visuallyHidden } from "@mui/utils";
-import { Checkbox, Avatar, Typography, Chip } from "@mui/material";
-import TableControls from "@/components/elements/SharedInputs/TableControls";
+import { Checkbox, Avatar, Typography, Chip, Select, MenuItem, TextField, Grid } from "@mui/material";
 import DeleteModal from "@/components/common/DeleteModal";
 import FinanceExecutiveDetailsModal from "../FinanceExecutiveDetailsModal";
 import PersonIcon from "@mui/icons-material/Person";
@@ -26,6 +25,7 @@ import WorkIcon from "@mui/icons-material/Work";
 import AccountBalanceIcon from "@mui/icons-material/AccountBalance";
 import AttachMoneyIcon from "@mui/icons-material/AttachMoney";
 import { IFinanceExecutive } from "../finance-executives.interface";
+import { DownloadButtonGroup, TableData } from "@/app/helpers/downloader";
 
 // Mock data - Filtered by company
 const allFinanceExecutivesData: IFinanceExecutive[] = [
@@ -496,6 +496,32 @@ const CompanyFinanceExecutivesTable: React.FC<CompanyFinanceExecutivesTableProps
       .slice(0, 2);
   };
 
+  // Prepare table data for export
+  const exportData = useMemo((): TableData => {
+    const headers = financeExecutiveHeadCells.map(cell => cell.label);
+    
+    const rows = sortedData.map(executive => [
+      executive.executiveName,
+      executive.executiveCode,
+      executive.department,
+      executive.email,
+      executive.phone,
+      executive.jobTitle,
+      executive.role,
+      executive.status,
+      formatCurrency(executive.managedBudget),
+      `${executive.yearsOfExperience} yrs`,
+      formatDate(executive.hireDate),
+      (executive.accuracyRating || 0).toFixed(1)
+    ]);
+    
+    return {
+      headers,
+      rows,
+      title: `${companyName} Finance Executives Export - ${sortedData.length} records`
+    };
+  }, [sortedData, companyName]);
+
   // Check if we should show data or empty state
   const shouldShowEmptyState = paginatedRows.length === 0;
 
@@ -525,14 +551,48 @@ const CompanyFinanceExecutivesTable: React.FC<CompanyFinanceExecutivesTableProps
           </div>
 
           <div className="manaz-common-mat-list w-full table__wrapper table-responsive">
-            <TableControls
-              rowsPerPage={rowsPerPage}
-              searchQuery={searchQuery}
-              handleChangeRowsPerPage={handleChangeRowsPerPage}
-              handleSearchChange={handleSearchChange}
-            />
 
-            <Box sx={{ width: "100%" }} className="table-responsive">
+            {/* Top Controls Row */}
+            <Grid container spacing={2} alignItems="center" className="mb-4 p-4">
+              {/* Search Bar - Top Left */}
+              <Grid item xs={12} md={6}>
+                <Box className="flex items-center gap-4">
+                  <Typography variant="body2" className="whitespace-nowrap">
+                    Search:
+                  </Typography>
+                  <TextField
+                    id="outlined-search"
+                    type="search"
+                    value={searchQuery}
+                    onChange={(e) => handleSearchChange(e.target.value)}
+                    size="small"
+                    className="manaz-table-search-input"
+                    sx={{ width: '100%', maxWidth: 300 }}
+                    placeholder="Search finance executives..."
+                  />
+                </Box>
+              </Grid>
+              
+              {/* Export Options - Top Right */}
+              <Grid item xs={12} md={6}>
+                <Box className="flex justify-end">
+                  <DownloadButtonGroup
+                    data={exportData}
+                    options={{
+                      fileName: `${companyName.replace(/\s+/g, '_')}_finance_executives_${new Date().toISOString().split('T')[0]}`,
+                      includeHeaders: true,
+                      pdfTitle: `${companyName} Finance Executives Report - ${new Date().toLocaleDateString()}`
+                    }}
+                    variant="outlined"
+                    size="small"
+                    color="primary"
+                  />
+                </Box>
+              </Grid>
+            </Grid>
+
+            {/* Main Table */}
+            <Box sx={{ width: "100%" }} className="table-responsive px-4">
               <Paper sx={{ width: "100%", mb: 2 }}>
                 <TableContainer className="table mb-[20px] hover multiple_tables w-full">
                   <Table aria-labelledby="tableTitle" className="whitespace-nowrap">
@@ -771,7 +831,7 @@ const CompanyFinanceExecutivesTable: React.FC<CompanyFinanceExecutivesTableProps
             {/* Finance Executive Summary */}
             {sortedData.length > 0 && (
               <>
-                <div className="card__wrapper mb-4">
+                <div className="card__wrapper mb-4 mx-4">
                   <div className="p-4 bg-gray-50 rounded-lg">
                     <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                       <div className="text-center">
@@ -800,29 +860,65 @@ const CompanyFinanceExecutivesTable: React.FC<CompanyFinanceExecutivesTableProps
                   </div>
                 </div>
 
-                <Box className="table-search-box mt-[30px]" sx={{ p: 2 }}>
-                  <Box>
-                    <Typography variant="body2">
-                      {`Showing ${(page - 1) * rowsPerPage + 1} to ${Math.min(
-                        page * rowsPerPage,
-                        sortedData.length
-                      )} of ${sortedData.length} entries for ${companyName}`}
-                    </Typography>
-                    {searchQuery && (
-                      <Typography variant="caption" className="ml-2 text-gray-600">
-                        (Filtered by: `{searchQuery}`)
+                {/* Bottom Controls Row */}
+                <Grid container spacing={2} alignItems="center" className="mt-4 px-4 pb-4">
+                  {/* Number of Entries Dropdown - Bottom Left */}
+                  <Grid item xs={12} md={3}>
+                    <Box className="flex items-center gap-2">
+                      <Typography variant="body2" className="whitespace-nowrap">
+                        Show
                       </Typography>
-                    )}
-                  </Box>
-                  <Pagination
-                    count={Math.ceil(sortedData.length / rowsPerPage)}
-                    page={page}
-                    onChange={(e, value) => handleChangePage(value)}
-                    variant="outlined"
-                    shape="rounded"
-                    className="manaz-pagination-button"
-                  />
-                </Box>
+                      <Select
+                        value={rowsPerPage}
+                        onChange={(e) => handleChangeRowsPerPage(+e.target.value)}
+                        size="small"
+                        sx={{ width: 100 }}
+                        className="manaz-table-row-per-page"
+                      >
+                        {[5, 10, 15, 20, 25, 50].map((option) => (
+                          <MenuItem key={option} value={option} className="menu-item">
+                            {option}
+                          </MenuItem>
+                        ))}
+                      </Select>
+                      <Typography variant="body2" className="whitespace-nowrap">
+                        entries
+                      </Typography>
+                    </Box>
+                  </Grid>
+                  
+                  {/* Showing Entries Info - Bottom Center */}
+                  <Grid item xs={12} md={6}>
+                    <Box className="flex flex-col items-center">
+                      <Typography variant="body2">
+                        {`Showing ${(page - 1) * rowsPerPage + 1} to ${Math.min(
+                          page * rowsPerPage,
+                          sortedData.length
+                        )} of ${sortedData.length} entries for ${companyName}`}
+                      </Typography>
+                      {searchQuery && (
+                        <Typography variant="caption" className="text-gray-600">
+                          (Filtered by: `{searchQuery}`)
+                        </Typography>
+                      )}
+                    </Box>
+                  </Grid>
+                  
+                  {/* Pagination - Bottom Right */}
+                  <Grid item xs={12} md={3}>
+                    <Box className="flex justify-end">
+                      <Pagination
+                        count={Math.ceil(sortedData.length / rowsPerPage)}
+                        page={page}
+                        onChange={(e, value) => handleChangePage(value)}
+                        variant="outlined"
+                        shape="rounded"
+                        className="manaz-pagination-button"
+                        size="small"
+                      />
+                    </Box>
+                  </Grid>
+                </Grid>
               </>
             )}
           </div>
@@ -892,12 +988,11 @@ const CompanyFinanceExecutivesTable: React.FC<CompanyFinanceExecutivesTableProps
       )}
 
       {modalDeleteOpen && (
-       <DeleteModal
-  open={modalDeleteOpen}
-  setOpen={setModalDeleteOpen}
-  onConfirm={() => handleDelete(deleteId)}
-/>
-
+        <DeleteModal
+          open={modalDeleteOpen}
+          setOpen={setModalDeleteOpen}
+          onConfirm={() => handleDelete(deleteId)}
+        />
       )}
     </>
   );

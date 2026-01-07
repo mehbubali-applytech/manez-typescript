@@ -15,12 +15,15 @@ import {
   Avatar,
   Typography,
   Chip,
+  Grid,
+  TextField,
+  Select,
+  MenuItem,
 } from "@mui/material";
 import { visuallyHidden } from "@mui/utils";
 import { useRouter } from "next/navigation";
 
 import useMaterialTableHook from "@/hooks/useMaterialTableHook";
-import TableControls from "@/components/elements/SharedInputs/TableControls";
 import DeleteModal from "@/components/common/DeleteModal";
 import UpdateComplianceOfficerDetailsModal from "./UpdateComplianceOfficerDetailsModal";
 import ComplianceOfficerDetailsModal from "./ComplianceOfficerDetailsModal";
@@ -35,6 +38,7 @@ import WorkIcon from "@mui/icons-material/Work";
 import GavelIcon from "@mui/icons-material/Gavel";
 import SecurityIcon from "@mui/icons-material/Security";
 import { IComplianceOfficer } from "./compliance-officers.interface";
+import { DownloadButtonGroup, TableData } from "@/app/helpers/downloader";
 
 // Mock data - using the field names from your interface
 const data: IComplianceOfficer[] = [
@@ -239,8 +243,6 @@ const ComplianceOfficersTable: React.FC<ComplianceOfficersTableProps> = ({
       result = result.filter(officer => officer.company === company);
     }
     
-
-    
     if (dateRange?.start && dateRange?.end) {
       const start = new Date(dateRange.start);
       const end = new Date(dateRange.end);
@@ -253,7 +255,7 @@ const ComplianceOfficersTable: React.FC<ComplianceOfficersTableProps> = ({
     }
     
     return result;
-  }, [status, department, company,  dateRange]);
+  }, [status, department, company, dateRange]);
 
   // Update table data when filters change
   useEffect(() => {
@@ -321,7 +323,6 @@ const ComplianceOfficersTable: React.FC<ComplianceOfficersTableProps> = ({
     return "default";
   };
 
-
   const getInitials = (name: string = "") => {
     if (!name.trim()) return "CO";
     return name
@@ -345,17 +346,78 @@ const ComplianceOfficersTable: React.FC<ComplianceOfficersTableProps> = ({
     }
   };
 
+  // Prepare table data for export
+  const exportData = useMemo((): TableData => {
+    const headers = headCells.map(cell => cell.label);
+    
+    const rows = filteredData.map(officer => [
+      officer.officerName,
+      officer.officerCode,
+      officer.company,
+      officer.department,
+      officer.email,
+      officer.phone,
+      officer.role,
+      officer.status,
+      officer.complianceScore?.toFixed(1) || 'N/A',
+      officer.jobTitle || '',
+      formatDate(officer.hireDate),
+      officer.location || '',
+      officer.managedAudits?.toString() || '0',
+      officer.yearsOfExperience?.toString() || '0'
+    ]);
+    
+    return {
+      headers: [...headers, 'Job Title', 'Hire Date', 'Location', 'Audits Managed', 'Years Exp'],
+      rows,
+      title: `Compliance Officers Export - ${filteredData.length} records`
+    };
+  }, [filteredData]);
+
   return (
     <>
       <div className="col-span-12">
         <div className="card__wrapper">
           <div className="manaz-common-mat-list w-full table__wrapper table-responsive">
-            <TableControls
-              rowsPerPage={rowsPerPage}
-              searchQuery={searchQuery}
-              handleChangeRowsPerPage={handleChangeRowsPerPage}
-              handleSearchChange={handleSearchChange}
-            />
+            
+            {/* Top Controls Row */}
+            <Grid container spacing={2} alignItems="center" className="mb-4">
+              {/* Search Bar - Top Left */}
+              <Grid item xs={12} md={6}>
+                <Box className="flex items-center gap-4">
+                  <Typography variant="body2" className="whitespace-nowrap">
+                    Search:
+                  </Typography>
+                  <TextField
+                    id="outlined-search"
+                    type="search"
+                    value={searchQuery}
+                    onChange={(e) => handleSearchChange(e.target.value)}
+                    size="small"
+                    className="manaz-table-search-input"
+                    sx={{ width: '100%', maxWidth: 300 }}
+                    placeholder="Search compliance officers..."
+                  />
+                </Box>
+              </Grid>
+              
+              {/* Export Options - Top Right */}
+              <Grid item xs={12} md={6}>
+                <Box className="flex justify-end">
+                  <DownloadButtonGroup
+                    data={exportData}
+                    options={{
+                      fileName: `compliance_officers_${new Date().toISOString().split('T')[0]}`,
+                      includeHeaders: true,
+                      pdfTitle: `Compliance Officers Report - ${new Date().toLocaleDateString()}`
+                    }}
+                    variant="outlined"
+                    size="small"
+                    color="primary"
+                  />
+                </Box>
+              </Grid>
+            </Grid>
 
             <Box sx={{ width: "100%" }} className="table-responsive">
               <Paper sx={{ width: "100%", mb: 2 }}>
@@ -426,6 +488,7 @@ const ComplianceOfficersTable: React.FC<ComplianceOfficersTableProps> = ({
                               hover
                               selected={isSelected}
                               onClick={() => handleClick(index)}
+                              className={`hover:bg-blue-50 ${isSelected ? 'bg-blue-50' : ''}`}
                             >
                               <TableCell padding="checkbox">
                                 <Checkbox
@@ -603,87 +666,138 @@ const ComplianceOfficersTable: React.FC<ComplianceOfficersTableProps> = ({
               </div>
             )}
 
-            <Box className="table-search-box mt-[30px]" sx={{ p: 2 }}>
-              <Box>
-                <Typography variant="body2">
-                  {`Showing ${(page - 1) * rowsPerPage + 1} to ${Math.min(
-                    page * rowsPerPage,
-                    filteredRows.length
-                  )} of ${filteredRows.length} entries`}
-                </Typography>
-                {searchQuery && (
-                  <Typography variant="caption" className="ml-2 text-gray-600">
-                    (Filtered by: `{searchQuery}`)
+            {/* Bottom Controls Row */}
+            <Grid container spacing={2} alignItems="center" className="mt-4">
+              {/* Number of Entries Dropdown - Bottom Left */}
+              <Grid item xs={12} md={3}>
+                <Box className="flex items-center gap-2">
+                  <Typography variant="body2" className="whitespace-nowrap">
+                    Show
                   </Typography>
-                )}
-              </Box>
-              <Pagination
-                count={Math.ceil(filteredRows.length / rowsPerPage)}
-                page={page}
-                onChange={(e, value) => handleChangePage(value)}
-                variant="outlined"
-                shape="rounded"
-                className="manaz-pagination-button"
-              />
-            </Box>
+                  <Select
+                    value={rowsPerPage}
+                    onChange={(e) => handleChangeRowsPerPage(+e.target.value)}
+                    size="small"
+                    sx={{ width: 100 }}
+                    className="manaz-table-row-per-page"
+                  >
+                    {[5, 10, 15, 20, 25, 50].map((option) => (
+                      <MenuItem key={option} value={option} className="menu-item">
+                        {option}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                  <Typography variant="body2" className="whitespace-nowrap">
+                    entries
+                  </Typography>
+                </Box>
+              </Grid>
+              
+              {/* Showing Entries Info - Bottom Center */}
+              <Grid item xs={12} md={6}>
+                <Box className="flex flex-col items-center">
+                  <Typography variant="body2">
+                    {`Showing ${(page - 1) * rowsPerPage + 1} to ${Math.min(
+                      page * rowsPerPage,
+                      filteredRows.length
+                    )} of ${filteredRows.length} entries`}
+                  </Typography>
+                  {(searchQuery || status !== "all" || department !== "all" || company !== "all") && (
+                    <Typography variant="caption" className="text-gray-600">
+                      {searchQuery && `(Search: "${searchQuery}") `}
+                      {status !== "all" && `• Status: ${status} `}
+                      {department !== "all" && `• Department: ${department} `}
+                      {company !== "all" && `• Company: ${company}`}
+                    </Typography>
+                  )}
+                </Box>
+              </Grid>
+              
+              {/* Pagination - Bottom Right */}
+              <Grid item xs={12} md={3}>
+                <Box className="flex justify-end">
+                  <Pagination
+                    count={Math.ceil(filteredRows.length / rowsPerPage)}
+                    page={page}
+                    onChange={(e, value) => handleChangePage(value)}
+                    variant="outlined"
+                    shape="rounded"
+                    className="manaz-pagination-button"
+                    size="small"
+                  />
+                </Box>
+              </Grid>
+            </Grid>
+
+            {/* Bulk Actions Bar */}
+            {selected.length > 0 && (
+              <div className="fixed bottom-4 left-1/2 transform -translate-x-1/2 bg-blue-600 text-white px-4 py-2 rounded-lg shadow-lg flex items-center gap-4 z-50">
+                <Typography variant="body2">
+                  {selected.length} compliance officer{selected.length > 1 ? 's' : ''} selected
+                </Typography>
+                <div className="flex gap-2">
+                  <button
+                    className="px-3 py-1 bg-white text-blue-600 rounded text-sm font-medium hover:bg-blue-50"
+                    onClick={() => {
+                      const selectedOfficers = selected.map(index => filteredRows[index]);
+                      const exportData = {
+                        headers: headCells.map(cell => cell.label),
+                        rows: selectedOfficers.map(officer => [
+                          officer.officerName,
+                          officer.officerCode,
+                          officer.company,
+                          officer.department,
+                          officer.email,
+                          officer.phone,
+                          officer.role,
+                          officer.status,
+                          officer.complianceScore?.toFixed(1) || 'N/A'
+                        ]),
+                        title: `Selected Compliance Officers - ${selected.length} records`
+                      };
+                      console.log('Exporting selected officers:', selectedOfficers);
+                    }}
+                  >
+                    <i className="fa-regular fa-download mr-1"></i>
+                    Export Selected
+                  </button>
+                  <button
+                    className="px-3 py-1 bg-yellow-500 text-white rounded text-sm font-medium hover:bg-yellow-600"
+                    onClick={() => {
+                      const selectedOfficers = paginatedRows.filter((_, index) => selected.includes(index));
+                      console.log('Bulk toggle status on officers:', selectedOfficers);
+                      alert(`Toggling status for ${selected.length} compliance officer${selected.length > 1 ? 's' : ''}...`);
+                    }}
+                  >
+                    <i className="fa-solid fa-toggle-on mr-1"></i>
+                    Toggle Status
+                  </button>
+                  <button
+                    className="px-3 py-1 bg-red-500 text-white rounded text-sm font-medium hover:bg-red-600"
+                    onClick={() => {
+                      if (confirm(`Are you sure you want to delete ${selected.length} compliance officer${selected.length > 1 ? 's' : ''}?`)) {
+                        selected.forEach(index => {
+                          const officer = filteredRows[index];
+                          if (officer) handleDelete(officer.id);
+                        });
+                      }
+                    }}
+                  >
+                    <i className="fa-regular fa-trash mr-1"></i>
+                    Delete Selected
+                  </button>
+                  <button
+                    className="px-3 py-1 bg-gray-200 text-gray-700 rounded text-sm font-medium hover:bg-gray-300"
+                    onClick={() => handleSelectAllClick(false, [])}
+                  >
+                    Clear Selection
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </div>
-
-      {/* Bulk Actions Bar */}
-      {selected.length > 0 && (
-        <div className="card__wrapper mb-4">
-          <div className="p-4 bg-primary-50 rounded-lg">
-            <div className="flex items-center justify-between">
-              <div className="text-primary-700 font-medium">
-                {selected.length} compliance officer(s) selected
-              </div>
-              <div className="flex items-center gap-2">
-                <button
-                  type="button"
-                  className="px-3 py-1.5 bg-primary-500 text-white rounded-md hover:bg-primary-600 flex items-center gap-1 text-sm"
-                  onClick={() => {
-                    const selectedOfficers = paginatedRows.filter((_, index) => selected.includes(index));
-                    console.log('Bulk action on compliance officers:', selectedOfficers);
-                  }}
-                >
-                  <i className="fa-solid fa-toggle-on mr-1"></i>
-                  Toggle Status
-                </button>
-                <button
-                  type="button"
-                  className="px-3 py-1.5 bg-gray-600 text-white rounded-md hover:bg-gray-700 flex items-center gap-1 text-sm"
-                  onClick={() => {
-                    const selectedOfficers = paginatedRows.filter((_, index) => selected.includes(index));
-                    console.log('Bulk export compliance officers:', selectedOfficers);
-                  }}
-                >
-                  <i className="fa-solid fa-download mr-1"></i>
-                  Export Selected
-                </button>
-                <button
-                  type="button"
-                  className="px-3 py-1.5 bg-red-500 text-white rounded-md hover:bg-red-600 flex items-center gap-1 text-sm"
-                  onClick={() => {
-                    if (window.confirm(`Delete ${selected.length} compliance officer(s)?`)) {
-                      selected.forEach(index => {
-                        const officer = paginatedRows[index];
-                        if (officer) {
-                          // Handle delete for each selected officer
-                          console.log('Deleting officer:', officer.id);
-                        }
-                      });
-                    }
-                  }}
-                >
-                  <i className="fa-regular fa-trash mr-1"></i>
-                  Delete Selected
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
 
       {/* Update Modal */}
       {editModalOpen && editData && (

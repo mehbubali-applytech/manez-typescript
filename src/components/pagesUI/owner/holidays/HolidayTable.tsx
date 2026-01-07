@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import {
   Box,
   Paper,
@@ -13,13 +13,18 @@ import {
   TableSortLabel,
   Pagination,
   Checkbox,
+  Grid,
+  TextField,
+  Select,
+  MenuItem,
+  Typography,
 } from "@mui/material";
 import { visuallyHidden } from "@mui/utils";
 
-import TableControls from "@/components/elements/SharedInputs/TableControls";
 import DeleteModal from "@/components/common/DeleteModal";
 import useMaterialTableHook from "@/hooks/useMaterialTableHook";
 import { getTableStatusClass } from "@/hooks/use-condition-class";
+import { DownloadButtonGroup, TableData } from "@/app/helpers/downloader";
 
 import { IHoliday } from "./HolidayTypes";
 
@@ -58,7 +63,6 @@ const HolidayTable: React.FC<Props> = ({ data, onEdit, onDelete }) => {
   } = useMaterialTableHook<IHoliday>(data, 10);
 
   const handleDelete = (id: number) => {
-    // Find the index of the holiday with this ID
     const index = data.findIndex(row => row.id === id);
     if (index >= 0) {
       internalHandleDelete(index);
@@ -85,17 +89,87 @@ const HolidayTable: React.FC<Props> = ({ data, onEdit, onDelete }) => {
     }
   };
 
+  // Prepare table data for export
+  const exportData = useMemo((): TableData => {
+    const headers = [
+      "Holiday Name",
+      "Date",
+      "Formatted Date",
+      "Day Type",
+      "Description",
+      "Status"
+    ];
+    
+    const rows = filteredRows.map(holiday => {
+      const formattedDate = formatDate(holiday.date);
+      const dateObj = new Date(holiday.date);
+      const simpleDate = dateObj.toLocaleDateString('en-GB', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric'
+      });
+      
+      return [
+        holiday.name,
+        simpleDate,
+        formattedDate,
+        holiday.dayType || "-",
+        holiday.description || "-",
+        holiday.status
+      ];
+    });
+    
+    return {
+      headers,
+      rows,
+      title: `Holidays Export - ${filteredRows.length} records`
+    };
+  }, [filteredRows]);
+
   return (
     <>
       <div className="col-span-12">
         <div className="card__wrapper">
           <div className="manaz-common-mat-list w-full table__wrapper table-responsive">
-            <TableControls
-              rowsPerPage={rowsPerPage}
-              searchQuery={searchQuery}
-              handleChangeRowsPerPage={handleChangeRowsPerPage}
-              handleSearchChange={handleSearchChange}
-            />
+            
+            {/* Top Controls Row - Only added export button */}
+            <Grid container spacing={2} alignItems="center" className="mb-4">
+              {/* Search Bar - Top Left */}
+              <Grid item xs={12} md={6}>
+                <Box className="flex items-center gap-4">
+                  <Typography variant="body2" className="whitespace-nowrap">
+                    Search:
+                  </Typography>
+                  <TextField
+                    id="outlined-search"
+                    type="search"
+                    value={searchQuery}
+                    onChange={(e) => handleSearchChange(e.target.value)}
+                    size="small"
+                    className="manaz-table-search-input"
+                    sx={{ width: '100%', maxWidth: 300 }}
+                    placeholder="Search holidays..."
+                  />
+                </Box>
+              </Grid>
+              
+              {/* Export Options - Top Right (Only new addition) */}
+              <Grid item xs={12} md={6}>
+                <Box className="flex justify-end">
+                  <DownloadButtonGroup
+                    data={exportData}
+                    options={{
+                      fileName: `holidays_${new Date().toISOString().split('T')[0]}`,
+                      includeHeaders: true,
+                      pdfTitle: `Holidays Calendar - ${new Date().toLocaleDateString()}`
+                    }}
+                    variant="outlined"
+                    size="small"
+                    color="primary"
+                  />
+                </Box>
+              </Grid>
+            </Grid>
 
             <Box sx={{ width: "100%" }} className="table-responsive">
               <Paper sx={{ width: "100%", mb: 2 }}>
@@ -253,27 +327,65 @@ const HolidayTable: React.FC<Props> = ({ data, onEdit, onDelete }) => {
               </div>
             )}
 
-            <Box className="table-search-box mt-[30px]" sx={{ p: 2 }}>
-              <Box>
-                {`Showing ${(page - 1) * rowsPerPage + 1} to ${Math.min(
-                  page * rowsPerPage,
-                  filteredRows.length
-                )} of ${filteredRows.length} entries`}
-                {searchQuery && (
-                  <span className="ml-2 text-sm text-gray-600">
-                    (Filtered by: `{searchQuery}`)
-                  </span>
-                )}
-              </Box>
-              <Pagination
-                count={Math.ceil(filteredRows.length / rowsPerPage)}
-                page={page}
-                onChange={(e, value) => handleChangePage(value)}
-                variant="outlined"
-                shape="rounded"
-                className="manaz-pagination-button"
-              />
-            </Box>
+            {/* Bottom Controls Row */}
+            <Grid container spacing={2} alignItems="center" className="mt-4">
+              {/* Number of Entries Dropdown - Bottom Left */}
+              <Grid item xs={12} md={3}>
+                <Box className="flex items-center gap-2">
+                  <Typography variant="body2" className="whitespace-nowrap">
+                    Show
+                  </Typography>
+                  <Select
+                    value={rowsPerPage}
+                    onChange={(e) => handleChangeRowsPerPage(+e.target.value)}
+                    size="small"
+                    sx={{ width: 100 }}
+                    className="manaz-table-row-per-page"
+                  >
+                    {[5, 10, 15, 20, 25, 50].map((option) => (
+                      <MenuItem key={option} value={option} className="menu-item">
+                        {option}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                  <Typography variant="body2" className="whitespace-nowrap">
+                    entries
+                  </Typography>
+                </Box>
+              </Grid>
+              
+              {/* Showing Entries Info - Bottom Center */}
+              <Grid item xs={12} md={6}>
+                <Box className="flex flex-col items-center">
+                  <Typography variant="body2">
+                    {`Showing ${(page - 1) * rowsPerPage + 1} to ${Math.min(
+                      page * rowsPerPage,
+                      filteredRows.length
+                    )} of ${filteredRows.length} entries`}
+                  </Typography>
+                  {searchQuery && (
+                    <Typography variant="caption" className="text-gray-600">
+                      (Filtered by: `{searchQuery}`)
+                    </Typography>
+                  )}
+                </Box>
+              </Grid>
+              
+              {/* Pagination - Bottom Right */}
+              <Grid item xs={12} md={3}>
+                <Box className="flex justify-end">
+                  <Pagination
+                    count={Math.ceil(filteredRows.length / rowsPerPage)}
+                    page={page}
+                    onChange={(e, value) => handleChangePage(value)}
+                    variant="outlined"
+                    shape="rounded"
+                    className="manaz-pagination-button"
+                    size="small"
+                  />
+                </Box>
+              </Grid>
+            </Grid>
           </div>
         </div>
       </div>
@@ -323,11 +435,10 @@ const HolidayTable: React.FC<Props> = ({ data, onEdit, onDelete }) => {
 
       {modalDeleteOpen && (
         <DeleteModal
-  open={modalDeleteOpen}
-  setOpen={setModalDeleteOpen}
-  onConfirm={() => handleDelete(deleteId)}
-/>
-
+          open={modalDeleteOpen}
+          setOpen={setModalDeleteOpen}
+          onConfirm={() => handleDelete(deleteId)}
+        />
       )}
     </>
   );
